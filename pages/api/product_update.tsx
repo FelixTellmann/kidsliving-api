@@ -3,7 +3,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 
 export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> => {
   res.status(200).json([])
-  const { retailer_id } = req.body
+  /*const { retailer_id } = req.body
   console.log(req.body.payload)
   const payload = JSON.parse(req.body.payload)
   console.log(payload)
@@ -18,5 +18,5 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
   } else {
     res.status(401).json([]);
   }
-  res.status(200).json([])
+  res.status(200).json([])*/
 }
