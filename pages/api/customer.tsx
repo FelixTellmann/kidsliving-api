@@ -49,6 +49,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     }
     res.status(200).send("success");
   } catch (err) {
+    console.log(err.response)
     res.status(200).send("Internal Server Error - Could not save");
     // res.status(500).send("Internal Server Error - Could not save");
   }
