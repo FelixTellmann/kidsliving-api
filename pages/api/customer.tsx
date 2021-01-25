@@ -4,9 +4,6 @@ import { NextApiRequest, NextApiResponse } from "next";
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   
   const { SHOPIFY_API_KEY, SHOPIFY_API_PASSWORD, SHOPIFY_API_STORE, SHOPIFY_API_VERSION, VEND_RETAILER_ID } = process.env;
-  
-  test
-  
   function searchShopifyCustomersViaEmail(email) {
     return axios({
       method: "get",
