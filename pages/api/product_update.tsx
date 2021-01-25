@@ -32,7 +32,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
             price,
             inventory: inventory.reduce((acc, {outlet_id, count}) => {
               if (outlet_id === process.env.VEND_CPT_OUTLET_ID) {
-                  acc += count
+                  acc += +count
               }
               return acc;
             }, 0)});
