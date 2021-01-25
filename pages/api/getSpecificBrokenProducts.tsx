@@ -128,7 +128,7 @@ const getVendSingleProduct = async (id: string): Promise<any> => {
       url: `https://kidsliving.vendhq.com/api/2.0/products/${id}`,
       headers: {
         "Accept": "application/json",
-        "Authorization": "Bearer 5OtjwgBqfHJZh1Ed36qBb_JUDDKnjwlAJ7l8fBmg",
+        "Authorization": `Bearer ${process.env.VEND_API}`,
         "Content-Type": "application/json",
         "Cookie": "rguserid=b2b95383-16dd-4132-a3d2-f53bdec946bb; rguuid=true; rgisanonymous=true"
       }
@@ -149,7 +149,7 @@ const getVendSingleVariantInventory = async (variantId: string): Promise<any> =>
       url: `https://kidsliving.vendhq.com/api/2.0/products/${variantId}/inventory`,
       headers: {
         "Accept": "application/json",
-        "Authorization": "Bearer 5OtjwgBqfHJZh1Ed36qBb_JUDDKnjwlAJ7l8fBmg",
+        "Authorization": `Bearer ${process.env.VEND_API}`,
         "Content-Type": "application/json",
         "Cookie": "rguserid=b2b95383-16dd-4132-a3d2-f53bdec946bb; rguuid=true; rgisanonymous=true"
       }
@@ -174,7 +174,7 @@ const updateVendVariantSourceId = async (id: string, source_variant_id): Promise
       url: `https://kidsliving.vendhq.com/api/products`,
       headers: {
         "Accept": "application/json",
-        "Authorization": "Bearer 5OtjwgBqfHJZh1Ed36qBb_JUDDKnjwlAJ7l8fBmg",
+        "Authorization": `Bearer ${process.env.VEND_API}`,
         "Content-Type": "application/json",
         "Cookie": "rguserid=b2b95383-16dd-4132-a3d2-f53bdec946bb; rguuid=true; rgisanonymous=true"
       },

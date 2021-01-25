@@ -10,7 +10,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
         url: `https://kidsliving.vendhq.com/api/register_sales?since=${date.getFullYear()}-0${date.getMonth() - 3}-${date.getDate()}`,
         headers: {
           "Accept": "application/json",
-          "Authorization": "Bearer 5OtjwgBqfHJZh1Ed36qBb_JUDDKnjwlAJ7l8fBmg",
+          "Authorization": `Bearer ${process.env.VEND_API}`,
           "Content-Type": "application/json",
           "Cookie": "rguserid=b2b95383-16dd-4132-a3d2-f53bdec946bb; rguuid=true; rgisanonymous=true"
         }

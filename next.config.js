@@ -15,5 +15,6 @@ module.exports.env = {
   VEND_RETAILER_ID: process.env.VEND_RETAILER_ID,
   VEND_CPT_OUTLET_ID: process.env.VEND_CPT_OUTLET_ID,
   SHOPIFY_CPT_OUTLET_ID: process.env.SHOPIFY_CPT_OUTLET_ID,
+  VEND_API: process.env.VEND_API,
 };
 
