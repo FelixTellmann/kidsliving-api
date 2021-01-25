@@ -8,13 +8,14 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
   console.log(payload)
   if (retailer_id === process.env.VEND_RETAILER_ID) {
     try {
-    
-    
-    
+  
+  
+      res.status(200).json([])
     } catch (err) {
       console.log(err.response.data)
     }
   } else {
     res.status(401).json([]);
   }
+  res.status(200).json([])
 }
