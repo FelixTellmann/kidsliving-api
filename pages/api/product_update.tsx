@@ -9,7 +9,11 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
   let firebase = await loadFirebase();
   let db = firebase.firestore();
   let duplicate= false;
-  if (retailer_id === process.env.VEND_RETAILER_ID) {
+  
+  /**
+   * validate request is from server && that source_id exists => Product is on Shopify
+   * */
+  if (retailer_id === process.env.VEND_RETAILER_ID && !!source_id) {
     
     /**
      * Validate
@@ -20,14 +24,14 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
      *      else - Break script & return status 200
      * */
     try {
-      await db.collection("product_update").doc(!!variant_parent_id ? variant_parent_id : id).get().then((doc) => {
+      await db.collection("product_update").doc(source_id).get().then((doc) => {
         if (doc.exists && doc.data().expire_at > Date.now()) {
           duplicate = true;
         }
       });
       if (!duplicate) {
         await db.collection("product_update")
-                .doc(!!variant_parent_id ? variant_parent_id : id)
+                .doc(source_id)
                 .set({ expire_at: Date.now() + 20000 });
       }
     } catch (err) {
@@ -38,10 +42,9 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
     
     /**
      * Validate
-     * Check if the Product is on Shopify at all
      * Check if the product is not already being edited by a concurrent request
      * */
-    if (!duplicate && source === "SHOPIFY") {
+    if (!duplicate) {
       try {
         
         /**
@@ -158,6 +161,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
       }
     } else {
       res.status(200).json(duplicate ? "Already processing" : "No change needed - Not on Shopify");
+      res.end()
     }
   } else {
     res.status(401).json("error");
