@@ -8,7 +8,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
   
   let firebase = await loadFirebase();
   let db = firebase.firestore();
-  let duplicate= false;
+  let duplicate = false;
   
   /**
    * validate request is from server && that source_id exists => Product is on Shopify
@@ -53,15 +53,24 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
          * Vend: via "handle" & Bulk Request
          * Shopify: via "product_id"
          **/
-        const [{ data: { products: vend } }, { data: { product: { images: shopifyImages, variants: shopify } } }] = await Promise.all([
+        const [
+          { data: { products: vend } }, {
+            data: {
+              product: {
+                images: shopifyImages,
+                variants: shopify
+              }
+            }
+          }
+        ] = await Promise.all([
           getVendProductByHandle(handle),
           getShopifyProductById(source_id)
         ]);
-        const isSingleProduct = vend.length === 1 && !vend[0].has_variants && vend[0].variant_parent_id === '';
+        const isSingleProduct = vend.length === 1 && !vend[0].has_variants && vend[0].variant_parent_id === "";
         
         console.log(vend[0], vend.length, "vend");
         console.log(shopify[0], shopify.length, "shopify");
-        console.log(isSingleProduct,'isSingleProduct')
+        console.log(isSingleProduct, "isSingleProduct");
         
         /**
          * Validate
@@ -73,11 +82,11 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
         }
         
         const removeVariantsFromShopify = createShopifyRemoveArr(shopify, vend);
-        const shopifyWithoutRemovals = shopify.filter(({ id }) => !removeVariantsFromShopify.some(({ variant_id }) => id === variant_id))
+        const shopifyWithoutRemovals = shopify.filter(({ id }) => !removeVariantsFromShopify.some(({ variant_id }) => id
+          === variant_id));
         const addVariantsToShopify = createShopifyAddArr(shopify, vend);
-        const vendWithoutAddons = vend.filter(({ id }) => !addVariantsToShopify.some(({ id: updateId }) => updateId === id))
+        const vendWithoutAddons = vend.filter(({ id }) => !addVariantsToShopify.some(({ id: updateId }) => updateId === id));
         const updateVariantsOnShopify = createShopifyUpdateArr(shopify, vend);
-        
         
         /**
          * Step 2
@@ -89,7 +98,6 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
         });
         const newProductsOnShopify = shopifyAddPromiseArr.length > 0 ? await Promise.all(shopifyAddPromiseArr) : [];
         
-        
         /**
          * Step 3
          * Create Array for Vend & Shopify Final Updates - to be filled with Promises
@@ -97,11 +105,15 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
         const vendShopifyUpdatePromiseArr = [];
         
         /**
-        * Check if Image Tag Exists & if it is needed
-        * Add
-        * */
+         * Check if Image Tag Exists & if it is needed
+         * Add
+         * */
         const hasImageTag = vend.some(({ tags }) => tags.includes("FX_needs_variant_image"));
-        const needsImageTag = shopifyImages.length === 0 || addVariantsToShopify.length > 0 || (!shopifyWithoutRemovals.every(({ image_id }) => !!image_id) && !isSingleProduct);
+        const needsImageTag = shopifyImages.length
+          === 0
+          || addVariantsToShopify.length
+          > 0
+          || (!shopifyWithoutRemovals.every(({ image_id }) => !!image_id) && !isSingleProduct);
         const addImageTag = !hasImageTag && needsImageTag;
         const removeImageTag = hasImageTag && !needsImageTag;
         let tags = vend[0].tags.split(",").map(t => t.trim());
@@ -247,12 +259,9 @@ function createShopifyUpdateArr(shopify, vend): createShopifyUpdateArrObject[] {
   return vend.reduce((
     acc,
     {
-      source_id,
       variant_source_id: var_id,
-      sku: vend_sku,
       price,
       tax,
-      inventory,
       deleted_at,
       sku,
       variant_option_one_value: opt1,
