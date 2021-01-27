@@ -12,6 +12,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
   if (retailer_id === process.env.VEND_RETAILER_ID) {
     
     /**
+     * Validate
      * Save in DB/CheckDB
      * Check if the same ID has recently been updated
      *    if not - save ID in DB with timestamp + 20 seconds
@@ -36,6 +37,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
     }
     
     /**
+     * Validate
      * Check if the Product is on Shopify at all
      * Check if the product is not already being edited by a concurrent request
      * */
@@ -43,6 +45,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
       try {
         
         /**
+         * Step 1
          * Get product Data from Shopify & Vend - Better than relying on Update
          * Vend: via "handle" & Bulk Request
          * Shopify: via "product_id"
@@ -58,6 +61,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
         console.log(isSingleProduct,'isSingleProduct')
         
         /**
+         * Validate
          * Check that handle & shopify_id are a match - better for performance to check afterwards
          * */
         if (+vend[0].source_id !== shopify[0].product_id) {
@@ -70,56 +74,34 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
         const shopifyWithoutRemovals = shopify.filter(({ id }) => !removeVariantsFromShopify.some(({ variant_id }) => id === variant_id))
         const addVariantsToShopify = createShopifyAddArr(shopify, vend);
         const vendWithoutAddons = vend.filter(({ id }) => !addVariantsToShopify.some(({ id: updateId }) => updateId === id))
-        const hasImageTag = vend.some(({ tags }) => tags.includes("FX_needs_variant_image"));
-        const needsImageTag = shopifyImages.length === 0 || addVariantsToShopify.length > 0 || (!shopifyWithoutRemovals.every(({ image_id }) => !!image_id) && !isSingleProduct);
-        console.log(needsImageTag,'needsImageTag')
-        console.log(hasImageTag,'hasImageTag')
-        const addImageTag = !hasImageTag && needsImageTag;
-        const removeImageTag = hasImageTag && !needsImageTag;
-        console.log(removeImageTag,'removeImageTag' )
-        console.log(addImageTag,'addImageTag' )
         const updateVariantsOnShopify = createShopifyUpdateArr(shopify, vend);
         
-        console.log(updateVariantsOnShopify, "updateVariantsOnShopify");
-        console.log(addVariantsToShopify, "addVariantsToShopify");
-        console.log(removeVariantsFromShopify, "removeVariantsFromShopify");
-        /*
-        *  if vend.var.id not found in shopify.variants => shopify.create.variant => then vend.add link to created variant id && vend.add tag for no image
-        *  if shopify.var.id not found in vend.variants => shopify.delete variant image (if any) && shopify delete variant
-        *  if any shopify.var has no image => vend.add tag for no image
-        *  if all shopify.var have images && vend.has tag for no image => vend.remove tag for no image
-        *
-        * */
-        const shopifyDeletePromiseArr = [];
-        removeVariantsFromShopify.forEach(({ product_id, variant_id, image_id }) => {
-          !!image_id && shopifyDeletePromiseArr.push(deleteShopifyProductImage(product_id, image_id));
-          shopifyDeletePromiseArr.push(deleteShopifyProductVariant(product_id, variant_id));
-        });
-        shopifyDeletePromiseArr.length > 0 && await Promise.all(shopifyDeletePromiseArr);
         
+        /**
+         * Step 2
+         * Add variants to Shopify && save data in new Products Array - req for inventory & variant_id update later on
+         * */
         const shopifyAddPromiseArr = [];
         addVariantsToShopify.forEach(({ product_id, sku, price, option1, option2, option3 }) => {
           shopifyAddPromiseArr.push(createShopifyProductVariant(product_id, sku, price, option1, option2, option3));
         });
         const newProductsOnShopify = shopifyAddPromiseArr.length > 0 ? await Promise.all(shopifyAddPromiseArr) : [];
         
-        const shopifyUpdatePromiseArr = [];
-        updateVariantsOnShopify.forEach(({ variant_id, sku, price, option1, option2, option3 }) => {
-          shopifyUpdatePromiseArr.push(updateShopifyProductVariant(variant_id, sku, price, option1, option2, option3));
-        });
-        shopifyUpdatePromiseArr.length > 0 && await Promise.all(shopifyUpdatePromiseArr);
-        
         
         /**
+         * Step 3
          * Create Array for Vend & Shopify Final Updates - to be filled with Promises
          * */
         const vendShopifyUpdatePromiseArr = [];
         
         /**
-        *
-        *
-        *
+        * Check if Image Tag Exists & if it is needed
+        * Add
         * */
+        const hasImageTag = vend.some(({ tags }) => tags.includes("FX_needs_variant_image"));
+        const needsImageTag = shopifyImages.length === 0 || addVariantsToShopify.length > 0 || (!shopifyWithoutRemovals.every(({ image_id }) => !!image_id) && !isSingleProduct);
+        const addImageTag = !hasImageTag && needsImageTag;
+        const removeImageTag = hasImageTag && !needsImageTag;
         let tags = vend[0].tags.split(",").map(t => t.trim());
         if (addImageTag) {
           tags.push("FX_needs_variant_image");
@@ -134,8 +116,20 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
             vendShopifyUpdatePromiseArr.push(updateVendProductVariant(id, tags));
           });
         }
-        console.log(vendShopifyUpdatePromiseArr,'vendShopifyUpdatePromiseArr')
         
+        /**
+         * Delete Unlinked unwanted products from Shopify
+         * Safe delete associated Images on Shopify
+         * */
+        removeVariantsFromShopify.forEach(({ product_id, variant_id, image_id }) => {
+          !!image_id && vendShopifyUpdatePromiseArr.push(deleteShopifyProductImage(product_id, image_id));
+          vendShopifyUpdatePromiseArr.push(deleteShopifyProductVariant(product_id, variant_id));
+        });
+        
+        /**
+         * Use data form newly added Shopify Products/Variants to link back to Vend via variant_id
+         * Use inventory_item_id to adjust inventory in Shopify according to whats on vend for newly added products
+         * */
         newProductsOnShopify.forEach(({ data: { variant: { id: shopifyVariantId, sku, inventory_item_id } } }) => {
           const { id, inventory } = addVariantsToShopify.find(({ sku: vendSku }) => sku === vendSku);
           vendShopifyUpdatePromiseArr.push(updateVendProductVariant(id, tags, shopifyVariantId));
@@ -144,6 +138,17 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
           }
         });
         
+        /**
+         * Updates on Shopify - based on properly linked variant_id's
+         * */
+        updateVariantsOnShopify.forEach(({ variant_id, sku, price, option1, option2, option3 }) => {
+          vendShopifyUpdatePromiseArr.push(updateShopifyProductVariant(variant_id, sku, price, option1, option2, option3));
+        });
+        
+        /**
+         * Execute final promise array -
+         *   Image Tags -- Shopify Removals -- Vend product_id updates -- Shopify inventory updates -- vend updates to Shopify
+         * */
         vendShopifyUpdatePromiseArr.length > 0 && await Promise.all(vendShopifyUpdatePromiseArr);
         
         res.status(200).json("success");
@@ -279,10 +284,6 @@ function createShopifyUpdateArr(shopify, vend): createShopifyUpdateArrObject[] {
     
     return acc;
   }, []);
-}
-
-function createVendUpdateArr(vend, addImageTag: boolean, removeImageTag: boolean) {
-
 }
 
 function getVendProductByHandle(handle: string): AxiosPromise {
