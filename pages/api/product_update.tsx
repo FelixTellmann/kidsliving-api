@@ -8,46 +8,76 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
   
   let firebase = await loadFirebase();
   let db = firebase.firestore();
-  let duplicate = false;
+  let duplicate= false;
   if (retailer_id === process.env.VEND_RETAILER_ID) {
+    
+    /**
+     * Save in DB/CheckDB
+     * Check if the same ID has recently been updated
+     *    if not - save ID in DB with timestamp + 20 seconds
+     *    if not - Continue with script
+     *      else - Break script & return status 200
+     * */
     try {
       await db.collection("product_update").doc(!!variant_parent_id ? variant_parent_id : id).get().then((doc) => {
         if (doc.exists && doc.data().expire_at > Date.now()) {
           duplicate = true;
         }
       });
-      duplicate || await db.collection("product_update")
-                           .doc(!!variant_parent_id ? variant_parent_id : id)
-                           .set({ expire_at: Date.now() + 20000 });
+      if (!duplicate) {
+        await db.collection("product_update")
+                .doc(!!variant_parent_id ? variant_parent_id : id)
+                .set({ expire_at: Date.now() + 20000 });
+      }
     } catch (err) {
       console.log(err);
       res.status(500).json("Error no DB connection");
       return;
     }
     
+    /**
+     * Check if the Product is on Shopify at all
+     * Check if the product is not already being edited by a concurrent request
+     * */
     if (!duplicate && source === "SHOPIFY") {
       try {
-        const [{ data: { products: vend } }, { data: { variants: shopify } }] = await Promise.all([
-          getVendProductByHandle(handle),
-          getShopifyProductVariants(source_id)
-        ]);
-        console.log(vend[0], "vend");
-        console.log(shopify[0], "shopify");
         
+        /**
+         * Get product Data from Shopify & Vend - Better than relying on Update
+         * Vend: via "handle" & Bulk Request
+         * Shopify: via "product_id"
+         **/
+        const [{ data: { products: vend } }, { data: { product: { images: shopifyImages, variants: shopify } } }] = await Promise.all([
+          getVendProductByHandle(handle),
+          getShopifyProductById(source_id)
+        ]);
+        const isSingleProduct = vend.length === 1 && !vend[0].has_variants && vend[0].variant_parent_id === '';
+        
+        console.log(vend[0], vend.length, "vend");
+        console.log(shopify[0], shopify.length, "shopify");
+        console.log(isSingleProduct,'isSingleProduct')
+        
+        /**
+         * Check that handle & shopify_id are a match - better for performance to check afterwards
+         * */
         if (+vend[0].source_id !== shopify[0].product_id) {
           res.status(500).json("Vend & Shopify Ids do not Match");
+          res.end()
           return;
         }
         
         const removeVariantsFromShopify = createShopifyRemoveArr(shopify, vend);
+        const shopifyWithoutRemovals = shopify.filter(({ id }) => !removeVariantsFromShopify.some(({ variant_id }) => id === variant_id))
         const addVariantsToShopify = createShopifyAddArr(shopify, vend);
+        const vendWithoutAddons = vend.filter(({ id }) => !addVariantsToShopify.some(({ id: updateId }) => updateId === id))
         const hasImageTag = vend.some(({ tags }) => tags.includes("FX_needs_variant_image"));
-        const needsImageTag = addVariantsToShopify.length > 0 || !(
-          shopify.filter(({ id }) => !removeVariantsFromShopify.some(({ variant_id }) => id === variant_id))
-                 .every(({ image_id }) => !!image_id)
-        );
+        const needsImageTag = shopifyImages.length === 0 || addVariantsToShopify.length > 0 || (!shopifyWithoutRemovals.every(({ image_id }) => !!image_id) && !isSingleProduct);
+        console.log(needsImageTag,'needsImageTag')
+        console.log(hasImageTag,'hasImageTag')
         const addImageTag = !hasImageTag && needsImageTag;
         const removeImageTag = hasImageTag && !needsImageTag;
+        console.log(removeImageTag,'removeImageTag' )
+        console.log(addImageTag,'addImageTag' )
         const updateVariantsOnShopify = createShopifyUpdateArr(shopify, vend);
         
         console.log(updateVariantsOnShopify, "updateVariantsOnShopify");
@@ -79,26 +109,32 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
         });
         shopifyUpdatePromiseArr.length > 0 && await Promise.all(shopifyUpdatePromiseArr);
         
-        /*
+        
+        /**
+         * Create Array for Vend & Shopify Final Updates - to be filled with Promises
+         * */
+        const vendShopifyUpdatePromiseArr = [];
+        
+        /**
         *
         *
         *
         * */
-        const vendShopifyUpdatePromiseArr = [];
         let tags = vend[0].tags.split(",").map(t => t.trim());
         if (addImageTag) {
           tags.push("FX_needs_variant_image");
           tags = tags.join(", ");
-          vend.filter(({ id }) => !addVariantsToShopify.some(({ id: updateId }) => updateId === id)).forEach(({ id }) => {
+          vendWithoutAddons.forEach(({ id }) => {
             vendShopifyUpdatePromiseArr.push(updateVendProductVariant(id, tags));
           });
         } else if (removeImageTag) {
           tags = tags.filter(t => t !== `FX_needs_variant_image`);
           tags = tags.join(", ");
-          vend.filter(({ id }) => !addVariantsToShopify.some(({ id: updateId }) => updateId === id)).forEach(({ id }) => {
+          vendWithoutAddons.forEach(({ id }) => {
             vendShopifyUpdatePromiseArr.push(updateVendProductVariant(id, tags));
           });
         }
+        console.log(vendShopifyUpdatePromiseArr,'vendShopifyUpdatePromiseArr')
         
         newProductsOnShopify.forEach(({ data: { variant: { id: shopifyVariantId, sku, inventory_item_id } } }) => {
           const { id, inventory } = addVariantsToShopify.find(({ sku: vendSku }) => sku === vendSku);
@@ -262,10 +298,10 @@ function getVendProductByHandle(handle: string): AxiosPromise {
   });
 }
 
-function getShopifyProductVariants(product_id: string): AxiosPromise {
+function getShopifyProductById(product_id: string): AxiosPromise {
   return axios({
     method: "get",
-    url: `https://${process.env.SHOPIFY_API_KEY}:${process.env.SHOPIFY_API_PASSWORD}@${process.env.SHOPIFY_API_STORE}.myshopify.com/admin/api/${process.env.SHOPIFY_API_VERSION}/products/${product_id}/variants.json?fields=id,product_id,sku,option1,option2,option3,image_id,inventory_item_id,inventory_quantity,inventory_policy,price`,
+    url: `https://${process.env.SHOPIFY_API_KEY}:${process.env.SHOPIFY_API_PASSWORD}@${process.env.SHOPIFY_API_STORE}.myshopify.com/admin/api/${process.env.SHOPIFY_API_VERSION}/products/${product_id}.json?fields=images,variants`,
     headers: {
       "Accept": "application/json",
       "Content-Type": "application/json"
