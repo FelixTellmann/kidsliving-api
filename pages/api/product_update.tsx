@@ -69,7 +69,6 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
          * */
         if (+vend[0].source_id !== shopify[0].product_id) {
           res.status(500).json("Vend & Shopify Ids do not Match");
-          res.end()
           return;
         }
         
@@ -161,7 +160,6 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
       }
     } else {
       res.status(200).json(duplicate ? "Already processing" : "No change needed - Not on Shopify");
-      res.end()
     }
   } else {
     res.status(401).json("error");
