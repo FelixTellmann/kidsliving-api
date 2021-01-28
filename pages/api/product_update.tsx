@@ -141,11 +141,13 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
             vendWithoutAddons.forEach(({ id }) => {
               vendShopifyUpdatePromiseArr.push(updateVendProductVariant(id, tagString));
             });
+            vendShopifyUpdatePromiseArr.push(updateShopifyProductTags(+source_id, tagString));
           } else if (removeImageTag) {
             tagString = tagArray.filter(t => t !== `FX_needs_variant_image`).join(", ");
             vendWithoutAddons.forEach(({ id }) => {
               vendShopifyUpdatePromiseArr.push(updateVendProductVariant(id, tagString));
             });
+            vendShopifyUpdatePromiseArr.push(updateShopifyProductTags(+source_id, tagString));
           } else if (updateTags) {
             console.log(updateTags, "updateTags");
             if (shopifyWebhook) {
