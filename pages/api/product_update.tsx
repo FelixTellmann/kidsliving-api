@@ -412,7 +412,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
             || (!shopifyWithoutRemovals.every(({ image_id }) => !!image_id) && !isSingleProduct);
           const addImageTag = !hasImageTag && needsImageTag;
           const removeImageTag = hasImageTag && !needsImageTag;
-          console.log(vend[0].tags, shopifyTags);
+          
           
           const updateTags = !isSameArray(vend[0].tags.split(","), shopifyTags.split(","));
           
