@@ -2,223 +2,6 @@ import axios, { AxiosPromise } from "axios";
 import { loadFirebase } from "lib/db";
 import { NextApiRequest, NextApiResponse } from "next";
 
-export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> => {
-  
-  const vendWebhook = req.body.retailer_id === process.env.VEND_RETAILER_ID;
-  const shopifyWebhook = req.headers[`x-shopify-shop-domain`] === process.env.SHOPIFY_DOMAIN;
-  const { handle: vendHandle, source_id: vendId, source } = vendWebhook && JSON.parse(req.body.payload);
-  const { id: shopifyId, handle: shopifyHandle } = shopifyWebhook && req.body;
-  const handle = String(vendHandle || shopifyHandle);
-  const source_id = String(vendId || shopifyId);
-  
-  console.log(vendWebhook, "vendWebhook");
-  console.log(shopifyWebhook, "shopifyWebhook");
-  let firebase = await loadFirebase();
-  let db = firebase.firestore();
-  let duplicate = false;
-  
-  /**
-   * validate request is from server && that source_id exists => Product is on Shopify
-   * */
-  if ((vendWebhook && source === "SHOPIFY" || shopifyWebhook) && !!source_id && !!handle) {
-    
-    /**
-     * Validate
-     * Save in DB/CheckDB
-     * Check if the same ID has recently been updated
-     *    if not - save ID in DB with timestamp + 20 seconds
-     *    if not - Continue with script
-     *      else - Break script & return status 200
-     * */
-    try {
-      await db.collection("product_update").doc(source_id).get().then((doc) => {
-        if (doc.exists && doc.data().created_at > Date.now() - 60 * 1000) { // 60 seconds ago
-          duplicate = true;
-          console.log( 'id: '+ source_id + " - Already processing - Please wait until:" +
-            new Date(doc.data().created_at + 60 * 1000).toISOString().split(".")[0].split("T").join(" ").replace(/\-/gi, "/"));
-        }
-      });
-      if (!duplicate) {
-        await db.collection("product_update")
-                .doc(source_id)
-                .set({ created_at: Date.now(), source: vendWebhook ? "vend" : "shopify" });
-      }
-    } catch (err) {
-      console.log(err);
-      res.status(500).json("Error no DB connection");
-      return;
-    }
-    
-    /**
-     * Validate
-     * Check if the product is not already being edited by a concurrent request
-     * */
-    if (!duplicate) {
-      try {
-        
-        /**
-         * Step 1
-         * Get product Data from Shopify & Vend - Better than relying on Update
-         * Vend: via "handle" & Bulk Request
-         * Shopify: via "product_id"
-         **/
-        const [
-          { data: { products: vend } }, {
-            data: {
-              product: {
-                images,
-                variants: shopify,
-                tags: shopifyTags
-              }
-            }
-          }
-        ] = await Promise.all([
-          getVendProductByHandle(handle),
-          getShopifyProductById(source_id)
-        ]);
-        const isSingleProduct = vend.length === 1 && !vend[0].has_variants && vend[0].variant_parent_id === "";
-        let tagArray = [];
-        let tagString = "";
-        if (vendWebhook) {
-          tagArray = vend[0].tags.split(",").map(t => t.trim());
-          tagString = vend[0].tags;
-        } else if (shopifyWebhook) {
-          tagArray = shopifyTags.split(",").map(t => t.trim());
-          tagString = shopifyTags;
-        }
-        
-        console.log(vend[0], vend.length, "vend");
-        console.log(shopify[0], shopify.length, "shopify");
-        console.log(isSingleProduct, "isSingleProduct");
-        
-        /**
-         * Validate
-         * Check that handle & shopify_id are a match - better for performance to check afterwards
-         * */
-        if (+vend[0].source_id !== shopify[0].product_id) {
-          res.status(500).json("Vend & Shopify Ids do not Match");
-          return;
-        }
-        
-        const removeVariantsFromShopify = createShopifyRemoveArr(shopify, vend);
-        const shopifyWithoutRemovals = shopify.filter(({ id }) => !removeVariantsFromShopify.some(({ variant_id }) => id
-          === variant_id));
-        const addVariantsToShopify = createShopifyAddArr(shopify, vend);
-        const vendWithoutAddons = vend.filter(({ id }) => !addVariantsToShopify.some(({ id: updateId }) => updateId === id));
-        const updateVariantsOnShopify = createShopifyUpdateArr(shopify, vend);
-        
-        /**
-         * Step 2
-         * Add variants to Shopify && save data in new Products Array - req for inventory & variant_id update later on
-         * */
-        let newProductsOnShopify = [];
-        if (vendWebhook || shopifyWebhook) {
-          const shopifyAddPromiseArr = [];
-          addVariantsToShopify.forEach(({ product_id, sku, price, option1, option2, option3 }) => {
-            shopifyAddPromiseArr.push(createShopifyProductVariant(product_id, sku, price, option1, option2, option3));
-          });
-          newProductsOnShopify = shopifyAddPromiseArr.length > 0 ? await Promise.all(shopifyAddPromiseArr) : [];
-        }
-        
-        /**
-         * Step 3
-         * Create Array for Vend & Shopify Final Updates - to be filled with Promises
-         * */
-        const vendShopifyUpdatePromiseArr = [];
-        
-        /**
-         * Check if Image Tag Exists & if it is needed
-         * Add
-         * */
-        if (vendWebhook || shopifyWebhook) {
-          const hasImageTag = vend.some(({ tags }) => tags.includes("FX_needs_variant_image"));
-          const needsImageTag = images.length === 0
-            || addVariantsToShopify.length > 0
-            || (!shopifyWithoutRemovals.every(({ image_id }) => !!image_id) && !isSingleProduct);
-          const addImageTag = !hasImageTag && needsImageTag;
-          const removeImageTag = hasImageTag && !needsImageTag;
-          console.log(vend[0].tags, shopifyTags)
-          const updateTags = vend[0].tags !== shopifyTags;
-          if (addImageTag) {
-            tagString = tagArray.concat("FX_needs_variant_image").join(", ");
-            vendWithoutAddons.forEach(({ id }) => {
-              vendShopifyUpdatePromiseArr.push(updateVendProductVariant(id, tagString));
-            });
-            vendShopifyUpdatePromiseArr.push(updateShopifyProductTags(+source_id, tagString));
-          } else if (removeImageTag) {
-            tagString = tagArray.filter(t => t !== `FX_needs_variant_image`).join(", ");
-            vendWithoutAddons.forEach(({ id }) => {
-              vendShopifyUpdatePromiseArr.push(updateVendProductVariant(id, tagString));
-            });
-            vendShopifyUpdatePromiseArr.push(updateShopifyProductTags(+source_id, tagString));
-          } else if (updateTags) {
-            console.log(updateTags, "updateTags");
-            if (shopifyWebhook) {
-              vendWithoutAddons.forEach(({ id }) => {
-                vendShopifyUpdatePromiseArr.push(updateVendProductVariant(id, tagString));
-              });
-            }
-            if (vendWebhook) {
-              vendShopifyUpdatePromiseArr.push(updateShopifyProductTags(+source_id, tagString));
-            }
-          }
-        }
-        
-        /**
-         * Delete Unlinked unwanted products from Shopify
-         * Safe delete associated Images on Shopify
-         * */
-        if (vendWebhook || shopifyWebhook) {
-          removeVariantsFromShopify.forEach(({ product_id, variant_id, image_id }) => {
-            !!image_id && vendShopifyUpdatePromiseArr.push(deleteShopifyProductImage(product_id, image_id));
-            vendShopifyUpdatePromiseArr.push(deleteShopifyProductVariant(product_id, variant_id));
-          });
-        }
-        
-        /**
-         * Use data form newly added Shopify Products/Variants to link back to Vend via variant_id
-         * Use inventory_item_id to adjust inventory in Shopify according to whats on vend for newly added products
-         * */
-        if (vendWebhook || shopifyWebhook) {
-          newProductsOnShopify.forEach(({ data: { variant: { id: shopifyVariantId, sku, inventory_item_id } } }) => {
-            const { id, inventory } = addVariantsToShopify.find(({ sku: vendSku }) => sku === vendSku);
-            vendShopifyUpdatePromiseArr.push(updateVendProductVariant(id, tagString, shopifyVariantId));
-            if (inventory !== 0) {
-              vendShopifyUpdatePromiseArr.push(updateShopifyInventoryItem(inventory_item_id, inventory));
-            }
-          });
-        }
-        
-        /**
-         * Updates on Shopify - based on properly linked variant_id's
-         * */
-        if (vendWebhook) {
-          updateVariantsOnShopify.forEach(({ variant_id, sku, price, option1, option2, option3 }) => {
-            vendShopifyUpdatePromiseArr.push(updateShopifyProductVariant(variant_id, sku, price, option1, option2, option3));
-          });
-        }
-        
-        /**
-         * Execute final promise array -
-         *   Image Tags -- Shopify Removals -- Vend product_id updates -- Shopify inventory updates -- vend updates to Shopify
-         * */
-        console.log(vendShopifyUpdatePromiseArr.length, "updates");
-        vendShopifyUpdatePromiseArr.length > 0 && await Promise.all(vendShopifyUpdatePromiseArr);
-        
-        res.status(200).json("success");
-      } catch (err) {
-        console.log(err.message);
-        console.log(err.response);
-        res.status(500).json("error");
-      }
-    } else {
-      res.status(200).json(duplicate ? "Already processing" : "No change needed - Not on Shopify");
-    }
-  } else {
-    res.status(200).json("error");
-  }
-}
-
 type createShopifyRemoveArrObject = {
   product_id: number,
   variant_id: number,
@@ -482,4 +265,234 @@ function updateShopifyInventoryItem(inventory_item_id: number, available_adjustm
       location_id: +process.env.SHOPIFY_CPT_OUTLET_ID
     })
   });
+}
+
+function isSameArray(a, b): boolean {
+  const cleanSortArray = (z) => JSON.stringify(z.sort((x, y) => {
+    if (x < y) { return -1; }
+    if (x > y) { return 1; }
+    return 0;
+  }).map(x => x.trim().toLowerCase()));
+  
+  return cleanSortArray(a) === cleanSortArray(b);
+};
+
+export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> => {
+  
+  const vendWebhook = req.body.retailer_id === process.env.VEND_RETAILER_ID;
+  const shopifyWebhook = req.headers[`x-shopify-shop-domain`] === process.env.SHOPIFY_DOMAIN;
+  const { handle: vendHandle, source_id: vendId, source } = vendWebhook && JSON.parse(req.body.payload);
+  const { id: shopifyId, handle: shopifyHandle } = shopifyWebhook && req.body;
+  const handle = String(vendHandle || shopifyHandle);
+  const source_id = String(vendId || shopifyId);
+  
+  console.log(vendWebhook, "vendWebhook");
+  console.log(shopifyWebhook, "shopifyWebhook");
+  let firebase = await loadFirebase();
+  let db = firebase.firestore();
+  let duplicate = false;
+  
+  /**
+   * validate request is from server && that source_id exists => Product is on Shopify
+   * */
+  if ((vendWebhook && source === "SHOPIFY" || shopifyWebhook) && !!source_id && !!handle) {
+    
+    /**
+     * Validate
+     * Save in DB/CheckDB
+     * Check if the same ID has recently been updated
+     *    if not - save ID in DB with timestamp + 20 seconds
+     *    if not - Continue with script
+     *      else - Break script & return status 200
+     * */
+    try {
+      await db.collection("product_update").doc(source_id).get().then((doc) => {
+        if (doc.exists && doc.data().created_at > Date.now() - 60 * 1000) { // 60 seconds ago
+          duplicate = true;
+          console.log("id: " + source_id + " - Already processing - Please wait until:" +
+            new Date(doc.data().created_at + 60 * 1000).toISOString().split(".")[0].split("T").join(" ").replace(/\-/gi, "/"));
+        }
+      });
+      if (!duplicate) {
+        await db.collection("product_update")
+                .doc(source_id)
+                .set({ created_at: Date.now(), source: vendWebhook ? "vend" : "shopify" });
+      }
+    } catch (err) {
+      console.log(err);
+      res.status(500).json("Error no DB connection");
+      return;
+    }
+    
+    /**
+     * Validate
+     * Check if the product is not already being edited by a concurrent request
+     * */
+    if (!duplicate) {
+      try {
+        
+        /**
+         * Step 1
+         * Get product Data from Shopify & Vend - Better than relying on Update
+         * Vend: via "handle" & Bulk Request
+         * Shopify: via "product_id"
+         **/
+        const [
+          { data: { products: vend } }, {
+            data: {
+              product: {
+                images,
+                variants: shopify,
+                tags: shopifyTags
+              }
+            }
+          }
+        ] = await Promise.all([
+          getVendProductByHandle(handle),
+          getShopifyProductById(source_id)
+        ]);
+        const isSingleProduct = vend.length === 1 && !vend[0].has_variants && vend[0].variant_parent_id === "";
+        let tagArray = [];
+        let tagString = "";
+        if (vendWebhook) {
+          tagArray = vend[0].tags.split(",").map(t => t.trim());
+          tagString = vend[0].tags;
+        } else if (shopifyWebhook) {
+          tagArray = shopifyTags.split(",").map(t => t.trim());
+          tagString = shopifyTags;
+        }
+        
+        console.log(vend[0], vend.length, "vend");
+        console.log(shopify[0], shopify.length, "shopify");
+        console.log(isSingleProduct, "isSingleProduct");
+        
+        /**
+         * Validate
+         * Check that handle & shopify_id are a match - better for performance to check afterwards
+         * */
+        if (+vend[0].source_id !== shopify[0].product_id) {
+          res.status(500).json("Vend & Shopify Ids do not Match");
+          return;
+        }
+        
+        const removeVariantsFromShopify = createShopifyRemoveArr(shopify, vend);
+        const shopifyWithoutRemovals = shopify.filter(({ id }) => !removeVariantsFromShopify.some(({ variant_id }) => id
+          === variant_id));
+        const addVariantsToShopify = createShopifyAddArr(shopify, vend);
+        const vendWithoutAddons = vend.filter(({ id }) => !addVariantsToShopify.some(({ id: updateId }) => updateId === id));
+        const updateVariantsOnShopify = createShopifyUpdateArr(shopify, vend);
+        
+        /**
+         * Step 2
+         * Add variants to Shopify && save data in new Products Array - req for inventory & variant_id update later on
+         * */
+        let newProductsOnShopify = [];
+        if (vendWebhook || shopifyWebhook) {
+          const shopifyAddPromiseArr = [];
+          addVariantsToShopify.forEach(({ product_id, sku, price, option1, option2, option3 }) => {
+            shopifyAddPromiseArr.push(createShopifyProductVariant(product_id, sku, price, option1, option2, option3));
+          });
+          newProductsOnShopify = shopifyAddPromiseArr.length > 0 ? await Promise.all(shopifyAddPromiseArr) : [];
+        }
+        
+        /**
+         * Step 3
+         * Create Array for Vend & Shopify Final Updates - to be filled with Promises
+         * */
+        const vendShopifyUpdatePromiseArr = [];
+        
+        /**
+         * Check if Image Tag Exists & if it is needed
+         * Add
+         * */
+        if (vendWebhook || shopifyWebhook) {
+          const hasImageTag = vend.some(({ tags }) => tags.includes("FX_needs_variant_image"));
+          const needsImageTag = images.length === 0
+            || addVariantsToShopify.length > 0
+            || (!shopifyWithoutRemovals.every(({ image_id }) => !!image_id) && !isSingleProduct);
+          const addImageTag = !hasImageTag && needsImageTag;
+          const removeImageTag = hasImageTag && !needsImageTag;
+          console.log(vend[0].tags, shopifyTags);
+          
+          
+          const updateTags = !isSameArray(vend[0].tags.split(','), shopifyTags.split(','))
+          
+          if (addImageTag) {
+            tagString = tagArray.concat("FX_needs_variant_image").join(", ");
+            vendWithoutAddons.forEach(({ id }) => {
+              vendShopifyUpdatePromiseArr.push(updateVendProductVariant(id, tagString));
+            });
+            vendShopifyUpdatePromiseArr.push(updateShopifyProductTags(+source_id, tagString));
+          } else if (removeImageTag) {
+            tagString = tagArray.filter(t => t !== `FX_needs_variant_image`).join(", ");
+            vendWithoutAddons.forEach(({ id }) => {
+              vendShopifyUpdatePromiseArr.push(updateVendProductVariant(id, tagString));
+            });
+            vendShopifyUpdatePromiseArr.push(updateShopifyProductTags(+source_id, tagString));
+          } else if (updateTags) {
+            console.log(updateTags, "updateTags");
+            if (shopifyWebhook) {
+              vendWithoutAddons.forEach(({ id }) => {
+                vendShopifyUpdatePromiseArr.push(updateVendProductVariant(id, tagString));
+              });
+            }
+            if (vendWebhook) {
+              vendShopifyUpdatePromiseArr.push(updateShopifyProductTags(+source_id, tagString));
+            }
+          }
+        }
+        
+        /**
+         * Delete Unlinked unwanted products from Shopify
+         * Safe delete associated Images on Shopify
+         * */
+        if (vendWebhook || shopifyWebhook) {
+          removeVariantsFromShopify.forEach(({ product_id, variant_id, image_id }) => {
+            !!image_id && vendShopifyUpdatePromiseArr.push(deleteShopifyProductImage(product_id, image_id));
+            vendShopifyUpdatePromiseArr.push(deleteShopifyProductVariant(product_id, variant_id));
+          });
+        }
+        
+        /**
+         * Use data form newly added Shopify Products/Variants to link back to Vend via variant_id
+         * Use inventory_item_id to adjust inventory in Shopify according to whats on vend for newly added products
+         * */
+        if (vendWebhook || shopifyWebhook) {
+          newProductsOnShopify.forEach(({ data: { variant: { id: shopifyVariantId, sku, inventory_item_id } } }) => {
+            const { id, inventory } = addVariantsToShopify.find(({ sku: vendSku }) => sku === vendSku);
+            vendShopifyUpdatePromiseArr.push(updateVendProductVariant(id, tagString, shopifyVariantId));
+            if (inventory !== 0) {
+              vendShopifyUpdatePromiseArr.push(updateShopifyInventoryItem(inventory_item_id, inventory));
+            }
+          });
+        }
+        
+        /**
+         * Updates on Shopify - based on properly linked variant_id's
+         * */
+        if (vendWebhook) {
+          updateVariantsOnShopify.forEach(({ variant_id, sku, price, option1, option2, option3 }) => {
+            vendShopifyUpdatePromiseArr.push(updateShopifyProductVariant(variant_id, sku, price, option1, option2, option3));
+          });
+        }
+        
+        /**
+         * Execute final promise array -
+         *   Image Tags -- Shopify Removals -- Vend product_id updates -- Shopify inventory updates -- vend updates to Shopify
+         * */
+        console.log(vendShopifyUpdatePromiseArr.length, "updates");
+        vendShopifyUpdatePromiseArr.length > 0 && await Promise.all(vendShopifyUpdatePromiseArr);
+        
+        res.status(200).json("success");
+      } catch (err) {
+        console.log(err.message);
+        console.log(err.response);
+        res.status(500).json("error");
+      }
+    } else {
+      res.status(200).json(duplicate ? "Already processing" : "No change needed - Not on Shopify");
+    }
+  } else {
+    res.status(200).json("error");
+  }
 }
