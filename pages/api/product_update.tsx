@@ -278,13 +278,14 @@ function isSameArray(a, b): boolean {
 }
 
 export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> => {
-  const bulkRequest = req.headers['x-custom-bulk-request'] === process.env.CUSTOM_BULK_REQUEST
+  const bulkRequest = req.headers["x-custom-bulk-request"] === process.env.CUSTOM_BULK_REQUEST;
   const vendWebhook = req.body.retailer_id === process.env.VEND_RETAILER_ID;
   const shopifyWebhook = req.headers[`x-shopify-shop-domain`] === process.env.SHOPIFY_DOMAIN;
   const { handle: vendHandle, source_id: vendId, source } = vendWebhook && JSON.parse(req.body.payload);
   const { id: shopifyId, handle: shopifyHandle } = shopifyWebhook && req.body;
-  const handle = String(vendHandle || shopifyHandle);
-  const source_id = String(vendId || shopifyId);
+  const { source_id: bulkId, handle: bulkHandle } = bulkRequest && req.body;
+  const handle = String(vendHandle || shopifyHandle || bulkHandle);
+  const source_id = String(vendId || shopifyId || bulkId);
   
   vendWebhook ? console.log("vendWebhook") : console.log("shopifyWebhook");
   
@@ -295,7 +296,8 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
   /**
    * validate request is from server && that source_id exists => Product is on Shopify
    * */
-  if (((vendWebhook && source === "SHOPIFY" || shopifyWebhook) && !!source_id && !!handle) || (bulkRequest && !!handle)) {
+  if ((vendWebhook && source === "SHOPIFY" || shopifyWebhook || bulkRequest) && !!source_id && !!handle &&
+    !source_id.includes("unpub")) {
     
     /**
      * Validate
@@ -307,7 +309,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
      * */
     try {
       await db.collection("product_update").doc(source_id).get().then((doc) => {
-        if (doc.exists && doc.data().created_at > Date.now() - 60 * 1000) { // 60 seconds ago
+        if (doc.exists && doc.data().created_at > Date.now() - 2 * 60 * 1000) { // 60 seconds ago
           duplicate = true;
           console.log("id: " + source_id + " - Already processing - Please wait until:" +
             new Date(doc.data().created_at + 60 * 1000).toISOString().split(".")[0].split("T").join(" ").replace(/\-/gi, "/"));
@@ -337,151 +339,159 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
          * Vend: via "handle" & Bulk Request
          * Shopify: via "product_id"
          **/
-        const [
-          { data: { products: vend } }, {
-            data: {
-              product: {
-                images,
-                variants: shopify,
-                tags: shopifyTags
-              }
-            }
-          }
-        ] = await Promise.all([
+        const sourceData = await Promise.all([
           getVendProductByHandle(handle),
           getShopifyProductById(source_id)
-        ]);
-        const isSingleProduct = vend.length === 1 && !vend[0].has_variants && vend[0].variant_parent_id === "";
-        let tagArray = [];
-        let tagString = "";
-        if (vendWebhook) {
-          tagArray = vend[0].tags.split(",").map(t => t.trim());
-          tagString = vend[0].tags;
-        } else if (shopifyWebhook) {
-          tagArray = shopifyTags.split(",").map(t => t.trim());
-          tagString = shopifyTags;
-        }
+        ].map(p => p.catch(e => e)));
         
-        process.env.NODE_ENV === 'development' && console.log(vend[0], vend.length, "vend");
-        process.env.NODE_ENV === 'development' && console.log(shopify[0], shopify.length, "shopify");
-        process.env.NODE_ENV === 'development' && console.log(isSingleProduct, "isSingleProduct");
-        
-        /**
-         * Validate
-         * Check that handle & shopify_id are a match - better for performance to check afterwards
-         * */
-        if (+vend[0].source_id !== shopify[0].product_id) {
-          res.status(500).json("Vend & Shopify Ids do not Match");
-          return;
-        }
-        
-        const removeVariantsFromShopify = createShopifyRemoveArr(shopify, vend);
-        const shopifyWithoutRemovals = shopify.filter(({ id }) => !removeVariantsFromShopify.some(({ variant_id }) => id
-          === variant_id));
-        const addVariantsToShopify = createShopifyAddArr(shopify, vend);
-        const vendWithoutAddons = vend.filter(({ id }) => !addVariantsToShopify.some(({ id: updateId }) => updateId === id));
-        const updateVariantsOnShopify = createShopifyUpdateArr(shopify, vend);
-        
-        /**
-         * Step 2
-         * Add variants to Shopify && save data in new Products Array - req for inventory & variant_id update later on
-         * */
-        let newProductsOnShopify = [];
-        if (vendWebhook || shopifyWebhook) {
-          const shopifyAddPromiseArr = [];
-          addVariantsToShopify.forEach(({ product_id, sku, price, option1, option2, option3 }) => {
-            shopifyAddPromiseArr.push(createShopifyProductVariant(product_id, sku, price, option1, option2, option3));
+        if (!(sourceData[0] instanceof Error) && !(sourceData[1] instanceof Error)) {
+          const [{ data: { products: vend } }, { data: { product: { images, variants: shopify, tags: shopifyTags } } }] = sourceData;
+          const isSingleProduct = vend.length === 1 && !vend[0].has_variants && vend[0].variant_parent_id === "";
+          let tagArray = [];
+          let tagString = "";
+          if (vendWebhook || bulkRequest) {
+            tagArray = vend[0].tags.split(",").map(t => t.trim());
+            tagString = vend[0].tags;
+          } else if (shopifyWebhook) {
+            tagArray = shopifyTags.split(",").map(t => t.trim());
+            tagString = shopifyTags;
+          }
+          
+          process.env.NODE_ENV === "development" && !bulkRequest && console.log(vend[0], vend.length, "vend");
+          process.env.NODE_ENV === "development" && !bulkRequest && console.log(shopify[0], shopify.length, "shopify");
+          process.env.NODE_ENV === "development" && !bulkRequest && console.log(isSingleProduct, "isSingleProduct");
+          
+          /**
+           * Validate
+           * Check that handle & shopify_id are a match - better for performance to check afterwards
+           * */
+          if (+vend[0].source_id !== shopify[0].product_id) {
+            res.status(200).json("Vend & Shopify Ids do not Match");
+            return;
+          }
+          
+          const removeVariantsFromShopify = createShopifyRemoveArr(shopify, vend);
+          const shopifyWithoutRemovals = shopify.filter(({ id }) => {
+            return !removeVariantsFromShopify.some(({ variant_id }) => id === variant_id);
           });
-          newProductsOnShopify = shopifyAddPromiseArr.length > 0 ? await Promise.all(shopifyAddPromiseArr) : [];
-        }
-        
-        /**
-         * Step 3
-         * Create Array for Vend & Shopify Final Updates - to be filled with Promises
-         * */
-        const vendShopifyUpdatePromiseArr = [];
-        
-        /**
-         * Check if Image Tag Exists & if it is needed
-         * Add
-         * */
-        if (vendWebhook || shopifyWebhook) {
-          const hasImageTag = vend.some(({ tags }) => tags.includes("FX_needs_variant_image"));
-          const needsImageTag = images.length === 0
-            || addVariantsToShopify.length > 0
-            || (!shopifyWithoutRemovals.every(({ image_id }) => !!image_id) && !isSingleProduct);
-          const addImageTag = !hasImageTag && needsImageTag;
-          const removeImageTag = hasImageTag && !needsImageTag;
+          const addVariantsToShopify = createShopifyAddArr(shopify, vend);
+          let vendWithoutAddons = vend;
+          const updateVariantsOnShopify = createShopifyUpdateArr(shopify, vend);
+          console.log(updateVariantsOnShopify, `updateVariantsOnShopify`);
           
-          
-          const updateTags = !isSameArray(vend[0].tags.split(","), shopifyTags.split(","));
-          
-          if (addImageTag) {
-            tagString = tagArray.concat("FX_needs_variant_image").join(", ");
-            vendWithoutAddons.forEach(({ id }) => {
-              vendShopifyUpdatePromiseArr.push(updateVendProductVariant(id, tagString));
+          /**
+           * Step 2
+           * Add variants to Shopify && save data in new Products Array - req for inventory & variant_id update later on
+           * */
+          let newProductsOnShopify = [];
+          if (vendWebhook || shopifyWebhook) {
+            const shopifyAddPromiseArr = [];
+            addVariantsToShopify.forEach(({ product_id, sku, price, option1, option2, option3 }) => {
+              shopifyAddPromiseArr.push(createShopifyProductVariant(product_id, sku, price, option1, option2, option3));
             });
-            vendShopifyUpdatePromiseArr.push(updateShopifyProductTags(+source_id, tagString));
-          } else if (removeImageTag) {
-            tagString = tagArray.filter(t => t !== `FX_needs_variant_image`).join(", ");
-            vendWithoutAddons.forEach(({ id }) => {
-              vendShopifyUpdatePromiseArr.push(updateVendProductVariant(id, tagString));
-            });
-            vendShopifyUpdatePromiseArr.push(updateShopifyProductTags(+source_id, tagString));
-          } else if (updateTags) {
-            console.log(updateTags, "updateTags");
-            if (shopifyWebhook) {
+            newProductsOnShopify = shopifyAddPromiseArr.length > 0 ? (await Promise.all(shopifyAddPromiseArr.map(p => p.catch(e => e)))).filter(result => !(result instanceof Error)) : [];
+            vendWithoutAddons = vend.filter(({ id }) => !addVariantsToShopify.some(({ id: updateId }) => updateId === id));
+          }
+          
+          /**
+           * Step 3
+           * Create Array for Vend & Shopify Final Updates - to be filled with Promises
+           * */
+          const vendShopifyUpdatePromiseArr = [];
+          
+          /**
+           * Check if Image Tag Exists & if it is needed
+           * Add
+           * */
+          if (vendWebhook || shopifyWebhook || bulkRequest) {
+            const needsImageTag = images.length === 0
+              || (addVariantsToShopify.length > 0 && !bulkRequest)
+              || (!shopifyWithoutRemovals.every(({ image_id }) => !!image_id) && !isSingleProduct);
+            
+            const someWithImageTAg = vend.some(({ tags }) => tags.includes("FX_needs_variant_image"));
+            const hasImageTag = vend.every(({ tags }) => tags.includes("FX_needs_variant_image"));
+            const addImageTag = !hasImageTag && needsImageTag;
+            const removeImageTag = (hasImageTag || someWithImageTAg) && !needsImageTag;
+            const updateTags = !isSameArray(vend[0].tags.split(","), shopifyTags.split(","));
+            
+            if (addImageTag) {
+              tagString = tagArray.concat("FX_needs_variant_image").join(", ");
               vendWithoutAddons.forEach(({ id }) => {
                 vendShopifyUpdatePromiseArr.push(updateVendProductVariant(id, tagString));
               });
-            }
-            if (vendWebhook) {
               vendShopifyUpdatePromiseArr.push(updateShopifyProductTags(+source_id, tagString));
+            } else if (removeImageTag) {
+              tagString = tagArray.filter(t => t !== `FX_needs_variant_image`).join(", ");
+              vendWithoutAddons.forEach(({ id }) => {
+                vendShopifyUpdatePromiseArr.push(updateVendProductVariant(id, tagString));
+              });
+              vendShopifyUpdatePromiseArr.push(updateShopifyProductTags(+source_id, tagString));
+            } else if (updateTags) {
+              console.log(updateTags, "updateTags");
+              if (shopifyWebhook) {
+                vendWithoutAddons.forEach(({ id }) => {
+                  vendShopifyUpdatePromiseArr.push(updateVendProductVariant(id, tagString));
+                });
+              }
+              if (vendWebhook || bulkRequest) {
+                vendShopifyUpdatePromiseArr.push(updateShopifyProductTags(+source_id, tagString));
+              }
             }
           }
+          
+          /**
+           * Delete Unlinked unwanted products from Shopify
+           * Safe delete associated Images on Shopify
+           * */
+          if (vendWebhook || shopifyWebhook || bulkRequest) {
+            removeVariantsFromShopify.forEach(({ product_id, variant_id, image_id }) => {
+              !!image_id && vendShopifyUpdatePromiseArr.push(deleteShopifyProductImage(product_id, image_id));
+              vendShopifyUpdatePromiseArr.push(deleteShopifyProductVariant(product_id, variant_id));
+            });
+          }
+          
+          /**
+           * Use data form newly added Shopify Products/Variants to link back to Vend via variant_id
+           * Use inventory_item_id to adjust inventory in Shopify according to whats on vend for newly added products
+           * */
+          if (vendWebhook || shopifyWebhook) {
+            newProductsOnShopify.forEach(({ data: { variant: { id: shopifyVariantId, sku, inventory_item_id } } }) => {
+              const { id, inventory } = addVariantsToShopify.find(({ sku: vendSku }) => sku === vendSku);
+              vendShopifyUpdatePromiseArr.push(updateVendProductVariant(id, tagString, shopifyVariantId));
+              if (inventory !== 0) {
+                vendShopifyUpdatePromiseArr.push(updateShopifyInventoryItem(inventory_item_id, inventory));
+              }
+            });
+          }
+          
+          /**
+           * Updates on Shopify - based on properly linked variant_id's
+           * */
+          if (vendWebhook || bulkRequest) {
+            updateVariantsOnShopify.forEach(({ variant_id, sku, price, option1, option2, option3 }) => {
+              vendShopifyUpdatePromiseArr.push(updateShopifyProductVariant(variant_id, sku, price, option1, option2, option3));
+            });
+          }
+          
+          /**
+           * Execute final promise array -
+           *   Image Tags -- Shopify Removals -- Vend product_id updates -- Shopify inventory updates -- vend updates to Shopify
+           * */
+          console.log(vendShopifyUpdatePromiseArr.length,
+            "updates",
+            bulkRequest ? 0 : addVariantsToShopify.length,
+            "added",
+            removeVariantsFromShopify.length,
+            "Removals from Shopify",
+            bulkRequest ? "bulkRequest" : "");
+          const results = vendShopifyUpdatePromiseArr.length > 0 ? (await Promise.all(vendShopifyUpdatePromiseArr.map(p => p.catch(e => e)))).filter(result => !(result instanceof Error)) : [];
+          
+          if (bulkRequest) {
+            results.forEach(({ config: { data } }) => { console.log(data);});
+          }
+          
         }
-        
-        /**
-         * Delete Unlinked unwanted products from Shopify
-         * Safe delete associated Images on Shopify
-         * */
-        if (vendWebhook || shopifyWebhook) {
-          removeVariantsFromShopify.forEach(({ product_id, variant_id, image_id }) => {
-            !!image_id && vendShopifyUpdatePromiseArr.push(deleteShopifyProductImage(product_id, image_id));
-            vendShopifyUpdatePromiseArr.push(deleteShopifyProductVariant(product_id, variant_id));
-          });
-        }
-        
-        /**
-         * Use data form newly added Shopify Products/Variants to link back to Vend via variant_id
-         * Use inventory_item_id to adjust inventory in Shopify according to whats on vend for newly added products
-         * */
-        if (vendWebhook || shopifyWebhook) {
-          newProductsOnShopify.forEach(({ data: { variant: { id: shopifyVariantId, sku, inventory_item_id } } }) => {
-            const { id, inventory } = addVariantsToShopify.find(({ sku: vendSku }) => sku === vendSku);
-            vendShopifyUpdatePromiseArr.push(updateVendProductVariant(id, tagString, shopifyVariantId));
-            if (inventory !== 0) {
-              vendShopifyUpdatePromiseArr.push(updateShopifyInventoryItem(inventory_item_id, inventory));
-            }
-          });
-        }
-        
-        /**
-         * Updates on Shopify - based on properly linked variant_id's
-         * */
-        if (vendWebhook) {
-          updateVariantsOnShopify.forEach(({ variant_id, sku, price, option1, option2, option3 }) => {
-            vendShopifyUpdatePromiseArr.push(updateShopifyProductVariant(variant_id, sku, price, option1, option2, option3));
-          });
-        }
-        
-        /**
-         * Execute final promise array -
-         *   Image Tags -- Shopify Removals -- Vend product_id updates -- Shopify inventory updates -- vend updates to Shopify
-         * */
-        console.log(vendShopifyUpdatePromiseArr.length + addVariantsToShopify.length, "updates");
-        vendShopifyUpdatePromiseArr.length > 0 && await Promise.all(vendShopifyUpdatePromiseArr);
-        
+        ((sourceData[0] instanceof Error) || (sourceData[1] instanceof Error)) && console.log('error')
         res.status(200).json("success");
       } catch (err) {
         console.log(err.message);
