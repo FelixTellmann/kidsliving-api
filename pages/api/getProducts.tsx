@@ -3,6 +3,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 
 type ProductData = {
   id: string
+  handle: string
   inventory_cpt: number
   inventory_jhb: number
   inventory_total: number
@@ -74,6 +75,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
   if (!page) {
     products = products.reduce((acc: ProductData[], {
       id,
+      handle,
       inventory,
       name,
       variant_parent_id,
@@ -103,6 +105,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
         ...acc,
         {
           id,
+          handle,
           inventory_total,
           inventory_cpt,
           inventory_jhb,
