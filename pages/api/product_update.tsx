@@ -268,11 +268,11 @@ function updateShopifyInventoryItem(inventory_item_id: number, available_adjustm
 }
 
 function isSameArray(a, b): boolean {
-  const cleanSortArray = (z) => JSON.stringify(z.sort((x, y) => {
+  const cleanSortArray = (z) => JSON.stringify(z.map(x => x.trim().toLowerCase()).sort((x, y) => {
     if (x < y) { return -1; }
     if (x > y) { return 1; }
     return 0;
-  }).map(x => x.trim().toLowerCase()));
+  }));
   
   return cleanSortArray(a) === cleanSortArray(b);
 };
