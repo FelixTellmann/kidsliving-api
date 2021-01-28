@@ -137,6 +137,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
             || (!shopifyWithoutRemovals.every(({ image_id }) => !!image_id) && !isSingleProduct);
           const addImageTag = !hasImageTag && needsImageTag;
           const removeImageTag = hasImageTag && !needsImageTag;
+          console.log(vend[0].tags, shopifyTags)
           const updateTags = vend[0].tags !== shopifyTags;
           if (addImageTag) {
             tagString = tagArray.concat("FX_needs_variant_image").join(", ");
