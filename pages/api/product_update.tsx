@@ -362,9 +362,9 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
           tagString = shopifyTags;
         }
         
-        process.env.NODE_ENV !== 'development' && console.log(vend[0], vend.length, "vend");
-        process.env.NODE_ENV !== 'development' && console.log(shopify[0], shopify.length, "shopify");
-        process.env.NODE_ENV !== 'development' && console.log(isSingleProduct, "isSingleProduct");
+        process.env.NODE_ENV === 'development' && console.log(vend[0], vend.length, "vend");
+        process.env.NODE_ENV === 'development' && console.log(shopify[0], shopify.length, "shopify");
+        process.env.NODE_ENV === 'development' && console.log(isSingleProduct, "isSingleProduct");
         
         /**
          * Validate
