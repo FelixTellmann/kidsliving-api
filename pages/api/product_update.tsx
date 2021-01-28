@@ -275,7 +275,7 @@ function isSameArray(a, b): boolean {
   }));
   
   return cleanSortArray(a) === cleanSortArray(b);
-};
+}
 
 export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> => {
   
@@ -414,8 +414,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
           const removeImageTag = hasImageTag && !needsImageTag;
           console.log(vend[0].tags, shopifyTags);
           
-          
-          const updateTags = !isSameArray(vend[0].tags.split(','), shopifyTags.split(','))
+          const updateTags = !isSameArray(vend[0].tags.split(","), shopifyTags.split(","));
           
           if (addImageTag) {
             tagString = tagArray.concat("FX_needs_variant_image").join(", ");
@@ -480,7 +479,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
          * Execute final promise array -
          *   Image Tags -- Shopify Removals -- Vend product_id updates -- Shopify inventory updates -- vend updates to Shopify
          * */
-        console.log(vendShopifyUpdatePromiseArr.length, "updates");
+        console.log(vendShopifyUpdatePromiseArr.length + addVariantsToShopify.length, "updates");
         vendShopifyUpdatePromiseArr.length > 0 && await Promise.all(vendShopifyUpdatePromiseArr);
         
         res.status(200).json("success");
