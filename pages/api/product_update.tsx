@@ -6,7 +6,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
   
   const vendWebhook = req.body.retailer_id === process.env.VEND_RETAILER_ID;
   const shopifyWebhook = req.headers[`x-shopify-shop-domain`] === process.env.SHOPIFY_DOMAIN;
-  const { handle: vendHandle, source_id: vendId } = vendWebhook && JSON.parse(req.body.payload);
+  const { handle: vendHandle, source_id: vendId, source } = vendWebhook && JSON.parse(req.body.payload);
   const { id: shopifyId, handle: shopifyHandle } = shopifyWebhook && req.body;
   const handle = String(vendHandle || shopifyHandle);
   const source_id = String(vendId || shopifyId);
@@ -20,7 +20,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
   /**
    * validate request is from server && that source_id exists => Product is on Shopify
    * */
-  if ((vendWebhook || shopifyWebhook) && !!source_id && !!handle) {
+  if ((vendWebhook && source === 'SHOPIFY' || shopifyWebhook) && !!source_id && !!handle) {
     
     /**
      * Validate
