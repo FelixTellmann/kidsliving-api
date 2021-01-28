@@ -20,7 +20,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
   /**
    * validate request is from server && that source_id exists => Product is on Shopify
    * */
-  if ((vendWebhook && source === 'SHOPIFY' || shopifyWebhook) && !!source_id && !!handle) {
+  if ((vendWebhook && source === "SHOPIFY" || shopifyWebhook) && !!source_id && !!handle) {
     
     /**
      * Validate
@@ -34,7 +34,8 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
       await db.collection("product_update").doc(source_id).get().then((doc) => {
         if (doc.exists && doc.data().created_at > Date.now() - 60 * 1000) { // 60 seconds ago
           duplicate = true;
-          console.log('Already processing - Please wait until:' + new Date(doc.data().created_at + 60 * 1000).toISOString().split('.')[0].split('T').join(' ').replace(/\-/gi,'/'))
+          console.log( 'id: '+ source_id + " - Already processing - Please wait until:" +
+            new Date(doc.data().created_at + 60 * 1000).toISOString().split(".")[0].split("T").join(" ").replace(/\-/gi, "/"));
         }
       });
       if (!duplicate) {
