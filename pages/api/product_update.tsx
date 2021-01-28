@@ -32,7 +32,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
      * */
     try {
       await db.collection("product_update").doc(source_id).get().then((doc) => {
-        if (doc.exists && doc.data().created_at > Date.now() - 20 * 1000) { // 20 seconds ago
+        if (doc.exists && doc.data().created_at > Date.now() - 60 * 1000) { // 60 seconds ago
           duplicate = true;
         }
       });
