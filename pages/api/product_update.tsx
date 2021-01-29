@@ -287,7 +287,9 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
   const handle = String(vendHandle || shopifyHandle || bulkHandle);
   const source_id = String(vendId || shopifyId || bulkId);
   
-  vendWebhook ? console.log("vendWebhook") : console.log("shopifyWebhook");
+  if (vendWebhook) console.log("vendWebhook");
+  if (shopifyWebhook) console.log("shopifyWebhook");
+  if (bulkRequest) console.log("bulkRequest");
   
   let firebase = await loadFirebase();
   let db = firebase.firestore();
@@ -389,7 +391,10 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
             addVariantsToShopify.forEach(({ product_id, sku, price, option1, option2, option3 }) => {
               shopifyAddPromiseArr.push(createShopifyProductVariant(product_id, sku, price, option1, option2, option3));
             });
-            newProductsOnShopify = shopifyAddPromiseArr.length > 0 ? (await Promise.all(shopifyAddPromiseArr.map(p => p.catch(e => e)))).filter(result => !(result instanceof Error)) : [];
+            newProductsOnShopify = shopifyAddPromiseArr.length > 0
+                                   ? (await Promise.all(shopifyAddPromiseArr.map(p => p.catch(e => e)))).filter(result => !(result instanceof
+                Error))
+                                   : [];
             vendWithoutAddons = vend.filter(({ id }) => !addVariantsToShopify.some(({ id: updateId }) => updateId === id));
           }
           
@@ -484,14 +489,18 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
             removeVariantsFromShopify.length,
             "Removals from Shopify",
             bulkRequest ? "bulkRequest" : "");
-          const results = vendShopifyUpdatePromiseArr.length > 0 ? (await Promise.all(vendShopifyUpdatePromiseArr.map(p => p.catch(e => e)))).filter(result => !(result instanceof Error)) : [];
           
-          if (bulkRequest) {
-            results.forEach(({ config: { data } }) => { console.log(data);});
+          if (vendShopifyUpdatePromiseArr.length > 0) {
+            const results = (await Promise.all([
+              ...vendShopifyUpdatePromiseArr.map(p => p.catch(e => e))
+            ])).filter(result => !(result instanceof Error));
+            if (bulkRequest) {
+              results.forEach(({ config: { data } }) => { console.log(data);});
+            }
           }
           
         }
-        ((sourceData[0] instanceof Error) || (sourceData[1] instanceof Error)) && console.log('error')
+        ((sourceData[0] instanceof Error) || (sourceData[1] instanceof Error)) && console.log("error");
         res.status(200).json("success");
       } catch (err) {
         console.log(err.message);
