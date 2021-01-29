@@ -314,13 +314,24 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
         if (doc.exists && doc.data().created_at > Date.now() - 2 * 60 * 1000) { // 60 seconds ago
           duplicate = true;
           console.log("id: " + source_id + " - Already processing - Please wait until:" +
-            new Date(doc.data().created_at + 60 * 1000).toISOString().split(".")[0].split("T").join(" ").replace(/\-/gi, "/"));
+            new Date(doc.data().created_at + 60 * 1000)
+              .toISOString()
+              .split(".")[0]
+              .split("T")
+              .join(" ")
+              .replace(/-/gi, "/"));
         }
       });
       if (!duplicate) {
         await db.collection("product_update")
                 .doc(source_id)
-                .set({ created_at: Date.now(), source: vendWebhook ? "vend" : "shopify" });
+                .set({
+                  created_at: Date.now(),
+                  created_at_ISO: new Date(Date.now()).toISOString().split(".")[0].split("T").join(" ").replace(/-/gi, "/"),
+                  handle,
+                  source_id,
+                  source: vendWebhook ? "vend" : bulkRequest ? 'bulkRequest' : "shopify"
+                });
       }
     } catch (err) {
       console.log(err);
