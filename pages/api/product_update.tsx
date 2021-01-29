@@ -278,6 +278,13 @@ function isSameArray(a, b): boolean {
 }
 
 export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> => {
+  
+  /**
+   * TODO: What if? Product gets Published to Shopify for the first time
+   * TODO: What if? Product gets unPublished from Shopify. ---> Draft product & Remove from other Channels!
+   * TODO: What if? Products auto publish to all channels?
+   * TODO: What if? Product is not Active - Vend - Shopify ?
+   * */
   const bulkRequest = req.headers["x-custom-bulk-request"] === process.env.CUSTOM_BULK_REQUEST && process.env.CUSTOM_BULK_REQUEST !== '';
   const vendWebhook = req.body.retailer_id === process.env.VEND_RETAILER_ID;
   const shopifyWebhook = req.headers[`x-shopify-shop-domain`] === process.env.SHOPIFY_DOMAIN;
