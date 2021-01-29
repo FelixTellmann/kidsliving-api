@@ -278,7 +278,7 @@ function isSameArray(a, b): boolean {
 }
 
 export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> => {
-  const bulkRequest = req.headers["x-custom-bulk-request"] === process.env.CUSTOM_BULK_REQUEST;
+  const bulkRequest = req.headers["x-custom-bulk-request"] === process.env.CUSTOM_BULK_REQUEST && process.env.CUSTOM_BULK_REQUEST !== '';
   const vendWebhook = req.body.retailer_id === process.env.VEND_RETAILER_ID;
   const shopifyWebhook = req.headers[`x-shopify-shop-domain`] === process.env.SHOPIFY_DOMAIN;
   const { handle: vendHandle, source_id: vendId, source } = vendWebhook && JSON.parse(req.body.payload);
