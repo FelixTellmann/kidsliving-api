@@ -391,7 +391,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
           if (vendWebhook || bulkRequest || isUnpublishd) {
             tagString = vend[0].tags;
           } else if (shopifyWebhook) {
-            tagString = shopifyTags;
+            tagString = String(shopifyTags);
           }
           
           process.env.NODE_ENV === "development" && !bulkRequest && console.log(vend[0], vend.length, "vend");
