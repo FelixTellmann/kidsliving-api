@@ -240,7 +240,7 @@ const updateShopifyProductTags = (id: number, tags: string): AxiosPromise => {
   });
 };
 
-function updateVendProductVariant(id: string, tags?: string, source_variant_id?: string): AxiosPromise {
+function updateVendProductVariant(id: string, tags?: string, source_variant_id?: string, source?: string): AxiosPromise {
   return axios({
     method: "post",
     url: `https://kidsliving.vendhq.com/api/products`,
@@ -253,7 +253,8 @@ function updateVendProductVariant(id: string, tags?: string, source_variant_id?:
     data: JSON.stringify({
       id,
       source_variant_id,
-      tags
+      tags,
+      source
     })
   });
 }
@@ -524,7 +525,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
           if (vendWebhook || shopifyWebhook) {
             newProductsOnShopify.forEach(({ data: { variant: { id: shopifyVariantId, sku, inventory_item_id } } }) => {
               const { id, inventory } = addVariantsToShopify.find(({ sku: vendSku }) => sku === vendSku);
-              vendShopifyUpdatePromiseArr.push(updateVendProductVariant(id, tagString, shopifyVariantId));
+              vendShopifyUpdatePromiseArr.push(updateVendProductVariant(id, tagString, shopifyVariantId, "SHOPIFY"));
               if (inventory !== 0) {
                 vendShopifyUpdatePromiseArr.push(updateShopifyInventoryItem(inventory_item_id, inventory));
               }
