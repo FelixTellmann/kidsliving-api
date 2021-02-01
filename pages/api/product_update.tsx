@@ -314,7 +314,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
   /**
    * validate request is from server && that source_id exists => Product is on Shopify
    * */
-  if ((vendWebhook && source === "SHOPIFY" || shopifyWebhook || bulkRequest) && !!source_id && !!handle) {
+  if ((vendWebhook || shopifyWebhook || bulkRequest) && !!source_id && !!handle) {
     
     /**
      * Validate
@@ -373,7 +373,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
         ].map(p => p.catch(e => e)));
         
         if (!(sourceData[0] instanceof Error)) {
-          const isUnpublishd = source_id.includes("unpub")
+          const isUnpublishd = source_id.includes("unpub") || source === "USER"
           const isOnShopify = !(sourceData[1] instanceof Error)
           let vend, images, shopify, shopifyTags
           
