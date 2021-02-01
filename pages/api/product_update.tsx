@@ -314,7 +314,8 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
   /**
    * validate request is from server && that source_id exists => Product is on Shopify
    * */
-  if ((vendWebhook || shopifyWebhook || bulkRequest) && !!source_id && !!handle) {
+  console.log(source_id, typeof source_id)
+  if ((vendWebhook || shopifyWebhook || bulkRequest) && !!source_id && source_id !== '' && !!handle) {
     
     /**
      * Validate
@@ -420,7 +421,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
            * Add variants to Shopify && save data in new Products Array - req for inventory & variant_id update later on
            * */
           let newProductsOnShopify = [];
-          if (vendWebhook || shopifyWebhook) {
+          if ((vendWebhook || shopifyWebhook) && !isUnpublishd) {
             const shopifyAddPromiseArr = [];
             addVariantsToShopify.forEach(({ product_id, sku, price, option1, option2, option3 }) => {
               shopifyAddPromiseArr.push(createShopifyProductVariant(product_id, sku, price, option1, option2, option3));
