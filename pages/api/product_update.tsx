@@ -253,7 +253,6 @@ function updateVendProductVariant(id: string, tags?: string, source_variant_id?:
     data: JSON.stringify({
       id,
       source_variant_id,
-      "source": "SHOPIFY",
       tags
     })
   });
