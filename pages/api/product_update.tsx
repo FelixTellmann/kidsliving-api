@@ -314,8 +314,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
   /**
    * validate request is from server && that source_id exists => Product is on Shopify
    * */
-  if ((vendWebhook && source === "SHOPIFY" || shopifyWebhook || bulkRequest) && !!source_id && !!handle &&
-    !source_id.includes("unpub")) {
+  if ((vendWebhook && source === "SHOPIFY" || shopifyWebhook || bulkRequest) && !!source_id && !!handle) {
     
     /**
      * Validate
@@ -373,31 +372,41 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
           getShopifyProductById(source_id)
         ].map(p => p.catch(e => e)));
         
-        if (!(sourceData[0] instanceof Error) && !(sourceData[1] instanceof Error)) {
-          const [{ data: { products: vend } }, { data: { product: { images, variants: shopify, tags: shopifyTags } } }] = sourceData;
-          const isSingleProduct = vend.length === 1 && !vend[0].has_variants && vend[0].variant_parent_id === "";;
+        if (!(sourceData[0] instanceof Error)) {
+          const isUnpublishd = source_id.includes("unpub")
+          const isOnShopify = !(sourceData[1] instanceof Error)
+          let vend, images, shopify, shopifyTags
+          
+          if (isOnShopify && !isUnpublishd) {
+            [{ data: { products: vend } }, { data: { product: { images, variants: shopify, tags: shopifyTags } } }] = sourceData;
+          } else {
+            shopify = [];
+            [{ data: { products: vend } }] = sourceData;
+          }
+          
+          const isSingleProduct = vend.length === 1 && !vend[0].has_variants && vend[0].variant_parent_id === "";
           let tagString = "";
           
-          if (vendWebhook || bulkRequest) {
+          if (vendWebhook || bulkRequest || isUnpublishd) {
             tagString = vend[0].tags;
           } else if (shopifyWebhook) {
             tagString = shopifyTags;
           }
           
           process.env.NODE_ENV === "development" && !bulkRequest && console.log(vend[0], vend.length, "vend");
-          process.env.NODE_ENV === "development" && !bulkRequest && console.log(shopify[0], shopify.length, "shopify");
+          process.env.NODE_ENV === "development" && !bulkRequest && isOnShopify && console.log(shopify[0], shopify.length, "shopify");
           process.env.NODE_ENV === "development" && !bulkRequest && console.log(isSingleProduct, "isSingleProduct");
           
           /**
            * Validate
            * Check that handle & shopify_id are a match - better for performance to check afterwards
            * */
-          if (+vend[0].source_id !== shopify[0].product_id) {
+          if (isOnShopify && !isUnpublishd && +vend[0].source_id !== shopify[0].product_id) {
             res.status(200).json("Vend & Shopify Ids do not Match");
             return;
           }
           
-          const removeVariantsFromShopify = createShopifyRemoveArr(shopify, vend);
+          const removeVariantsFromShopify = createShopifyRemoveArr(shopify, vend)
           const shopifyWithoutRemovals = shopify.filter(({ id }) => {
             return !removeVariantsFromShopify.some(({ variant_id }) => id === variant_id);
           });
@@ -444,30 +453,37 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
             const removeImageTag = (hasImageTag || someWithImageTag) && !needsImageTag;
             
             const someWithUnpublishTag = vend.some(({ tags }) => tags.includes("FX_unpublished_vend_to_shopify"));
-            const removeUnpublishTag = someWithUnpublishTag
+            const hasUnpublishTag = vend.every(({ tags }) => tags.includes("FX_unpublished_vend_to_shopify"));
+            const addUnpublishTag = !hasUnpublishTag && isUnpublishd;
+            const removeUnpublishTag = (hasUnpublishTag || someWithUnpublishTag) && !isUnpublishd;
             
-            let updateTags = !isSameArray(vend[0].tags.split(","), shopifyTags.split(","));
+            let updateTags = !isUnpublishd && isOnShopify && !isSameArray(vend[0].tags.split(","), shopifyTags.split(","));
             
             if (addImageTag) {
-              tagString = addTag(tagString, "FX_needs_variant_image")
+              tagString = addTag(tagString, "FX_needs_variant_image");
               updateTags = true;
             } else if (removeImageTag) {
-              tagString = removeTag(tagString, "FX_needs_variant_image")
+              tagString = removeTag(tagString, "FX_needs_variant_image");
               updateTags = true;
             }
             
-            if (removeUnpublishTag) {
-              tagString = removeTag(tagString, "FX_unpublished_vend_to_shopify")
+            if (addUnpublishTag) {
+              tagString = addTag(tagString, "FX_unpublished_vend_to_shopify");
+              updateTags = true;
+            } else if (removeUnpublishTag) {
+              tagString = removeTag(tagString, "FX_unpublished_vend_to_shopify");
               updateTags = true;
             }
             
             if (updateTags) {
               console.log(updateTags, "updateTags");
-  
+              
               vendWithoutAddons.forEach(({ id }) => {
                 vendShopifyUpdatePromiseArr.push(updateVendProductVariant(id, tagString));
               });
-              vendShopifyUpdatePromiseArr.push(updateShopifyProductTags(+source_id, tagString));
+              if (isOnShopify) {
+                vendShopifyUpdatePromiseArr.push(updateShopifyProductTags(+source_id, tagString));
+              }
             }
           }
           
@@ -527,6 +543,12 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
           }
           
         }
+        
+        /**
+         * If the product is unpublished - add unpublish tag
+         *
+         * */
+        
         ((sourceData[0] instanceof Error) || (sourceData[1] instanceof Error)) &&
         console.log("error - could not get data from Shopify or Vend - incorrect handle or source_id");
         res.status(200).json("success");
