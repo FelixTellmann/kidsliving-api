@@ -294,9 +294,9 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
   const handle = String(vendHandle || shopifyHandle || bulkHandle);
   const source_id = String(vendId || shopifyId || bulkId);
   
-  if (vendWebhook) console.log("vendWebhook");
-  if (shopifyWebhook) console.log("shopifyWebhook");
-  if (bulkRequest) console.log("bulkRequest");
+  if (vendWebhook) console.log("vendWebhook", handle, source_id);
+  if (shopifyWebhook) console.log("shopifyWebhook", handle, source_id);
+  if (bulkRequest) console.log("bulkRequest", handle, source_id);
   
   let firebase = await loadFirebase();
   let db = firebase.firestore();
