@@ -280,12 +280,12 @@ function isSameArray(a, b): boolean {
 export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> => {
   
   /**
-   * TODO: What if? Product gets Published to Shopify for the first time
+   * What if? Product gets Published to Shopify for the first time - should not have source_id and skip by default - if source_id exists its also sorted
    * TODO: What if? Product gets unPublished from Shopify. ---> Draft product & Remove from other Channels!
    * TODO: What if? Products auto publish to all channels?
    * TODO: What if? Product is not Active - Vend - Shopify ?
    * */
-  const bulkRequest = req.headers["x-custom-bulk-request"] === process.env.CUSTOM_BULK_REQUEST && process.env.CUSTOM_BULK_REQUEST !== '';
+  const bulkRequest = req.headers["x-custom-bulk-request"] === process.env.CUSTOM_BULK_REQUEST && req.headers["x-custom-bulk-request"] !== '' && !!req.headers["x-custom-bulk-request"] ;
   const vendWebhook = req.body.retailer_id === process.env.VEND_RETAILER_ID;
   const shopifyWebhook = req.headers[`x-shopify-shop-domain`] === process.env.SHOPIFY_DOMAIN;
   const { handle: vendHandle, source_id: vendId, source } = vendWebhook && JSON.parse(req.body.payload);
@@ -529,6 +529,8 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
       res.status(200).json(duplicate ? "Already processing" : "No change needed - Not on Shopify");
     }
   } else {
+    /*TODO: add tag - FX_unpublished_vend_to_shopify (remove if tag exists and on other side of if statement)*/
+    /*TODO: set Product as inactive & remove from other sales channels! */
     res.status(200).json("error");
   }
 }
