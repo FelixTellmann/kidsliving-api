@@ -518,7 +518,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
           }
           
         }
-        ((sourceData[0] instanceof Error) || (sourceData[1] instanceof Error)) && console.log("error");
+        ((sourceData[0] instanceof Error) || (sourceData[1] instanceof Error)) && console.log("error - could not get data from Shopify or Vend - incorrect handle or source_id");
         res.status(200).json("success");
       } catch (err) {
         console.log(err.message);
