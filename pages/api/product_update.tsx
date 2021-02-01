@@ -2,6 +2,14 @@ import axios, { AxiosPromise } from "axios";
 import { loadFirebase } from "lib/db";
 import { NextApiRequest, NextApiResponse } from "next";
 
+function addTag(string, tag): string {
+  return string.split(",").map(t => t.trim()).concat(tag).join(", ");
+}
+
+function removeTag(string, tag): string {
+  return string.split(",").map(t => t.trim()).filter(ftag => ftag != tag).join(", ");
+}
+
 type createShopifyRemoveArrObject = {
   product_id: number,
   variant_id: number,
@@ -285,7 +293,8 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
    * TODO: What if? Products auto publish to all channels?
    * TODO: What if? Product is not Active - Vend - Shopify ?
    * */
-  const bulkRequest = req.headers["x-custom-bulk-request"] === process.env.CUSTOM_BULK_REQUEST && req.headers["x-custom-bulk-request"] !== '' && !!req.headers["x-custom-bulk-request"] ;
+  const bulkRequest = req.headers["x-custom-bulk-request"] === process.env.CUSTOM_BULK_REQUEST &&
+    req.headers["x-custom-bulk-request"] !== "" && !!req.headers["x-custom-bulk-request"];
   const vendWebhook = req.body.retailer_id === process.env.VEND_RETAILER_ID;
   const shopifyWebhook = req.headers[`x-shopify-shop-domain`] === process.env.SHOPIFY_DOMAIN;
   const { handle: vendHandle, source_id: vendId, source } = vendWebhook && JSON.parse(req.body.payload);
@@ -337,7 +346,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
                   created_at_ISO: new Date(Date.now()).toISOString().split(".")[0].split("T").join(" ").replace(/-/gi, "/"),
                   handle,
                   source_id,
-                  source: vendWebhook ? "vend" : bulkRequest ? 'bulkRequest' : "shopify"
+                  source: vendWebhook ? "vend" : bulkRequest ? "bulkRequest" : "shopify"
                 });
       }
     } catch (err) {
@@ -366,14 +375,12 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
         
         if (!(sourceData[0] instanceof Error) && !(sourceData[1] instanceof Error)) {
           const [{ data: { products: vend } }, { data: { product: { images, variants: shopify, tags: shopifyTags } } }] = sourceData;
-          const isSingleProduct = vend.length === 1 && !vend[0].has_variants && vend[0].variant_parent_id === "";
-          let tagArray = [];
+          const isSingleProduct = vend.length === 1 && !vend[0].has_variants && vend[0].variant_parent_id === "";;
           let tagString = "";
+          
           if (vendWebhook || bulkRequest) {
-            tagArray = vend[0].tags.split(",").map(t => t.trim());
             tagString = vend[0].tags;
           } else if (shopifyWebhook) {
-            tagArray = shopifyTags.split(",").map(t => t.trim());
             tagString = shopifyTags;
           }
           
@@ -431,34 +438,36 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
               || (addVariantsToShopify.length > 0 && !bulkRequest)
               || (!shopifyWithoutRemovals.every(({ image_id }) => !!image_id) && !isSingleProduct);
             
-            const someWithImageTAg = vend.some(({ tags }) => tags.includes("FX_needs_variant_image"));
+            const someWithImageTag = vend.some(({ tags }) => tags.includes("FX_needs_variant_image"));
             const hasImageTag = vend.every(({ tags }) => tags.includes("FX_needs_variant_image"));
             const addImageTag = !hasImageTag && needsImageTag;
-            const removeImageTag = (hasImageTag || someWithImageTAg) && !needsImageTag;
-            const updateTags = !isSameArray(vend[0].tags.split(","), shopifyTags.split(","));
+            const removeImageTag = (hasImageTag || someWithImageTag) && !needsImageTag;
+            
+            const someWithUnpublishTag = vend.some(({ tags }) => tags.includes("FX_unpublished_vend_to_shopify"));
+            const removeUnpublishTag = someWithUnpublishTag
+            
+            let updateTags = !isSameArray(vend[0].tags.split(","), shopifyTags.split(","));
             
             if (addImageTag) {
-              tagString = tagArray.concat("FX_needs_variant_image").join(", ");
-              vendWithoutAddons.forEach(({ id }) => {
-                vendShopifyUpdatePromiseArr.push(updateVendProductVariant(id, tagString));
-              });
-              vendShopifyUpdatePromiseArr.push(updateShopifyProductTags(+source_id, tagString));
+              tagString = addTag(tagString, "FX_needs_variant_image")
+              updateTags = true;
             } else if (removeImageTag) {
-              tagString = tagArray.filter(t => t !== `FX_needs_variant_image`).join(", ");
+              tagString = removeTag(tagString, "FX_needs_variant_image")
+              updateTags = true;
+            }
+            
+            if (removeUnpublishTag) {
+              tagString = removeTag(tagString, "FX_unpublished_vend_to_shopify")
+              updateTags = true;
+            }
+            
+            if (updateTags) {
+              console.log(updateTags, "updateTags");
+  
               vendWithoutAddons.forEach(({ id }) => {
                 vendShopifyUpdatePromiseArr.push(updateVendProductVariant(id, tagString));
               });
               vendShopifyUpdatePromiseArr.push(updateShopifyProductTags(+source_id, tagString));
-            } else if (updateTags) {
-              console.log(updateTags, "updateTags");
-              if (shopifyWebhook) {
-                vendWithoutAddons.forEach(({ id }) => {
-                  vendShopifyUpdatePromiseArr.push(updateVendProductVariant(id, tagString));
-                });
-              }
-              if (vendWebhook || bulkRequest) {
-                vendShopifyUpdatePromiseArr.push(updateShopifyProductTags(+source_id, tagString));
-              }
             }
           }
           
@@ -518,7 +527,8 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
           }
           
         }
-        ((sourceData[0] instanceof Error) || (sourceData[1] instanceof Error)) && console.log("error - could not get data from Shopify or Vend - incorrect handle or source_id");
+        ((sourceData[0] instanceof Error) || (sourceData[1] instanceof Error)) &&
+        console.log("error - could not get data from Shopify or Vend - incorrect handle or source_id");
         res.status(200).json("success");
       } catch (err) {
         console.log(err.message);
