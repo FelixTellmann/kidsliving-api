@@ -314,8 +314,8 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
   /**
    * validate request is from server && that source_id exists => Product is on Shopify
    * */
-  console.log(source_id, typeof source_id)
-  if ((vendWebhook || shopifyWebhook || bulkRequest) && !!source_id && source_id !== '' && !!handle) {
+  
+  if ((vendWebhook || shopifyWebhook || bulkRequest) && !!source_id && source_id !== 'undefined' && source_id !== 'null' && source_id !== '' && !!handle) {
     
     /**
      * Validate
@@ -569,8 +569,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
          *
          * */
         
-        ((sourceData[0] instanceof Error) || (sourceData[1] instanceof Error)) &&
-        console.log("error - could not get data from Shopify or Vend - incorrect handle or source_id");
+        ((sourceData[0] instanceof Error) || (sourceData[1] instanceof Error)) && console.log("error - could not get data from Shopify or Vend - incorrect handle or source_id");
         res.status(200).json("success");
       } catch (err) {
         console.log(err.message);
