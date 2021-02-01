@@ -288,7 +288,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
   
   /**
    * What if? Product gets Published to Shopify for the first time - should not have source_id and skip by default - if source_id exists its also sorted
-   * TODO: What if? Product gets unPublished from Shopify. ---> Draft product & Remove from other Channels!
+   * What if? Product gets unPublished from Shopify. ---> Draft product & Remove from other Channels! - added Special tag
    * TODO: What if? Products auto publish to all channels?
    * TODO: What if? Product is not Active - Vend - Shopify ?
    * */
@@ -445,19 +445,27 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
            * Add
            * */
           if (vendWebhook || shopifyWebhook || bulkRequest) {
+            
+            /*= =============== Image Tag Check ================ */
             const needsImageTag = images.length === 0
               || (addVariantsToShopify.length > 0 && !bulkRequest)
               || (!shopifyWithoutRemovals.every(({ image_id }) => !!image_id) && !isSingleProduct);
-            
-            const someWithImageTag = vend.some(({ tags }) => tags.includes("FX_needs_variant_image"));
             const hasImageTag = vend.every(({ tags }) => tags.includes("FX_needs_variant_image"));
+            const someWithImageTag = hasImageTag || vend.some(({ tags }) => tags.includes("FX_needs_variant_image"));
             const addImageTag = !hasImageTag && needsImageTag;
-            const removeImageTag = (hasImageTag || someWithImageTag) && !needsImageTag;
+            const removeImageTag = someWithImageTag && !needsImageTag;
             
-            const someWithUnpublishTag = vend.some(({ tags }) => tags.includes("FX_unpublished_vend_to_shopify"));
-            const hasUnpublishTag = vend.every(({ tags }) => tags.includes("FX_unpublished_vend_to_shopify"));
+            /*= =============== Unpublished Tag Check ================ */
+            const hasUnpublishTag = vend.every(({ tags }) => tags.includes("FX_unpublished"));
+            const someWithUnpublishTag = hasUnpublishTag || vend.some(({ tags }) => tags.includes("FX_unpublished"));
             const addUnpublishTag = !hasUnpublishTag && isUnpublishd;
-            const removeUnpublishTag = (hasUnpublishTag || someWithUnpublishTag) && !isUnpublishd;
+            const removeUnpublishTag = someWithUnpublishTag && !isUnpublishd;
+            
+            /*= =============== Unpublished and on Shopify Tag Check ================ */
+            const hasUnpublishWithShopifyTag = vend.every(({ tags }) => tags.includes("FX_unpublished_and_on_shopify"));
+            const someWithUnpublishWithShopifyTag = hasUnpublishWithShopifyTag || vend.some(({ tags }) => tags.includes("FX_unpublished_and_on_shopify"));
+            const addUnpublishWithShopifyTag = !hasUnpublishWithShopifyTag && isUnpublishd && isOnShopify;
+            const removeUnpublishWithShopifyTag = someWithUnpublishWithShopifyTag && !isUnpublishd || (isUnpublishd && !isOnShopify);
             
             let updateTags = !isUnpublishd && isOnShopify && !isSameArray(vend[0].tags.split(","), shopifyTags.split(","));
             
@@ -470,10 +478,19 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
             }
             
             if (addUnpublishTag) {
-              tagString = addTag(tagString, "FX_unpublished_vend_to_shopify");
+              tagString = addTag(tagString, "FX_unpublished");
               updateTags = true;
             } else if (removeUnpublishTag) {
-              tagString = removeTag(tagString, "FX_unpublished_vend_to_shopify");
+              tagString = removeTag(tagString, "FX_unpublished");
+              updateTags = true;
+            }
+            
+            
+            if (addUnpublishWithShopifyTag) {
+              tagString = addTag(tagString, "FX_unpublished_and_on_shopify");
+              updateTags = true;
+            } else if (removeUnpublishWithShopifyTag) {
+              tagString = removeTag(tagString, "FX_unpublished_and_on_shopify");
               updateTags = true;
             }
             
