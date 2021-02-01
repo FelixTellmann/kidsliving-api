@@ -376,12 +376,14 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
         if (!(sourceData[0] instanceof Error)) {
           const isUnpublishd = source_id.includes("unpub") || source === "USER"
           const isOnShopify = !(sourceData[1] instanceof Error)
-          let vend, images, shopify, shopifyTags
+          let vend = []
+          let images = []
+          let shopify = []
+          let shopifyTags = ''
           
           if (isOnShopify && !isUnpublishd) {
             [{ data: { products: vend } }, { data: { product: { images, variants: shopify, tags: shopifyTags } } }] = sourceData;
           } else {
-            shopify = [];
             [{ data: { products: vend } }] = sourceData;
           }
           
@@ -391,7 +393,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
           if (vendWebhook || bulkRequest || isUnpublishd) {
             tagString = vend[0].tags;
           } else if (shopifyWebhook) {
-            tagString = String(shopifyTags);
+            tagString = shopifyTags;
           }
           
           process.env.NODE_ENV === "development" && !bulkRequest && console.log(vend[0], vend.length, "vend");
