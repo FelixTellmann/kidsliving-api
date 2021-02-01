@@ -554,7 +554,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
         res.status(200).json("success");
       } catch (err) {
         console.log(err.message);
-        console.log(err.response);
+        console.log(err);
         res.status(500).json("error");
       }
     } else {
