@@ -539,7 +539,6 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
                                            ];
                                          }, []);
             
-            
             inventoryToAddToJHB.forEach(({ inventory_item_id }) => {
               connectToInventoryLocation.push(connectShopifyInventoryItemToLocation(inventory_item_id,
                 +process.env.SHOPIFY_JHB_OUTLET_ID));
@@ -650,12 +649,12 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
             newProductsOnShopify.forEach(({ data: { variant: { id: shopifyVariantId, sku, inventory_item_id } } }) => {
               const { id, inventory, inventory_JHB } = addVariantsToShopify.find(({ sku: vendSku }) => sku === vendSku);
               vendShopifyUpdatePromiseArr.push(updateVendProductVariant(id, tagString, shopifyVariantId, "SHOPIFY"));
-              if (inventory !== 0) {
-                vendShopifyUpdatePromiseArr.push(updateShopifyInventoryItem(inventory_item_id,
-                  inventory,
-                  +process.env.SHOPIFY_CPT_OUTLET_ID));
-              }
-              if (hasSellJHBTag && inventory_JHB !== 0) {
+              
+              vendShopifyUpdatePromiseArr.push(updateShopifyInventoryItem(inventory_item_id,
+                inventory,
+                +process.env.SHOPIFY_CPT_OUTLET_ID));
+              
+              if (hasSellJHBTag) {
                 vendShopifyUpdatePromiseArr.push(updateShopifyInventoryItem(inventory_item_id,
                   inventory_JHB,
                   +process.env.SHOPIFY_JHB_OUTLET_ID));
@@ -665,13 +664,9 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
             if (hasSellJHBTag && inventoryToAddToJHB.length > 0) {
               
               inventoryToAddToJHB.forEach(({ inventory_item_id, inventory_JHB }) => {
-                if (inventory_JHB !== 0) {
-                  
-                  vendShopifyUpdatePromiseArr.push(updateShopifyInventoryItem(inventory_item_id,
-                    inventory_JHB,
-                    +process.env.SHOPIFY_JHB_OUTLET_ID));
-                }
-                
+                vendShopifyUpdatePromiseArr.push(updateShopifyInventoryItem(inventory_item_id,
+                  inventory_JHB,
+                  +process.env.SHOPIFY_JHB_OUTLET_ID));
               });
             }
           }
