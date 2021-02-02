@@ -259,19 +259,19 @@ function updateVendProductVariant(id: string, tags?: string, source_variant_id?:
 
 function updateShopifyInventoryItem(
   inventory_item_id: number,
-  available_adjustment: number,
+  available: number,
   location_id: number = +process.env.SHOPIFY_CPT_OUTLET_ID
 ) {
   return axios({
     method: "POST",
-    url: `https://${process.env.SHOPIFY_API_KEY}:${process.env.SHOPIFY_API_PASSWORD}@${process.env.SHOPIFY_API_STORE}.myshopify.com/admin/api/${process.env.SHOPIFY_API_VERSION}/inventory_levels/adjust.json`,
+    url: `https://${process.env.SHOPIFY_API_KEY}:${process.env.SHOPIFY_API_PASSWORD}@${process.env.SHOPIFY_API_STORE}.myshopify.com/admin/api/${process.env.SHOPIFY_API_VERSION}/inventory_levels/set.json`,
     headers: {
       "Accept": "application/json",
       "Content-Type": "application/json"
     },
     data: JSON.stringify({
       inventory_item_id,
-      available_adjustment,
+      available,
       location_id
     })
   });
