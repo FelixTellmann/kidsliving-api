@@ -539,7 +539,6 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
                                            ];
                                          }, []);
             
-            console.log(inventoryToAddToJHB, "inventoryToAddToJHB");
             
             inventoryToAddToJHB.forEach(({ inventory_item_id }) => {
               connectToInventoryLocation.push(connectShopifyInventoryItemToLocation(inventory_item_id,
@@ -551,7 +550,8 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
                 +process.env.SHOPIFY_JHB_OUTLET_ID));
             });
             await Promise.all(connectToInventoryLocation.map(p => p.catch(e => console.log(e.message))));
-          } else {
+          } else if (isOnShopify) {
+            
             const deleteInventoryItemLocationConnection = [];
             
             shopify.forEach(({ inventory_item_id }) => {
