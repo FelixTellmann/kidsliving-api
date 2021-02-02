@@ -5,7 +5,6 @@ module.exports = {
   },
 };
 
-
 module.exports.env = {
   SHOPIFY_API_KEY: process.env.SHOPIFY_API_KEY,
   SHOPIFY_API_PASSWORD: process.env.SHOPIFY_API_PASSWORD,

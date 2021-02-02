@@ -31,6 +31,7 @@ type createShopifyAddArrObject = {
   sku: string,
   price: string,
   inventory: number,
+  inventory_JHB: number,
   option1?: string,
   option2?: string,
   option3?: string,
@@ -47,6 +48,7 @@ function createShopifyAddArr(shopify, vend): createShopifyAddArrObject[] {
       price,
       tax,
       inventory,
+      inventory_JHB,
       deleted_at,
       sku,
       variant_option_one_value,
@@ -63,12 +65,8 @@ function createShopifyAddArr(shopify, vend): createShopifyAddArrObject[] {
         price: (
           price + tax
         ).toFixed(2),
-        inventory: inventory.reduce((acc, { outlet_id, count }) => {
-          if (outlet_id === process.env.VEND_CPT_OUTLET_ID) {
-            acc += +count;
-          }
-          return acc;
-        }, 0),
+        inventory,
+        inventory_JHB,
         option1: variant_option_one_value !== "" ? variant_option_one_value : undefined,
         option2: variant_option_two_value !== "" ? variant_option_two_value : undefined,
         option3: variant_option_three_value !== "" ? variant_option_three_value : undefined
@@ -259,7 +257,11 @@ function updateVendProductVariant(id: string, tags?: string, source_variant_id?:
   });
 }
 
-function updateShopifyInventoryItem(inventory_item_id: number, available_adjustment: number) {
+function updateShopifyInventoryItem(
+  inventory_item_id: number,
+  available_adjustment: number,
+  location_id: number = +process.env.SHOPIFY_CPT_OUTLET_ID
+) {
   return axios({
     method: "POST",
     url: `https://${process.env.SHOPIFY_API_KEY}:${process.env.SHOPIFY_API_PASSWORD}@${process.env.SHOPIFY_API_STORE}.myshopify.com/admin/api/${process.env.SHOPIFY_API_VERSION}/inventory_levels/adjust.json`,
@@ -270,8 +272,45 @@ function updateShopifyInventoryItem(inventory_item_id: number, available_adjustm
     data: JSON.stringify({
       inventory_item_id,
       available_adjustment,
-      location_id: +process.env.SHOPIFY_CPT_OUTLET_ID
+      location_id
     })
+  });
+}
+
+function getShopifyInventoryItemToLocation(inventory_item_id: number | string, location_id: number | string) {
+  return axios({
+    method: "GET",
+    url: `https://${process.env.SHOPIFY_API_KEY}:${process.env.SHOPIFY_API_PASSWORD}@${process.env.SHOPIFY_API_STORE}.myshopify.com/admin/api/${process.env.SHOPIFY_API_VERSION}/inventory_levels.json?location_ids=${location_id}&inventory_item_ids=${inventory_item_id}&limit=250`,
+    headers: {
+      "Accept": "application/json",
+      "Content-Type": "application/json"
+    }
+  });
+}
+
+function connectShopifyInventoryItemToLocation(inventory_item_id: number, location_id: number) {
+  return axios({
+    method: "POST",
+    url: `https://${process.env.SHOPIFY_API_KEY}:${process.env.SHOPIFY_API_PASSWORD}@${process.env.SHOPIFY_API_STORE}.myshopify.com/admin/api/${process.env.SHOPIFY_API_VERSION}/inventory_levels/connect.json`,
+    headers: {
+      "Accept": "application/json",
+      "Content-Type": "application/json"
+    },
+    data: JSON.stringify({
+      inventory_item_id,
+      location_id
+    })
+  });
+}
+
+function deleteShopifyInventoryItemToLocationConnection(inventory_item_id: number, location_id: number) {
+  return axios({
+    method: "DELETE",
+    url: `https://${process.env.SHOPIFY_API_KEY}:${process.env.SHOPIFY_API_PASSWORD}@${process.env.SHOPIFY_API_STORE}.myshopify.com/admin/api/${process.env.SHOPIFY_API_VERSION}/inventory_levels.json?inventory_item_id=${inventory_item_id}&location_id=${location_id}`,
+    headers: {
+      "Accept": "application/json",
+      "Content-Type": "application/json"
+    }
   });
 }
 
@@ -310,7 +349,6 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
   let firebase = await loadFirebase();
   let db = firebase.firestore();
   let duplicate = false;
-  
   
   /**
    * Validate
@@ -353,7 +391,8 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
   /**
    * validate request is from server && that source_id exists => Product is on Shopify
    * */
-  if ((vendWebhook || shopifyWebhook || bulkRequest) && !!source_id && source_id !== 'undefined' && source_id !== 'null' && source_id !== '' && !!handle) {
+  if ((vendWebhook || shopifyWebhook || bulkRequest) && !!source_id && source_id !== "undefined" && source_id !== "null" &&
+    source_id !== "" && !!handle) {
     
     /**
      * Validate
@@ -374,12 +413,12 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
         ].map(p => p.catch(e => e)));
         
         if (!(sourceData[0] instanceof Error)) {
-          const isUnpublishd = source_id.includes("unpub") || source === "USER"
-          const isOnShopify = !(sourceData[1] instanceof Error)
-          let vend = []
-          let images = []
-          let shopify = []
-          let shopifyTags = ''
+          const isUnpublishd = source_id.includes("unpub") || source === "USER";
+          const isOnShopify = !(sourceData[1] instanceof Error);
+          let vend = [];
+          let images = [];
+          let shopify = [];
+          let shopifyTags = "";
           
           if (isOnShopify && !isUnpublishd) {
             [{ data: { products: vend } }, { data: { product: { images, variants: shopify, tags: shopifyTags } } }] = sourceData;
@@ -396,6 +435,27 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
             tagString = shopifyTags;
           }
           
+          vend = vend.map(({ inventory, ...rest }) => {
+            return {
+              inventory: inventory.reduce((acc, { outlet_id, count }) => {
+                if (outlet_id === process.env.VEND_CPT_OUTLET_ID) {
+                  acc += +count;
+                }
+                return acc;
+              }, 0),
+              inventory_JHB: inventory.reduce((acc, { outlet_id, count }) => {
+                if (outlet_id === process.env.VEND_JHB_OUTLET_ID) {
+                  acc += +count;
+                }
+                return acc;
+              }, 0),
+              ...rest
+            };
+          });
+          
+          /*= =============== Sell JHB Tag Check ================ */
+          const hasSellJHBTag = vend.some(({ tags }) => tags.toLowerCase().includes("sell jhb"));
+          
           process.env.NODE_ENV === "development" && !bulkRequest && console.log(vend[0], vend.length, "vend");
           process.env.NODE_ENV === "development" && !bulkRequest && isOnShopify && console.log(shopify[0], shopify.length, "shopify");
           process.env.NODE_ENV === "development" && !bulkRequest && console.log(isSingleProduct, "isSingleProduct");
@@ -409,7 +469,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
             return;
           }
           
-          const removeVariantsFromShopify = createShopifyRemoveArr(shopify, vend)
+          const removeVariantsFromShopify = createShopifyRemoveArr(shopify, vend);
           const shopifyWithoutRemovals = shopify.filter(({ id }) => {
             return !removeVariantsFromShopify.some(({ variant_id }) => id === variant_id);
           });
@@ -422,6 +482,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
            * Step 2
            * Add variants to Shopify && save data in new Products Array - req for inventory & variant_id update later on
            * */
+          
           let newProductsOnShopify = [];
           if ((vendWebhook || shopifyWebhook) && !isUnpublishd) {
             const shopifyAddPromiseArr = [];
@@ -429,81 +490,144 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
               shopifyAddPromiseArr.push(createShopifyProductVariant(product_id, sku, price, option1, option2, option3));
             });
             newProductsOnShopify = shopifyAddPromiseArr.length > 0
-                                   ? (await Promise.all(shopifyAddPromiseArr.map(p => p.catch(e => e)))).filter(result => !(result instanceof
-                Error))
+                                   ? (await Promise.all(shopifyAddPromiseArr.map(p => p.catch(e => e))))
+                                     .filter(result => !(result instanceof Error))
                                    : [];
             vendWithoutAddons = vend.filter(({ id }) => !addVariantsToShopify.some(({ id: updateId }) => updateId === id));
+            
           }
           
           /**
+           *
            * Step 3
+           * Connect / Disconnect inventory locations based on JHB Tag
+           * */
+          const supposedToBeInJHBInventory = [];
+          let itemsAlreadyConnected = [];
+          let inventoryToAddToJHB = [];
+          if (hasSellJHBTag && isOnShopify) {
+            const connectToInventoryLocation = [];
+            const alreadyConnectedPromises = [];
+            for (let i = 0; i < Math.ceil(shopify.length / 50); i++) {
+              let inventory_item_id_string = String(shopify[i * 50].inventory_item_id);
+              const bottom = (i * 50) + 1;
+              const top = shopify.length > (i + 1) * 50 ? (i + 1) * 50 : shopify.length;
+              
+              for (let j = bottom; j < top; j++) {
+                inventory_item_id_string += "," + String(shopify[j].inventory_item_id);
+              }
+              alreadyConnectedPromises.push(getShopifyInventoryItemToLocation(inventory_item_id_string,
+                process.env.SHOPIFY_JHB_OUTLET_ID));
+            }
+            
+            itemsAlreadyConnected = (await Promise.all(alreadyConnectedPromises.map(p => p.catch(e => console.log(e.message)))))
+              .filter(result => !(result instanceof Error))
+              .reduce((acc, { data: { inventory_levels } }) => {
+                return [...acc, ...inventory_levels];
+              }, []);
+            inventoryToAddToJHB = shopify.filter(({ inventory_item_id }) => !itemsAlreadyConnected.some(({ inventory_item_id: connected_id }) => inventory_item_id ===
+              connected_id))
+                                         .reduce((acc, { id, ...rest }) => {
+              
+                                           return [
+                                             ...acc, {
+                                               id,
+                                               ...rest,
+                                               inventory_JHB: vend.find(({ variant_source_id }) => +variant_source_id ===
+                                                 id).inventory_JHB
+                                             }
+                                           ];
+                                         }, []);
+            
+            console.log(inventoryToAddToJHB, "inventoryToAddToJHB");
+            
+            inventoryToAddToJHB.forEach(({ inventory_item_id }) => {
+              connectToInventoryLocation.push(connectShopifyInventoryItemToLocation(inventory_item_id,
+                +process.env.SHOPIFY_JHB_OUTLET_ID));
+            });
+            
+            newProductsOnShopify.forEach(({ data: { variant: { id: shopifyVariantId, sku, inventory_item_id } } }) => {
+              connectToInventoryLocation.push(connectShopifyInventoryItemToLocation(inventory_item_id,
+                +process.env.SHOPIFY_JHB_OUTLET_ID));
+            });
+            await Promise.all(connectToInventoryLocation.map(p => p.catch(e => console.log(e.message))));
+          } else {
+            const deleteInventoryItemLocationConnection = [];
+            
+            shopify.forEach(({ inventory_item_id }) => {
+              deleteInventoryItemLocationConnection.push(deleteShopifyInventoryItemToLocationConnection(inventory_item_id,
+                +process.env.SHOPIFY_JHB_OUTLET_ID));
+            });
+            
+            newProductsOnShopify.forEach(({ data: { variant: { id: shopifyVariantId, sku, inventory_item_id } } }) => {
+              deleteInventoryItemLocationConnection.push(deleteShopifyInventoryItemToLocationConnection(inventory_item_id,
+                +process.env.SHOPIFY_JHB_OUTLET_ID));
+            });
+            await Promise.all(deleteInventoryItemLocationConnection.map(p => p.catch(e => console.log(e.message))));
+          }
+          
+          /**
+           * Step 4
            * Create Array for Vend & Shopify Final Updates - to be filled with Promises
            * */
           const vendShopifyUpdatePromiseArr = [];
+          /*= =============== Image Tag Check ================ */
+          const needsImageTag = images.length === 0
+            || (addVariantsToShopify.length > 0 && !bulkRequest)
+            || (!shopifyWithoutRemovals.every(({ image_id }) => !!image_id) && !isSingleProduct);
+          const hasImageTag = vend.every(({ tags }) => tags.includes("FX_needs_variant_image"));
+          const someWithImageTag = hasImageTag || vend.some(({ tags }) => tags.includes("FX_needs_variant_image"));
+          const addImageTag = !hasImageTag && needsImageTag;
+          const removeImageTag = someWithImageTag && !needsImageTag;
           
-          /**
-           * Check if Image Tag Exists & if it is needed
-           * Add
-           * */
-          if (vendWebhook || shopifyWebhook || bulkRequest) {
+          /*= =============== Unpublished Tag Check ================ */
+          const hasUnpublishTag = vend.every(({ tags }) => tags.includes("FX_unpublished"));
+          const someWithUnpublishTag = hasUnpublishTag || vend.some(({ tags }) => tags.includes("FX_unpublished"));
+          const addUnpublishTag = !hasUnpublishTag && isUnpublishd;
+          const removeUnpublishTag = someWithUnpublishTag && !isUnpublishd;
+          
+          /*= =============== Unpublished and on Shopify Tag Check ================ */
+          const hasUnpublishWithShopifyTag = vend.every(({ tags }) => tags.includes("FX_unpublished_and_on_shopify"));
+          const someWithUnpublishWithShopifyTag = hasUnpublishWithShopifyTag ||
+            vend.some(({ tags }) => tags.includes("FX_unpublished_and_on_shopify"));
+          const addUnpublishWithShopifyTag = !hasUnpublishWithShopifyTag && isUnpublishd && isOnShopify;
+          const removeUnpublishWithShopifyTag = someWithUnpublishWithShopifyTag && !isUnpublishd || (isUnpublishd && !isOnShopify);
+          
+          /*= =============== Boolean if products need to be updated ================ */
+          let updateTags = !isUnpublishd && isOnShopify && !isSameArray(vend[0].tags.split(","), shopifyTags.split(","));
+          
+          if (addImageTag) {
+            tagString = addTag(tagString, "FX_needs_variant_image");
+            updateTags = true;
+          } else if (removeImageTag) {
+            tagString = removeTag(tagString, "FX_needs_variant_image");
+            updateTags = true;
+          }
+          
+          if (addUnpublishTag) {
+            tagString = addTag(tagString, "FX_unpublished");
+            updateTags = true;
+          } else if (removeUnpublishTag) {
+            tagString = removeTag(tagString, "FX_unpublished");
+            updateTags = true;
+          }
+          
+          if (addUnpublishWithShopifyTag) {
+            tagString = addTag(tagString, "FX_unpublished_and_on_shopify");
+            updateTags = true;
+          } else if (removeUnpublishWithShopifyTag) {
+            tagString = removeTag(tagString, "FX_unpublished_and_on_shopify");
+            updateTags = true;
+          }
+          
+          if (updateTags) {
+            console.log(updateTags, "updateTags");
             
-            /*= =============== Image Tag Check ================ */
-            const needsImageTag = images.length === 0
-              || (addVariantsToShopify.length > 0 && !bulkRequest)
-              || (!shopifyWithoutRemovals.every(({ image_id }) => !!image_id) && !isSingleProduct);
-            const hasImageTag = vend.every(({ tags }) => tags.includes("FX_needs_variant_image"));
-            const someWithImageTag = hasImageTag || vend.some(({ tags }) => tags.includes("FX_needs_variant_image"));
-            const addImageTag = !hasImageTag && needsImageTag;
-            const removeImageTag = someWithImageTag && !needsImageTag;
-            
-            /*= =============== Unpublished Tag Check ================ */
-            const hasUnpublishTag = vend.every(({ tags }) => tags.includes("FX_unpublished"));
-            const someWithUnpublishTag = hasUnpublishTag || vend.some(({ tags }) => tags.includes("FX_unpublished"));
-            const addUnpublishTag = !hasUnpublishTag && isUnpublishd;
-            const removeUnpublishTag = someWithUnpublishTag && !isUnpublishd;
-            
-            /*= =============== Unpublished and on Shopify Tag Check ================ */
-            const hasUnpublishWithShopifyTag = vend.every(({ tags }) => tags.includes("FX_unpublished_and_on_shopify"));
-            const someWithUnpublishWithShopifyTag = hasUnpublishWithShopifyTag || vend.some(({ tags }) => tags.includes("FX_unpublished_and_on_shopify"));
-            const addUnpublishWithShopifyTag = !hasUnpublishWithShopifyTag && isUnpublishd && isOnShopify;
-            const removeUnpublishWithShopifyTag = someWithUnpublishWithShopifyTag && !isUnpublishd || (isUnpublishd && !isOnShopify);
-            
-            let updateTags = !isUnpublishd && isOnShopify && !isSameArray(vend[0].tags.split(","), shopifyTags.split(","));
-            
-            if (addImageTag) {
-              tagString = addTag(tagString, "FX_needs_variant_image");
-              updateTags = true;
-            } else if (removeImageTag) {
-              tagString = removeTag(tagString, "FX_needs_variant_image");
-              updateTags = true;
-            }
-            
-            if (addUnpublishTag) {
-              tagString = addTag(tagString, "FX_unpublished");
-              updateTags = true;
-            } else if (removeUnpublishTag) {
-              tagString = removeTag(tagString, "FX_unpublished");
-              updateTags = true;
-            }
-            
-            
-            if (addUnpublishWithShopifyTag) {
-              tagString = addTag(tagString, "FX_unpublished_and_on_shopify");
-              updateTags = true;
-            } else if (removeUnpublishWithShopifyTag) {
-              tagString = removeTag(tagString, "FX_unpublished_and_on_shopify");
-              updateTags = true;
-            }
-            
-            if (updateTags) {
-              console.log(updateTags, "updateTags");
-              
-              vendWithoutAddons.forEach(({ id }) => {
-                vendShopifyUpdatePromiseArr.push(updateVendProductVariant(id, tagString));
-              });
-              if (isOnShopify) {
-                vendShopifyUpdatePromiseArr.push(updateShopifyProductTags(+source_id, tagString));
-              }
+            vendWithoutAddons.forEach(({ id }) => {
+              vendShopifyUpdatePromiseArr.push(updateVendProductVariant(id, tagString));
+            });
+            if (isOnShopify) {
+              vendShopifyUpdatePromiseArr.push(updateShopifyProductTags(+source_id, tagString));
             }
           }
           
@@ -522,14 +646,34 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
            * Use data form newly added Shopify Products/Variants to link back to Vend via variant_id
            * Use inventory_item_id to adjust inventory in Shopify according to whats on vend for newly added products
            * */
-          if (vendWebhook || shopifyWebhook) {
+          if ((vendWebhook || shopifyWebhook) && isOnShopify) {
             newProductsOnShopify.forEach(({ data: { variant: { id: shopifyVariantId, sku, inventory_item_id } } }) => {
-              const { id, inventory } = addVariantsToShopify.find(({ sku: vendSku }) => sku === vendSku);
+              const { id, inventory, inventory_JHB } = addVariantsToShopify.find(({ sku: vendSku }) => sku === vendSku);
               vendShopifyUpdatePromiseArr.push(updateVendProductVariant(id, tagString, shopifyVariantId, "SHOPIFY"));
               if (inventory !== 0) {
-                vendShopifyUpdatePromiseArr.push(updateShopifyInventoryItem(inventory_item_id, inventory));
+                vendShopifyUpdatePromiseArr.push(updateShopifyInventoryItem(inventory_item_id,
+                  inventory,
+                  +process.env.SHOPIFY_CPT_OUTLET_ID));
+              }
+              if (hasSellJHBTag && inventory_JHB !== 0) {
+                vendShopifyUpdatePromiseArr.push(updateShopifyInventoryItem(inventory_item_id,
+                  inventory_JHB,
+                  +process.env.SHOPIFY_JHB_OUTLET_ID));
               }
             });
+            
+            if (hasSellJHBTag && inventoryToAddToJHB.length > 0) {
+              
+              inventoryToAddToJHB.forEach(({ inventory_item_id, inventory_JHB }) => {
+                if (inventory_JHB !== 0) {
+                  
+                  vendShopifyUpdatePromiseArr.push(updateShopifyInventoryItem(inventory_item_id,
+                    inventory_JHB,
+                    +process.env.SHOPIFY_JHB_OUTLET_ID));
+                }
+                
+              });
+            }
           }
           
           /**
@@ -545,6 +689,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
            * Execute final promise array -
            *   Image Tags -- Shopify Removals -- Vend product_id updates -- Shopify inventory updates -- vend updates to Shopify
            * */
+          console.log(hasSellJHBTag, "hasSellJHBTag");
           console.log(vendShopifyUpdatePromiseArr.length,
             "updates",
             bulkRequest ? 0 : addVariantsToShopify.length,
@@ -569,7 +714,8 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
          *
          * */
         
-        ((sourceData[0] instanceof Error) || (sourceData[1] instanceof Error)) && console.log("error - could not get data from Shopify or Vend - incorrect handle or source_id");
+        ((sourceData[0] instanceof Error) || (sourceData[1] instanceof Error)) &&
+        console.log("error - could not get data from Shopify or Vend - incorrect handle or source_id");
         res.status(200).json("success");
       } catch (err) {
         console.log(err.message);
