@@ -67,7 +67,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
   let db = firebase.firestore();
   
   const { inventory_item_id, location_id } = req.body;
-  console.log(req.body);
+  console.log(JSON.stringify(req.body));
   console.log(shopifyWebhook, location_id, +process.env.SHOPIFY_JHB_OUTLET_ID);
   /* Validate Action needed - is on JHB outlet */
   
