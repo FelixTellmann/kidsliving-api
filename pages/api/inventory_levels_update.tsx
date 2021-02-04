@@ -95,25 +95,31 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
         return;
       }
       
-      const { data: { inventory_item: { sku } } } = await getShopifyInventoryItem(inventory_item_id);
-      const { data: { products: [{ tags, source_id }] } } = await getVendProductBySku(sku);
-      
-      if (tags.toLowerCase().includes("sell jhb")) {
-          console.log('Has "Sell JHB" Tag')
-      }
-      /* validate existence */
-      if (!duplicate && source_id && !tags.toLowerCase().includes("sell jhb")) {
-        const { data: { product: { variants } } } = await getShopifyProductById(source_id);
-        if (variants.length) {
-          const saveInDBPromiseArr = [];
-          const updateShopifyPromiseArr = [];
-          variants.forEach(({ inventory_item_id }) => {
-            saveInDBPromiseArr.push(saveInDB(db, inventory_item_id))
-            updateShopifyPromiseArr.push(deleteShopifyInventoryItemToLocationConnection(inventory_item_id,
-              +process.env.SHOPIFY_JHB_OUTLET_ID));
-          });
-          await Promise.all(catchErrors(saveInDBPromiseArr))
-          await Promise.all(catchErrors(updateShopifyPromiseArr));
+      const shopify = await getShopifyInventoryItem(inventory_item_id);
+      if (shopify) {
+        const { data: { inventory_item: { sku } } } = shopify
+        const vend = await getVendProductBySku(sku);
+        if (vend) {
+          const { data: { products: [{ tags, source_id }] } } = vend
+  
+          if (tags.toLowerCase().includes("sell jhb")) {
+            console.log('Has "Sell JHB" Tag')
+          }
+          /* validate existence */
+          if (!duplicate && source_id && !tags.toLowerCase().includes("sell jhb")) {
+            const { data: { product: { variants } } } = await getShopifyProductById(source_id);
+            if (variants.length) {
+              const saveInDBPromiseArr = [];
+              const updateShopifyPromiseArr = [];
+              variants.forEach(({ inventory_item_id }) => {
+                saveInDBPromiseArr.push(saveInDB(db, inventory_item_id))
+                updateShopifyPromiseArr.push(deleteShopifyInventoryItemToLocationConnection(inventory_item_id,
+                  +process.env.SHOPIFY_JHB_OUTLET_ID));
+              });
+              await Promise.all(catchErrors(saveInDBPromiseArr))
+              await Promise.all(catchErrors(updateShopifyPromiseArr));
+            }
+          }
         }
       }
     }
