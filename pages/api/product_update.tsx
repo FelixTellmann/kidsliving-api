@@ -350,6 +350,9 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
   let db = firebase.firestore();
   let duplicate = false;
   
+  if (vendWebhook && handle === 'testing-testing-do-not-fulfill') {
+      console.log(JSON.parse(req.body.payload))
+  }
   /**
    * Validate
    * Save in DB/CheckDB
