@@ -314,8 +314,8 @@ function deleteShopifyInventoryItemToLocationConnection(inventory_item_id: numbe
   });
 }
 
-function isSameArray(a, b): boolean {
-  const cleanSortArray = (z) => JSON.stringify(z.map(x => x.trim().toLowerCase()).sort((x, y) => {
+export function isSameArray(a, b): boolean {
+  const cleanSortArray = (z) => JSON.stringify(z.map(x => x.toString().trim().toLowerCase()).sort((x, y) => {
     if (x < y) { return -1; }
     if (x > y) { return 1; }
     return 0;

@@ -1,6 +1,6 @@
 import axios, { AxiosPromise } from "axios";
 import { NextApiRequest, NextApiResponse } from "next";
-import { loadFirebase } from "../../lib/db";
+import { loadFirebase } from "lib/db";
 
 function getShopifyInventoryItem(inventory_item_id: number): AxiosPromise {
   return axios({
@@ -37,7 +37,7 @@ function getShopifyProductById(product_id: string): AxiosPromise {
   });
 }
 
-function catchErrors(promiseArray) {
+export function catchErrors(promiseArray) {
   return promiseArray.map((p) => p.catch(e => console.log(e.message, "error caught within Promise.All()")));
 }
 
