@@ -38,7 +38,9 @@ function getShopifyProductById(product_id: string): AxiosPromise {
 }
 
 function catchErrors(promiseArray) {
-  return promiseArray.map((p) => p.catch(e => console.log(e.message, "error caught within Promise.All()")));
+  return promiseArray.map((p) => p.catch(e => {
+    console.log(e.message, "error caught within Promise.All()");
+  }));
 }
 
 function deleteShopifyInventoryItemToLocationConnection(inventory_item_id: number, location_id: number) {
@@ -118,6 +120,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
   } catch (err) {
     console.log(err);
     console.log(err.message, "ASDASD MESSAGE");
+    res.status(200).json({ name: `done` });
   }
   
   res.status(200).json({ name: `done` });
