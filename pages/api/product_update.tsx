@@ -505,6 +505,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
           const supposedToBeInJHBInventory = [];
           let itemsAlreadyConnected = [];
           let inventoryToAddToJHB = [];
+          const batch = db.batch();
           if (hasSellJHBTag && isOnShopify) {
             const connectToInventoryLocation = [];
             const alreadyConnectedPromises = [];
@@ -540,11 +541,19 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
                                          }, []);
             
             inventoryToAddToJHB.forEach(({ inventory_item_id }) => {
+              batch.set(db.collection("inventory_item_levels").doc(String(inventory_item_id)), {
+                created_at: Date.now(),
+                created_at_ISO: new Date(Date.now()).toISOString().split(".")[0].split("T").join(" ").replace(/-/gi, "/")
+              });
               connectToInventoryLocation.push(connectShopifyInventoryItemToLocation(inventory_item_id,
                 +process.env.SHOPIFY_JHB_OUTLET_ID));
             });
             
             newProductsOnShopify.forEach(({ data: { variant: { id: shopifyVariantId, sku, inventory_item_id } } }) => {
+              batch.set(db.collection("inventory_item_levels").doc(String(inventory_item_id)), {
+                created_at: Date.now(),
+                created_at_ISO: new Date(Date.now()).toISOString().split(".")[0].split("T").join(" ").replace(/-/gi, "/")
+              });
               connectToInventoryLocation.push(connectShopifyInventoryItemToLocation(inventory_item_id,
                 +process.env.SHOPIFY_JHB_OUTLET_ID));
             });
@@ -552,18 +561,26 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
           } else if (isOnShopify) {
             
             const deleteInventoryItemLocationConnection = [];
-            
             shopify.forEach(({ inventory_item_id }) => {
+              batch.set(db.collection("inventory_item_levels").doc(String(inventory_item_id)), {
+                created_at: Date.now(),
+                created_at_ISO: new Date(Date.now()).toISOString().split(".")[0].split("T").join(" ").replace(/-/gi, "/")
+              });
               deleteInventoryItemLocationConnection.push(deleteShopifyInventoryItemToLocationConnection(inventory_item_id,
                 +process.env.SHOPIFY_JHB_OUTLET_ID));
             });
             
             newProductsOnShopify.forEach(({ data: { variant: { id: shopifyVariantId, sku, inventory_item_id } } }) => {
+              batch.set(db.collection("inventory_item_levels").doc(String(inventory_item_id)), {
+                created_at: Date.now(),
+                created_at_ISO: new Date(Date.now()).toISOString().split(".")[0].split("T").join(" ").replace(/-/gi, "/")
+              });
               deleteInventoryItemLocationConnection.push(deleteShopifyInventoryItemToLocationConnection(inventory_item_id,
                 +process.env.SHOPIFY_JHB_OUTLET_ID));
             });
             await Promise.all(deleteInventoryItemLocationConnection.map(p => p.catch(e => console.log(e.message))));
           }
+          await batch.commit().catch(e => console.log(e));
           
           /**
            * Step 4
