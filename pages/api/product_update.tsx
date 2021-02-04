@@ -505,7 +505,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
           const supposedToBeInJHBInventory = [];
           let itemsAlreadyConnected = [];
           let inventoryToAddToJHB = [];
-          const batch = db.batch();
+          
           if (hasSellJHBTag && isOnShopify) {
             const connectToInventoryLocation = [];
             const alreadyConnectedPromises = [];
@@ -540,6 +540,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
                                            ];
                                          }, []);
             
+            const batch = db.batch();
             inventoryToAddToJHB.forEach(({ inventory_item_id }) => {
               batch.set(db.collection("inventory_item_levels").doc(String(inventory_item_id)), {
                 created_at: Date.now(),
@@ -557,9 +558,10 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
               connectToInventoryLocation.push(connectShopifyInventoryItemToLocation(inventory_item_id,
                 +process.env.SHOPIFY_JHB_OUTLET_ID));
             });
+            await batch.commit().catch(e => console.log(e));
             await Promise.all(connectToInventoryLocation.map(p => p.catch(e => console.log(e.message))));
           } else if (isOnShopify) {
-            
+            const batch = db.batch();
             const deleteInventoryItemLocationConnection = [];
             shopify.forEach(({ inventory_item_id }) => {
               batch.set(db.collection("inventory_item_levels").doc(String(inventory_item_id)), {
@@ -578,9 +580,10 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
               deleteInventoryItemLocationConnection.push(deleteShopifyInventoryItemToLocationConnection(inventory_item_id,
                 +process.env.SHOPIFY_JHB_OUTLET_ID));
             });
+            await batch.commit().catch(e => console.log(e));
             await Promise.all(deleteInventoryItemLocationConnection.map(p => p.catch(e => console.log(e.message))));
           }
-          await batch.commit().catch(e => console.log(e));
+          
           
           /**
            * Step 4
