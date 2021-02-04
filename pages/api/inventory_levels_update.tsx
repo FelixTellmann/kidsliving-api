@@ -38,7 +38,7 @@ function getShopifyProductById(product_id: string): AxiosPromise {
 }
 
 function catchErrors(promiseArray) {
-  return promiseArray.map((p) => p.catch(e => console.log(e.message, "error caught within Promise.All()")))
+  return promiseArray.map((p) => p.catch(e => console.log(e.message, "error caught within Promise.All()")));
 }
 
 function deleteShopifyInventoryItemToLocationConnection(inventory_item_id: number, location_id: number) {
@@ -61,21 +61,21 @@ function saveInDB(db, inventory_item_id) {
            });
 }
 
-export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> => {
+export default (async (req: NextApiRequest, res: NextApiResponse): Promise<void> => {
   const shopifyWebhook = req.headers[`x-shopify-shop-domain`] === process.env.SHOPIFY_DOMAIN;
-  let firebase = await loadFirebase();
-  let db = firebase.firestore();
-  
-  const { inventory_item_id, location_id } = req.body;
-  console.log(JSON.stringify(req.body));
-  console.log(shopifyWebhook, location_id, +process.env.SHOPIFY_JHB_OUTLET_ID);
-  /* Validate Action needed - is on JHB outlet */
-  
   try {
+    let firebase = await loadFirebase();
+    let db = firebase.firestore();
+    
+    const { inventory_item_id, location_id } = req.body;
+    console.log(JSON.stringify(req.body));
+    console.log(shopifyWebhook, location_id, +process.env.SHOPIFY_JHB_OUTLET_ID);
+    /* Validate Action needed - is on JHB outlet */
+    
     if (shopifyWebhook && location_id === +process.env.SHOPIFY_JHB_OUTLET_ID) {
       let duplicate = false;
       try {
-        await db.collection("inventory_item_levels").doc(inventory_item_id.toString()).get().then((doc) => {
+        await db.collection("inventory_item_levels").doc(String(inventory_item_id)).get().then((doc) => {
           if (doc.exists && doc.data().created_at > Date.now() - 2 * 60 * 1000) { // 60 seconds ago
             duplicate = true;
             console.log("id: " + inventory_item_id + " - Already processing - Please wait until:" +
@@ -88,7 +88,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
           }
         });
       } catch (err) {
-        console.log(err);
+        console.log(err.message);
         res.status(500).json("Error no DB connection");
         return;
       }
@@ -103,22 +103,29 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
       if (!duplicate && source_id && !tags.toLowerCase().includes("sell jhb")) {
         const { data: { product: { variants } } } = await getShopifyProductById(source_id);
         if (variants.length) {
-          const saveInDBPromiseArr = [];
+          const batch = db.batch();
           const updateShopifyPromiseArr = [];
           variants.forEach(({ inventory_item_id }) => {
-            saveInDBPromiseArr.push(saveInDB(db, inventory_item_id));
+            batch.set(db.collection("inventory_item_levels").doc(String(inventory_item_id)), {
+              created_at: Date.now(),
+              created_at_ISO: new Date(Date.now()).toISOString().split(".")[0].split("T").join(" ").replace(/-/gi, "/")
+            });
             updateShopifyPromiseArr.push(deleteShopifyInventoryItemToLocationConnection(inventory_item_id,
               +process.env.SHOPIFY_JHB_OUTLET_ID));
           });
-          await Promise.all(catchErrors(saveInDBPromiseArr));
-          await Promise.all(catchErrors(updateShopifyPromiseArr));
+          
+          try {
+            await batch.commit().catch(e => console.log(e));
+            await Promise.all(catchErrors(updateShopifyPromiseArr));
+          } catch (err) {
+            console.log(err.message);
+          }
+          
         }
       }
     }
   } catch (err) {
-    console.log(err.message, "ASDASD MESSAGE");
-    res.status(200).json({ name: `done` });
+    console.log(err.message);
   }
-  
   res.status(200).json({ name: `done` });
-}
+});
