@@ -67,7 +67,7 @@ export default (async (req: NextApiRequest, res: NextApiResponse): Promise<void>
     const { inventory_item_id, location_id } = req.body;
     console.log(shopifyWebhook, 'shopifyWebhook');
     console.log(inventory_item_id, 'inventory_item_id');
-    location_id === +process.env.SHOPIFY_JHB_OUTLET_ID && console.log('based on JHB Inventory');
+    location_id === +process.env.SHOPIFY_JHB_OUTLET_ID ? console.log('JHB Inventory') : console.log('CPT Inventory');
     /* Validate Action needed - is on JHB outlet */
     
     if (shopifyWebhook && location_id === +process.env.SHOPIFY_JHB_OUTLET_ID) {
