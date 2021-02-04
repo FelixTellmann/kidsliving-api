@@ -64,16 +64,15 @@ function saveInDB(db, inventory_item_id) {
 export default (async (req: NextApiRequest, res: NextApiResponse): Promise<void> => {
   const shopifyWebhook = req.headers[`x-shopify-shop-domain`] === process.env.SHOPIFY_DOMAIN;
   try {
-    let firebase = await loadFirebase();
-    let db = firebase.firestore();
-    
     const { inventory_item_id, location_id } = req.body;
-    console.log(JSON.stringify(req.body));
-    console.log(shopifyWebhook, location_id, +process.env.SHOPIFY_JHB_OUTLET_ID);
+    console.log(shopifyWebhook, 'shopifyWebhook');
+    console.log(location_id === +process.env.SHOPIFY_JHB_OUTLET_ID, 'based on JHB Inventory');
     /* Validate Action needed - is on JHB outlet */
     
     if (shopifyWebhook && location_id === +process.env.SHOPIFY_JHB_OUTLET_ID) {
       let duplicate = false;
+      let firebase = await loadFirebase();
+      let db = firebase.firestore();
       try {
         await db.collection("inventory_item_levels").doc(String(inventory_item_id)).get().then((doc) => {
           if (doc.exists && doc.data().created_at > Date.now() - 2 * 60 * 1000) { // 60 seconds ago
