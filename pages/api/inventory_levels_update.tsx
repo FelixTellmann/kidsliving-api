@@ -62,20 +62,22 @@ function saveInDB(db, inventory_item_id) {
 }
 
 export default (async (req: NextApiRequest, res: NextApiResponse): Promise<void> => {
+  
   const shopifyWebhook = req.headers[`x-shopify-shop-domain`] === process.env.SHOPIFY_DOMAIN;
+  let firebase = await loadFirebase();
+  let db = firebase.firestore();
   try {
     const { inventory_item_id, location_id } = req.body;
-    console.log(shopifyWebhook, 'shopifyWebhook');
-    console.log(inventory_item_id, 'inventory_item_id');
-    location_id === +process.env.SHOPIFY_JHB_OUTLET_ID ? console.log('JHB Inventory') : console.log('CPT Inventory');
+    console.log(shopifyWebhook, "shopifyWebhook");
+    console.log(inventory_item_id, "inventory_item_id");
+    location_id === +process.env.SHOPIFY_JHB_OUTLET_ID ? console.log("JHB Inventory") : console.log("CPT Inventory");
     /* Validate Action needed - is on JHB outlet */
     
     if (shopifyWebhook && location_id === +process.env.SHOPIFY_JHB_OUTLET_ID) {
       let duplicate = false;
-      let firebase = await loadFirebase();
-      let db = firebase.firestore();
+      
       try {
-        await db.collection("inventory_item_levels").doc(String(inventory_item_id)).get().then((doc) => {
+        await db.collection("inventory_item_levels").doc("asd" + inventory_item_id).get().then((doc) => {
           if (doc.exists && doc.data().created_at > Date.now() - 2 * 60 * 1000) { // 60 seconds ago
             duplicate = true;
             console.log("id: " + inventory_item_id + " - Already processing - Please wait until:" +
@@ -86,7 +88,7 @@ export default (async (req: NextApiRequest, res: NextApiResponse): Promise<void>
                 .join(" ")
                 .replace(/-/gi, "/"));
           }
-        });
+        }).catch(e => console.log(e));
       } catch (err) {
         console.log(err.message);
         res.status(500).json("Error no DB connection");
@@ -106,7 +108,7 @@ export default (async (req: NextApiRequest, res: NextApiResponse): Promise<void>
           const batch = db.batch();
           const updateShopifyPromiseArr = [];
           variants.forEach(({ inventory_item_id }) => {
-            batch.set(db.collection("inventory_item_levels").doc(String(inventory_item_id)), {
+            batch.set(db.collection("inventory_item_levels").doc("asd" + inventory_item_id), {
               created_at: Date.now(),
               created_at_ISO: new Date(Date.now()).toISOString().split(".")[0].split("T").join(" ").replace(/-/gi, "/")
             });
@@ -116,11 +118,10 @@ export default (async (req: NextApiRequest, res: NextApiResponse): Promise<void>
           
           try {
             await batch.commit().catch(e => console.log(e));
-            await Promise.all(catchErrors(updateShopifyPromiseArr));
+            await Promise.all(catchErrors(updateShopifyPromiseArr)).catch(e => console.log(e));
           } catch (err) {
             console.log(err.message);
           }
-          
         }
       }
     }
