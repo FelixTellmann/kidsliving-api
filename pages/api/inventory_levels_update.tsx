@@ -38,9 +38,7 @@ function getShopifyProductById(product_id: string): AxiosPromise {
 }
 
 function catchErrors(promiseArray) {
-  return promiseArray.map((p) => p.catch(e => {
-    console.log(e.message, "error caught within Promise.All()");
-  }));
+  return promiseArray.map((p) => p.catch(e => console.log(e.message)));
 }
 
 function deleteShopifyInventoryItemToLocationConnection(inventory_item_id: number, location_id: number) {
@@ -95,28 +93,50 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
         return;
       }
       
-      const shopify = await getShopifyInventoryItem(inventory_item_id);
+      let shopify
+      try {
+         shopify = await getShopifyInventoryItem(inventory_item_id)
+      } catch (err) {
+        console.log(err.message)
+        res.status(200).json(err.message)
+      }
+      
       if (shopify) {
-        const { data: { inventory_item: { sku } } } = shopify
-        const vend = await getVendProductBySku(sku);
+        const { data: { inventory_item: { sku } } } = shopify;
+        let vend;
+        try {
+          vend = await getVendProductBySku(sku)
+        } catch (err) {
+          console.log(err.message)
+          res.status(200).json(err.message)
+        }
         if (vend) {
           const { data: { products: [{ tags, source_id }] } } = vend
-  
+          
           if (tags.toLowerCase().includes("sell jhb")) {
-            console.log('Has "Sell JHB" Tag')
+            console.log("Has \"Sell JHB\" Tag");
           }
           /* validate existence */
           if (!duplicate && source_id && !tags.toLowerCase().includes("sell jhb")) {
-            const { data: { product: { variants } } } = await getShopifyProductById(source_id);
+            let shopifyProduct
+            try {
+              shopifyProduct = await getShopifyProductById(source_id);
+            } catch (err) {
+              console.log(err.message)
+              res.status(200).json(err.message)
+            }
+            
+            const { data: { product: { variants } } } = shopifyProduct
+            
             if (variants.length) {
               const saveInDBPromiseArr = [];
               const updateShopifyPromiseArr = [];
               variants.forEach(({ inventory_item_id }) => {
-                saveInDBPromiseArr.push(saveInDB(db, inventory_item_id))
+                saveInDBPromiseArr.push(saveInDB(db, inventory_item_id));
                 updateShopifyPromiseArr.push(deleteShopifyInventoryItemToLocationConnection(inventory_item_id,
                   +process.env.SHOPIFY_JHB_OUTLET_ID));
               });
-              await Promise.all(catchErrors(saveInDBPromiseArr))
+              await Promise.all(catchErrors(saveInDBPromiseArr));
               await Promise.all(catchErrors(updateShopifyPromiseArr));
             }
           }
