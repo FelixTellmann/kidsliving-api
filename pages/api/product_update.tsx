@@ -339,7 +339,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
   const { handle: vendHandle, source_id: vendId, source } = vendWebhook && JSON.parse(req.body.payload);
   const { id: shopifyId, handle: shopifyHandle } = shopifyWebhook && req.body;
   const { source_id: bulkId, handle: bulkHandle } = bulkRequest && req.body;
-  const handle = String(vendHandle || shopifyHandle || bulkHandle);
+  const handle = String(vendHandle || shopifyHandle || bulkHandle).toLowerCase().trim();
   const source_id = String(vendId || shopifyId || bulkId);
   
   if (vendWebhook) console.log("vendWebhook", handle, source_id);
@@ -353,6 +353,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
   if (vendWebhook && handle === "testing-testing-do-not-fulfill") {
     console.log(JSON.parse(req.body.payload));
   }
+ 
   /**
    * Validate
    * Save in DB/CheckDB
