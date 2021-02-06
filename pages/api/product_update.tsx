@@ -363,6 +363,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
    * */
   try {
     await db.collection("product_update").doc(handle).get().then((doc) => {
+      console.log(doc.data().created_at, Date.now() - 2 * 60 * 1000 )
       if (doc.exists && doc.data().created_at > Date.now() - 2 * 60 * 1000) { // 60 seconds ago
         duplicate = true;
         console.log("id: " + handle + " - Already processing - Please wait until:" +
