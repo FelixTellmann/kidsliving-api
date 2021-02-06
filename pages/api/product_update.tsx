@@ -350,8 +350,8 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
   let db = firebase.firestore();
   let duplicate = false;
   
-  if (vendWebhook && handle === 'testing-testing-do-not-fulfill') {
-      console.log(JSON.parse(req.body.payload))
+  if (vendWebhook && handle === "testing-testing-do-not-fulfill") {
+    console.log(JSON.parse(req.body.payload));
   }
   /**
    * Validate
@@ -410,23 +410,24 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
          * Vend: via "handle" & Bulk Request
          * Shopify: via "product_id"
          **/
-        const sourceData = await Promise.all([
+        const [vendPromise, shopifyPromise] = await Promise.allSettled([
           getVendProductByHandle(handle),
           getShopifyProductById(source_id)
-        ].map(p => p.catch(e => e)));
+        ]);
         
-        if (!(sourceData[0] instanceof Error)) {
+        if (vendPromise.status === "fulfilled") {
           const isUnpublishd = source_id.includes("unpub") || source === "USER";
-          const isOnShopify = !(sourceData[1] instanceof Error);
-          let vend = [];
+          const isOnShopify = shopifyPromise.status === "fulfilled";
+          let { data: { products: vend } } = vendPromise.value;
           let images = [];
           let shopify = [];
           let shopifyTags = "";
           
-          if (isOnShopify && !isUnpublishd) {
-            [{ data: { products: vend } }, { data: { product: { images, variants: shopify, tags: shopifyTags } } }] = sourceData;
-          } else {
-            [{ data: { products: vend } }] = sourceData;
+          
+          if (shopifyPromise.status === "fulfilled" && !isUnpublishd) {
+            images = shopifyPromise.value.data.product.images;
+            shopify = shopifyPromise.value.data.product.variants;
+            shopifyTags = shopifyPromise.value.data.product.tags;
           }
           
           const isSingleProduct = vend.length === 1 && !vend[0].has_variants && vend[0].variant_parent_id === "";
@@ -492,10 +493,13 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
             addVariantsToShopify.forEach(({ product_id, sku, price, option1, option2, option3 }) => {
               shopifyAddPromiseArr.push(createShopifyProductVariant(product_id, sku, price, option1, option2, option3));
             });
-            newProductsOnShopify = shopifyAddPromiseArr.length > 0
-                                   ? (await Promise.all(shopifyAddPromiseArr.map(p => p.catch(e => e))))
-                                     .filter(result => !(result instanceof Error))
-                                   : [];
+            newProductsOnShopify = await Promise.allSettled(shopifyAddPromiseArr);
+            newProductsOnShopify.reduce((acc, { status, value }) => {
+              if (status === "fulfilled") {
+                acc.push(value);
+              }
+              return acc;
+            }, []);
             vendWithoutAddons = vend.filter(({ id }) => !addVariantsToShopify.some(({ id: updateId }) => updateId === id));
             
           }
@@ -524,11 +528,17 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
                 process.env.SHOPIFY_JHB_OUTLET_ID));
             }
             
-            itemsAlreadyConnected = (await Promise.all(alreadyConnectedPromises.map(p => p.catch(e => console.log(e.message)))))
-              .filter(result => !(result instanceof Error))
-              .reduce((acc, { data: { inventory_levels } }) => {
-                return [...acc, ...inventory_levels];
-              }, []);
+            itemsAlreadyConnected = await Promise.allSettled(alreadyConnectedPromises);
+            itemsAlreadyConnected.reduce((acc, { status, value }) => {
+              if (status === "fulfilled") {
+                acc.push(value);
+              }
+              return acc;
+            }, []);
+            
+            itemsAlreadyConnected.reduce((acc, { data: { inventory_levels } }) => {
+              return [...acc, ...inventory_levels];
+            }, []);
             inventoryToAddToJHB = shopify.filter(({ inventory_item_id }) => !itemsAlreadyConnected.some(({ inventory_item_id: connected_id }) => inventory_item_id ===
               connected_id))
                                          .reduce((acc, { id, ...rest }) => {
@@ -562,7 +572,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
                 +process.env.SHOPIFY_JHB_OUTLET_ID));
             });
             await batch.commit().catch(e => console.log(e));
-            await Promise.all(connectToInventoryLocation.map(p => p.catch(e => console.log(e.message))));
+            await Promise.allSettled(connectToInventoryLocation);
           } else if (isOnShopify) {
             const batch = db.batch();
             const deleteInventoryItemLocationConnection = [];
@@ -584,9 +594,8 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
                 +process.env.SHOPIFY_JHB_OUTLET_ID));
             });
             await batch.commit().catch(e => console.log(e));
-            await Promise.all(deleteInventoryItemLocationConnection.map(p => p.catch(e => console.log(e.message))));
+            await Promise.allSettled(deleteInventoryItemLocationConnection);
           }
-          
           
           /**
            * Step 4
@@ -717,11 +726,13 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
             bulkRequest ? "bulkRequest" : "");
           
           if (vendShopifyUpdatePromiseArr.length > 0) {
-            const results = (await Promise.all([
-              ...vendShopifyUpdatePromiseArr.map(p => p.catch(e => e))
-            ])).filter(result => !(result instanceof Error));
+            const results = await Promise.allSettled(vendShopifyUpdatePromiseArr);
             if (bulkRequest) {
-              results.forEach(({ config: { data } }) => { console.log(data);});
+              results.forEach((promise) => {
+                if (promise.status === "fulfilled") {
+                  console.log(promise.value.data);
+                }
+              });
             }
           }
           
@@ -732,7 +743,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
          *
          * */
         
-        ((sourceData[0] instanceof Error) || (sourceData[1] instanceof Error)) &&
+        (vendPromise.status === "rejected") || (shopifyPromise.status === "rejected") &&
         console.log("error - could not get data from Shopify or Vend - incorrect handle or source_id");
         res.status(200).json("success");
       } catch (err) {

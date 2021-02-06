@@ -119,7 +119,7 @@ export default (async (req: NextApiRequest, res: NextApiResponse): Promise<void>
           
           try {
             await batch.commit().catch(e => console.log(e));
-            await Promise.all(catchErrors(updateShopifyPromiseArr))
+            await Promise.allSettled(updateShopifyPromiseArr)
           } catch (err) {
             console.log(err.message);
           }
