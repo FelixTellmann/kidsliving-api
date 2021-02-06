@@ -66,13 +66,14 @@ export default (async (req: NextApiRequest, res: NextApiResponse): Promise<void>
   const shopifyWebhook = req.headers[`x-shopify-shop-domain`] === process.env.SHOPIFY_DOMAIN;
   let firebase = await loadFirebase();
   let db = firebase.firestore();
+  
   try {
     const { inventory_item_id, location_id } = req.body;
     console.log(shopifyWebhook, "shopifyWebhook");
     console.log(inventory_item_id, "inventory_item_id");
     location_id === +process.env.SHOPIFY_JHB_OUTLET_ID ? console.log("JHB Inventory") : console.log("CPT Inventory");
-    /* Validate Action needed - is on JHB outlet */
     
+    /* Validate Action needed - is on JHB outlet */
     if (shopifyWebhook && location_id === +process.env.SHOPIFY_JHB_OUTLET_ID) {
       let duplicate = false;
       
@@ -88,7 +89,7 @@ export default (async (req: NextApiRequest, res: NextApiResponse): Promise<void>
                 .join(" ")
                 .replace(/-/gi, "/"));
           }
-        }).catch(e => console.log(e));
+        })
       } catch (err) {
         console.log(err.message);
         res.status(500).json("Error no DB connection");
@@ -118,7 +119,7 @@ export default (async (req: NextApiRequest, res: NextApiResponse): Promise<void>
           
           try {
             await batch.commit().catch(e => console.log(e));
-            await Promise.all(catchErrors(updateShopifyPromiseArr)).catch(e => console.log(e));
+            await Promise.all(catchErrors(updateShopifyPromiseArr))
           } catch (err) {
             console.log(err.message);
           }
