@@ -363,7 +363,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
    *      else - Break script & return status 200
    * */
   try {
-    /*await db.collection("product_update").doc(handle).get().then((doc) => {
+    await db.collection("product_update").doc(handle).get().then((doc) => {
       if (doc.exists && doc.data().created_at > Date.now() - 2 * 60 * 1000) { // 60 seconds ago
         duplicate = true;
         console.log("id: " + handle + " - Already processing - Please wait until:" +
@@ -374,7 +374,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
             .join(" ")
             .replace(/-/gi, "/"));
       }
-    });*/
+    });
     if (!duplicate) {
       await db.collection("product_update")
               .doc(handle)
