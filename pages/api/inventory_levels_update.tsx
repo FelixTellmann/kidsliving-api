@@ -79,7 +79,7 @@ export default (async (req: NextApiRequest, res: NextApiResponse): Promise<void>
       
       try {
         await db.collection("inventory_item_levels").doc("asd" + inventory_item_id).get().then((doc) => {
-          if (doc.exists && doc.data().created_at > Date.now() - 2 * 60 * 1000) { // 60 seconds ago
+          if (doc.exists && doc.data().created_at > Date.now() - 10 * 1000) { // 60 seconds ago
             duplicate = true;
             console.log("id: " + inventory_item_id + " - Already processing - Please wait until:" +
               new Date(doc.data().created_at + 2 * 60 * 1000)
