@@ -514,7 +514,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
           const supposedToBeInJHBInventory = [];
           let itemsAlreadyConnected = [];
           let inventoryToAddToJHB = [];
-          console.log(hasSellJHBTag,'hasSellJHBTag')
+          
           if (hasSellJHBTag && isOnShopify) {
             const connectToInventoryLocation = [];
             const alreadyConnectedPromises = [];
@@ -575,26 +575,16 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
             await batch.commit().catch(e => console.log(e));
             await Promise.allSettled(connectToInventoryLocation);
           } else if (isOnShopify) {
-            const batch = db.batch();
             const deleteInventoryItemLocationConnection = [];
             shopify.forEach(({ inventory_item_id }) => {
-              batch.set(db.collection("inventory_item_levels").doc(String(inventory_item_id)), {
-                created_at: Date.now(),
-                created_at_ISO: new Date(Date.now()).toISOString().split(".")[0].split("T").join(" ").replace(/-/gi, "/")
-              });
               deleteInventoryItemLocationConnection.push(deleteShopifyInventoryItemToLocationConnection(inventory_item_id,
                 +process.env.SHOPIFY_JHB_OUTLET_ID));
             });
             
             newProductsOnShopify.forEach(({ data: { variant: { id: shopifyVariantId, sku, inventory_item_id } } }) => {
-              batch.set(db.collection("inventory_item_levels").doc(String(inventory_item_id)), {
-                created_at: Date.now(),
-                created_at_ISO: new Date(Date.now()).toISOString().split(".")[0].split("T").join(" ").replace(/-/gi, "/")
-              });
               deleteInventoryItemLocationConnection.push(deleteShopifyInventoryItemToLocationConnection(inventory_item_id,
                 +process.env.SHOPIFY_JHB_OUTLET_ID));
             });
-            await batch.commit().catch(e => console.log(e));
             await Promise.allSettled(deleteInventoryItemLocationConnection);
           }
           
