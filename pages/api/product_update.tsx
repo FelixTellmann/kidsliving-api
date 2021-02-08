@@ -60,7 +60,7 @@ function createShopifyAddArr(shopify, vend): createShopifyAddArrObject[] {
     if (variant_source_id === "" || shopify.every(({ id }) => +id !== +variant_source_id)) { // if not in shopify Variants List
       acc.push({
         id,
-        product_id: +source_id,
+        product_id: +source_id.replace('_unpub',''),
         sku,
         price: (
           price + tax
@@ -363,7 +363,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
    *      else - Break script & return status 200
    * */
   try {
-    await db.collection("product_update").doc(handle).get().then((doc) => {
+    /*await db.collection("product_update").doc(handle).get().then((doc) => {
       if (doc.exists && doc.data().created_at > Date.now() - 2 * 60 * 1000) { // 60 seconds ago
         duplicate = true;
         console.log("id: " + handle + " - Already processing - Please wait until:" +
@@ -374,7 +374,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
             .join(" ")
             .replace(/-/gi, "/"));
       }
-    });
+    });*/
     if (!duplicate) {
       await db.collection("product_update")
               .doc(handle)
@@ -469,7 +469,8 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
            * Validate
            * Check that handle & shopify_id are a match - better for performance to check afterwards
            * */
-          if (isOnShopify && !isUnpublishd && +vend[0].source_id !== shopify[0].product_id) {
+          
+          if (isOnShopify && !isUnpublishd && +source_id !== shopify[0].product_id) {
             res.status(200).json("Vend & Shopify Ids do not Match");
             return;
           }
@@ -494,15 +495,15 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
             addVariantsToShopify.forEach(({ product_id, sku, price, option1, option2, option3 }) => {
               shopifyAddPromiseArr.push(createShopifyProductVariant(product_id, sku, price, option1, option2, option3));
             });
-            newProductsOnShopify = await Promise.allSettled(shopifyAddPromiseArr);
-            newProductsOnShopify.reduce((acc, { status, value }) => {
-              if (status === "fulfilled") {
-                acc.push(value);
+            newProductsOnShopify = (await Promise.allSettled(shopifyAddPromiseArr)).reduce((acc, promise) => {
+              if (promise.status === "fulfilled") {
+                acc.push(promise.value);
               }
               return acc;
             }, []);
-            vendWithoutAddons = vend.filter(({ id }) => !addVariantsToShopify.some(({ id: updateId }) => updateId === id));
             
+            vendWithoutAddons = vend.filter(({ id }) => !addVariantsToShopify.some(({ id: updateId }) => updateId === id));
+            console.log(newProductsOnShopify)
           }
           
           /**
@@ -513,7 +514,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
           const supposedToBeInJHBInventory = [];
           let itemsAlreadyConnected = [];
           let inventoryToAddToJHB = [];
-          
+          console.log(hasSellJHBTag,'hasSellJHBTag')
           if (hasSellJHBTag && isOnShopify) {
             const connectToInventoryLocation = [];
             const alreadyConnectedPromises = [];
@@ -529,10 +530,9 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
                 process.env.SHOPIFY_JHB_OUTLET_ID));
             }
             
-            itemsAlreadyConnected = await Promise.allSettled(alreadyConnectedPromises);
-            itemsAlreadyConnected.reduce((acc, { status, value }) => {
-              if (status === "fulfilled") {
-                acc.push(value);
+            itemsAlreadyConnected = (await Promise.allSettled(alreadyConnectedPromises)).reduce((acc, promise) => {
+              if (promise.status === "fulfilled") {
+                acc.push(promise.value);
               }
               return acc;
             }, []);
