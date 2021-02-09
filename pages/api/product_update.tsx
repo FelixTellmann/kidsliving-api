@@ -60,7 +60,7 @@ function createShopifyAddArr(shopify, vend): createShopifyAddArrObject[] {
     if (variant_source_id === "" || shopify.every(({ id }) => +id !== +variant_source_id)) { // if not in shopify Variants List
       acc.push({
         id,
-        product_id: +source_id.replace('_unpub',''),
+        product_id: +source_id.replace("_unpub", ""),
         sku,
         price: (
           price + tax
@@ -353,7 +353,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
   if (vendWebhook && handle === "testing-testing-do-not-fulfill") {
     console.log(JSON.parse(req.body.payload));
   }
- 
+  
   /**
    * Validate
    * Save in DB/CheckDB
@@ -423,7 +423,6 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
           let images = [];
           let shopify = [];
           let shopifyTags = "";
-          
           
           if (shopifyPromise.status === "fulfilled" && !isUnpublishd) {
             images = shopifyPromise.value.data.product.images;
@@ -503,7 +502,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
             }, []);
             
             vendWithoutAddons = vend.filter(({ id }) => !addVariantsToShopify.some(({ id: updateId }) => updateId === id));
-            console.log(newProductsOnShopify)
+            console.log(newProductsOnShopify);
           }
           
           /**
@@ -596,7 +595,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
               deleteInventoryItemLocationConnection.push(deleteShopifyInventoryItemToLocationConnection(inventory_item_id,
                 +process.env.SHOPIFY_JHB_OUTLET_ID));
             });
-  
+            
             await batch.commit().catch(e => console.log(e));
             await Promise.allSettled(deleteInventoryItemLocationConnection);
           }
