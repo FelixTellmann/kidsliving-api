@@ -78,7 +78,7 @@ export default (async (req: NextApiRequest, res: NextApiResponse): Promise<void>
       let duplicate = false;
       
       try {
-        await db.collection("inventory_item_levels").doc("asd" + inventory_item_id).get().then((doc) => {
+        await db.collection("inventory_item_levels").doc("" + inventory_item_id).get().then((doc) => {
           if (doc.exists && doc.data().created_at > Date.now() - 10 * 1000) { // 60 seconds ago
             duplicate = true;
             console.log("id: " + inventory_item_id + " - Already processing - Please wait until:" +
@@ -109,7 +109,7 @@ export default (async (req: NextApiRequest, res: NextApiResponse): Promise<void>
           const batch = db.batch();
           const updateShopifyPromiseArr = [];
           variants.forEach(({ inventory_item_id }) => {
-            batch.set(db.collection("inventory_item_levels").doc("asd" + inventory_item_id), {
+            batch.set(db.collection("inventory_item_levels").doc("" + inventory_item_id), {
               created_at: Date.now(),
               created_at_ISO: new Date(Date.now()).toISOString().split(".")[0].split("T").join(" ").replace(/-/gi, "/")
             });
