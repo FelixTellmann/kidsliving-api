@@ -66,32 +66,32 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
 
     /** STEP 3
      * Analyse Vend Data */
-    const v_variants = simplifyProducts(v_req.value.data?.products, "vend");
+    const vend = simplifyProducts(v_req.value.data?.products, "vend");
 
     /** STEP 4
      *  Analyse Shopify Data */
-    const s_variants = simplifyProducts(s_req.value.data?.product, "shopify");
+    const shopify = simplifyProducts(s_req.value.data?.product, "shopify");
 
     if (process.env.NODE_ENV === "development") {
       console.log(JSON.stringify({
-        v_variants_0: v_variants[0],
-        s_variants_0: s_variants[0],
+        vend_0: vend[0],
+        shopify_0: shopify[0],
       }, null, 2));
     } // LOGGING
 
     /** Step 5
      * Compare Vend & Shopify Data */
-    const { updates, newVariants } = getDifferences(v_variants, s_variants);
+    const asd = getDifferences(vend, shopify);
 
-    console.log(updates);
+    console.log(asd);
     /* const a = await Promise.allSettled([
       updates.length > 0 ? fetchShopify(`/products/${updates[0].product_id}.json`,
         "PUT",
         {
           product: {
             id: updates[0].product_id,
-            tags: v_tags,
-            body_html: v_description,
+            tags: updates[0].tags,
+            body_html: updates[0].description,
             product_type: updates[0].product_type,
           },
         }) : null,
