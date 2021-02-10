@@ -134,6 +134,21 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
       }, null, 2));
     } // LOGGING
 
+    await db.collection("product.update")
+      .doc(product_id)
+      .set({
+        created_at: prevTimer,
+        created_at_ISO: new Date(Date.now()).toISOString().split(".")[0].split("T").join(" ").replace(/-/gi, "/"),
+        handle,
+        product_id,
+        source: vhook ? "vend" : "shopify",
+        processed: JSON.stringify({
+          /* vend_0: vend[0],
+          shopify_0: shopify_gql[0], */
+          to_process,
+        }, null, 2),
+      });
+
     const final = await Promise.allSettled(updateArray);
 
     final.forEach((request) => {
