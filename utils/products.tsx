@@ -84,6 +84,43 @@ export const createGqlQuery = (product_id: number): string => {
   }`;
 };
 
+export const createGqlNewProductMutation = (
+  product_id: number,
+  sku: string,
+  price: string,
+  inventory_CPT: number,
+  inventory_JHB?: number,
+  option1?: string,
+  option2?: string,
+  option3?: string,
+): string => {
+  const inventoryQuantities = [{ availableQuantity: inventory_CPT, locationId: "gid://shopify/Location/22530642" }];
+  inventory_JHB
+  && inventoryQuantities.push({ availableQuantity: inventory_JHB, locationId: "gid://shopify/Location/36654383164" });
+
+  const config = {
+    productId: `gid://shopify/Product/${product_id}`,
+    sku,
+    options: [option1 || "", option2 || "", option3 || ""],
+    price,
+    inventoryQuantities,
+  };
+
+  return `mutation {productVariantCreate(input: ${JSON.stringify(config)}) {
+    product {
+      id
+    }
+    productVariant {
+      id
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+}`;
+};
+
 export const isUnpublished = (({ source_id, variant_source_id }: any): boolean => {
   return source_id.includes("unpub") || variant_source_id.includes("unpub");
 });
@@ -98,7 +135,6 @@ export const simplifyProducts = ((products: any, source: "vend" | "shopify" | "s
     const v_all_unpublished = products.every(isUnpublished);
     const v_incorrectly_unpublished = !v_all_unpublished && products.some(isUnpublished);
     const v_description = products.reduce((acc, { description: d }) => { return mergeDescriptions(acc, d); }, "");
-    const v_inconsistent_description = !products.every(({ description }) => description === v_description);
     const v_tags = products.reduce((acc, { tags }) => { return mergeTags(acc, tags); }, "");
     const v_inconsistent_tags = !products.every(({ tags }) => isSameTags(tags, v_tags));
     const v_has_sell_jhb_tag = v_tags.toLowerCase().includes("sell jhb");
@@ -119,6 +155,7 @@ export const simplifyProducts = ((products: any, source: "vend" | "shopify" | "s
         variant_option_two_value,
         variant_option_three_value,
         inventory,
+        description,
       } = variant;
 
       const inventory_CPT = +inventory.filter(({ outlet_id }) => outlet_id === VEND_CPT_OUTLET_ID)[0]?.count || 0;
@@ -148,7 +185,7 @@ export const simplifyProducts = ((products: any, source: "vend" | "shopify" | "s
         v_unpublished,
         v_all_unpublished,
         v_incorrectly_unpublished,
-        v_inconsistent_description,
+        v_inconsistent_description: description !== v_description,
         v_inconsistent_tags,
         v_has_sell_jhb_tag,
         v_has_needs_variant_image_tag,
@@ -274,20 +311,22 @@ export const simplifyProducts = ((products: any, source: "vend" | "shopify" | "s
   }
 });
 
-type requestConfig = { api: string, method: "GET" | "POST" | "PUT" | "DELETE", body?: any };
+type requestConfig = { api: string, method: "GET" | "POST" | "PUT" | "DELETE", body?: any } | undefined;
+type gqlConfig = { body: string } | undefined;
 
 type getDifferenceReturn = {
-  vendProducts: requestConfig[] | unknown[]
-  shopifyProduct: requestConfig[] | unknown[]
-  shopifyVariants: requestConfig[] | unknown[]
-  shopifyNewVariants: requestConfig[] | unknown[]
-  shopifyDeleteVariants?: requestConfig[] | unknown[]
-  shopifyConnectInventory?: requestConfig[] | unknown[]
-  shopifyDisconnectInventory?: requestConfig[] | unknown[]
+  vendProducts: requestConfig[]
+  shopifyProduct: requestConfig[]
+  shopifyVariants: requestConfig[]
+  shopifyNewVariants: gqlConfig[]
+  shopifyConnectInventory: requestConfig[]
+  shopifyDisconnectInventory: requestConfig[]
 };
 
-export const getDifferences = (source: productModel[], target: productModel[]): getDifferenceReturn => {
-  const shopifyDeleteVariants = target.reduce((acc, targetVariant): requestConfig[] => {
+type finalReturn = getDifferenceReturn & { shopifyDeleteVariants: requestConfig[] };
+
+export const getDifferences = (source: productModel[], shopify: productModel[]): finalReturn => {
+  const shopifyDeleteVariants = shopify.reduce((acc, targetVariant): requestConfig[] => {
     if (!source.some(({ variant_id }) => variant_id === targetVariant.variant_id)) {
       acc.push({
         api: `/products/${targetVariant.product_id}/variants/${targetVariant.variant_id}.json`,
@@ -297,38 +336,40 @@ export const getDifferences = (source: productModel[], target: productModel[]): 
     return acc;
   }, []);
 
-  const needs_new_variant_image = source.some((s) => !target.some((t) => s.variant_id === t.variant_id));
-  console.log(needs_new_variant_image, 'needs_new_variant_image');
+  const needs_new_variant_image = source.some((s) => !shopify.some((t) => s.variant_id === t.variant_id));
+
   return {
     shopifyDeleteVariants,
-    ...source.reduce((acc, sourceVariant): getDifferenceReturn => {
-      /** OPTION 1
+    ...source.reduce((acc, vend): getDifferenceReturn => {
+      /** OPTION Deal with Vend only things
        * Found variant via id */
+      const reason = [];
+      let vendProductUpdate = false;
 
-      if (target.some(({ variant_id }) => variant_id === sourceVariant.variant_id)) {
-        const targetVariant = target.find(({ variant_id }) => variant_id === sourceVariant.variant_id);
-        const override = { ...targetVariant, ...sourceVariant };
-        let vendProductUpdate = false;
+      if (vend.v_inconsistent_description) {
+        vendProductUpdate = true;
+        reason.push("inconsistent description on Vend");
+      }
+
+      if (vend.v_inconsistent_tags) {
+        vendProductUpdate = true;
+        reason.push("inconsistent tags on Vend");
+      }
+
+      if (vend.v_incorrectly_unpublished) {
+        vendProductUpdate = true;
+        reason.push("inconsistent unpublished on Vend");
+      }
+
+      /** OPTION 2
+       * Found variant via id */
+      if (shopify.some(({ variant_id }) => variant_id === vend.variant_id)) {
+        const targetVariant = shopify.find(({ variant_id }) => variant_id === vend.variant_id);
+        const override = { ...targetVariant, ...vend };
         let shopifyProductUpdate = false;
         let shopifyVariantUpdate = false;
         let shopifyInventoryLevelConnect = false;
         let shopifyInventoryLevelDisconnect = false;
-        const reason = [];
-
-        if (override.v_inconsistent_description) {
-          vendProductUpdate = true;
-          reason.push("inconsistent description on Vend");
-        }
-
-        if (override.v_inconsistent_tags) {
-          vendProductUpdate = true;
-          reason.push("inconsistent tags on Vend");
-        }
-
-        if (override.v_incorrectly_unpublished) {
-          vendProductUpdate = true;
-          reason.push("inconsistent unpublished on Vend");
-        }
 
         if (override.v_has_needs_variant_image_tag && !override.s_needs_variant_image && !needs_new_variant_image) {
           override.tags = removeTag(override.tags, "FX_needs_variant_image");
@@ -354,36 +395,35 @@ export const getDifferences = (source: productModel[], target: productModel[]): 
           reason.push("connect inventory");
         }
 
-        if (sourceVariant.sku !== targetVariant.sku) {
+        if (vend.sku !== targetVariant.sku) {
           vendProductUpdate = true;
           shopifyVariantUpdate = true;
           reason.push("sku");
         }
 
-        if (sourceVariant.price !== targetVariant.price) {
+        if (vend.price !== targetVariant.price) {
           vendProductUpdate = true;
           shopifyVariantUpdate = true;
           reason.push("price");
         }
 
-        if (!isSameTags(sourceVariant.tags, targetVariant.tags)) {
+        if (!isSameTags(vend.tags, targetVariant.tags)) {
           vendProductUpdate = true;
           shopifyProductUpdate = true;
           reason.push("tags");
         }
 
-        if (!isSameDescription(sourceVariant.description, targetVariant.description)) {
-          vendProductUpdate = true;
+        /* if (!isSameDescription(vend.description, targetVariant.description)) {
           shopifyProductUpdate = true;
           reason.push("description");
-        }
+        } */
 
-        if (sourceVariant.product_type !== targetVariant.product_type
-          && sourceVariant.product_type !== "General"
+        if (vend.product_type !== targetVariant.product_type
+          && vend.product_type !== "General"
           && targetVariant.product_type !== "General") {
           vendProductUpdate = true;
           shopifyProductUpdate = true;
-          reason.push(`product_type - ${sourceVariant.product_type} !== ${targetVariant.product_type}`);
+          reason.push(`product_type - ${vend.product_type} !== ${targetVariant.product_type}`);
         }
 
         process.env.NODE_ENV === "development" && console.log(reason);
@@ -396,6 +436,7 @@ export const getDifferences = (source: productModel[], target: productModel[]): 
               id: override.vend_id,
               source_id: override.source_id,
               source_variant_id: override.variant_id,
+              description: override.description,
               tags: override.tags,
               source: "SHOPIFY",
             },
@@ -440,23 +481,34 @@ export const getDifferences = (source: productModel[], target: productModel[]): 
             method: "DELETE",
           });
         }
-
+      } else {
         /** OPTION 2
          * NO Variant found */
-      } else {
-        acc.shopifyNewVariants.push({
-          api: `/products/${sourceVariant.product_id}/variants.json`,
-          method: "POST",
-          body: {
-            variant: {
-              id: sourceVariant.variant_id,
-              sku: sourceVariant.sku,
-              price: sourceVariant.price,
-              option1: sourceVariant.option1,
-              option2: sourceVariant.option2,
-              option3: sourceVariant.option3,
+
+        if (vendProductUpdate) {
+          acc.vendProducts.push({
+            api: `/products`,
+            method: `POST`,
+            body: {
+              id: vend.vend_id,
+              source_id: vend.source_id,
+              source_variant_id: vend.variant_id,
+              description: vend.description,
+              tags: vend.tags,
+              source: "SHOPIFY",
             },
-          },
+          });
+        }
+
+        acc.shopifyNewVariants.push({
+          body: createGqlNewProductMutation(vend.product_id,
+            vend.sku,
+            vend.price,
+            vend.inventory_CPT,
+            vend.v_has_sell_jhb_tag ? vend.inventory_JHB : undefined,
+            vend.option1,
+            vend.option2,
+            vend.option3),
         });
       }
       return acc;
@@ -465,7 +517,6 @@ export const getDifferences = (source: productModel[], target: productModel[]): 
       shopifyProduct: [],
       shopifyVariants: [],
       shopifyNewVariants: [],
-      shopifyDeleteVariants: [],
       shopifyConnectInventory: [],
       shopifyDisconnectInventory: [],
     }),

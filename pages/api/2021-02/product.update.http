@@ -96,7 +96,13 @@ Content-Type: application/graphql
 X-Shopify-Access-Token: 7522f1ec2ce1989ac523647deae8d00b
 
 mutation {
-  productVariantCreate(input: {productId: "gid://shopify/Product/4536570904636"}) {
+  productVariantCreate(input: {
+  productId: "gid://shopify/Product/4536570904636",
+  sku: "random123",
+  options: ["fancier4211", "", ""],
+  price: "123.00",
+  inventoryQuantities: [{availableQuantity: 5, locationId: "gid://shopify/Location/22530642"}]}
+  ) {
     product {
       id
     }

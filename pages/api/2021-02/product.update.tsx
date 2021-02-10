@@ -1,15 +1,7 @@
 import { loadFirebase } from "lib/db";
 import { NextApiRequest, NextApiResponse } from "next";
 import { fetchShopify, fetchShopifyGQL, fetchVend } from "utils/fetch";
-import {
-  createGqlQuery,
-  getDifferences,
-  hasVariantImage,
-  isInactive,
-  isUnpublished,
-  simplifyProducts,
-} from "utils/products";
-import { isSameTags, mergeDescriptions, mergeTags } from "../../../utils";
+import { createGqlQuery, getDifferences, simplifyProducts } from "utils/products";
 
 export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> => {
   /** STEP 1
@@ -62,14 +54,14 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
       return;
     }
 
-    if (s_gql_req.status === 'fulfilled' && s_gql_req.value.data?.errors?.length > 0) {
+    if (s_gql_req.status === "fulfilled" && s_gql_req.value.data?.errors?.length > 0) {
       console.log("too many shopify requests - error");
       res.status(429).json("too many requests - shopify");
       return;
     }
 
-    if (v_req.status === "rejected" || s_gql_req.status === 'rejected') {
-      res.status(500).json("too many requests - shopify");
+    if (v_req.status === "rejected" || s_gql_req.status === "rejected") {
+      res.status(500).json("Request Rejected - shopify / Vend");
       return;
     }
 
@@ -84,7 +76,16 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
      * Compare Vend & Shopify Data */
     const to_process = getDifferences(vend, shopify_gql);
 
-    /* await fetchShopify(to_process.shopifyProduct.api, to_process.shopifyProduct.method, to_process.shopifyProduct.body); */
+    const updateArray = [
+      ...to_process.vendProducts.map(({ api, method, body }) => fetchVend(api, method, body)),
+      ...to_process.shopifyDeleteVariants.map(({ api, method }) => fetchShopify(api, method)),
+      ...to_process.shopifyProduct.map(({ api, method, body }) => fetchShopify(api, method, body)),
+      ...to_process.shopifyVariants.map(({ api, method, body }) => fetchShopify(api, method, body)),
+      ...to_process.shopifyNewVariants.map(({ body }) => fetchShopifyGQL(body)),
+      ...to_process.shopifyConnectInventory.map(({ api, method, body }) => fetchShopify(api, method, body)),
+      ...to_process.shopifyDisconnectInventory.map(({ api, method, body }) => fetchShopify(api, method, body)),
+    ];
+
     if (process.env.NODE_ENV === "development") {
       console.log(JSON.stringify({
         vend_0: vend[0],
@@ -92,6 +93,17 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
         to_process,
       }, null, 2));
     } // LOGGING
+
+    const final = await Promise.allSettled(updateArray);
+    final.forEach((request) => {
+      console.log(request.status);
+      if (request.status === 'rejected') {
+        console.log(request.reason.response.message);
+      }
+      if (request.status === 'fulfilled') {
+        request.value.data?.extensions?.cost && console.log(request.value.data?.extensions?.cost);
+      }
+    });
   } catch (err) {
     res.status(200).json(`error: ${err.message}`);
     return;

@@ -13,11 +13,10 @@ export const fetchVend: fetchProps = (api, method = "GET", body = {}) => {
     method,
     url: `https://kidsliving.vendhq.com/api/${api}`,
     headers: {
-      Accept: "application/json",
       Authorization: `Bearer ${VEND_API}`,
       "Content-Type": "application/json",
     },
-    body: method !== "GET" ? typeof body === "string" ? body : JSON.stringify(body) : undefined,
+    data: method !== "GET" ? typeof body === "string" ? body : JSON.stringify(body) : undefined,
   };
 
   return axios(config);

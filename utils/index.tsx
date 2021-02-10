@@ -29,17 +29,21 @@ export const mergeTags = (tagList: string, tagListAddon: string): string => [
   ]),
 ].filter((t) => t !== "").join(",");
 
-export const mergeDescriptions = (description: string, descriptionAddon: string): string => [
-  ...new Set([
-    ...description.split(" "),
-    ...descriptionAddon.split(" "),
-  ]),
-].filter((t) => t !== "").join(" ");
+export const mergeDescriptions = (description: string, descriptionAddon: string): string => {
+  return description.length > descriptionAddon.length ? descriptionAddon : descriptionAddon;
+};
 
 export const isSameTags = (tagList: string, secondTagList: string): boolean => {
   return isSameArray(tagList.split(","), secondTagList.split(","));
 };
 
 export const isSameDescription = (description: string, secondDescription: string): boolean => {
-  return description.replace(/[^A-Za-z0-9]/gi, '') === secondDescription.replace(/[^A-Za-z0-9]/gi, '');
+  const isSame = description.replace(/[^A-Za-z0-9]/gi, "") === secondDescription.replace(/[^A-Za-z0-9]/gi, "");
+
+  if (!isSame) {
+    console.log(description.replace(/[^A-Za-z0-9]/gi, ""));
+    console.log(secondDescription.replace(/[^A-Za-z0-9]/gi, ""));
+  }
+
+  return isSame;
 };
