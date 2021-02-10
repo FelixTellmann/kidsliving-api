@@ -122,7 +122,6 @@ export const createGqlNewVariantMutation = (
 };
 
 export const createGqlUpdateVariantMutation = (
-  product_id: number,
   variant_id: number,
   sku: string,
   price: string,
@@ -137,7 +136,6 @@ export const createGqlUpdateVariantMutation = (
 
   const config = {
     id: `gid://shopify/ProductVariant/${variant_id}`,
-    productId: `gid://shopify/Product/${product_id}`,
     sku,
     options: [option1 || "", option2 || "", option3 || ""],
     price,
@@ -501,7 +499,7 @@ export const getDifferences = (source: productModel[], shopify: productModel[]):
         }
 
         if (shopifyVariantUpdate || shopifyInventoryLevelConnect) {
-          acc.shopifyVariants.push(createGqlUpdateVariantMutation(override.product_id,
+          acc.shopifyVariants.push(createGqlUpdateVariantMutation(
             override.variant_id,
             override.sku,
             override.price,
@@ -509,7 +507,8 @@ export const getDifferences = (source: productModel[], shopify: productModel[]):
             override.v_has_sell_jhb_tag ? override.inventory_JHB : undefined,
             override.option1,
             override.option2,
-            override.option3));
+            override.option3,
+          ));
         }
 
         if (shopifyInventoryLevelDisconnect) {

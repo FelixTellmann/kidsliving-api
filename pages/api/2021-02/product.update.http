@@ -115,16 +115,17 @@ POST https://kids-living.myshopify.com/admin/api/2021-01/graphql.json
 Content-Type: application/graphql
 X-Shopify-Access-Token: 7522f1ec2ce1989ac523647deae8d00b
 
-mutation {productVariantCreate(input: {productId:"gid://shopify/Product/6279344259247","sku":"20504","options":["white","",""],"price":"0.00","inventoryQuantities":[{"availableQuantity":0,"locationId":"gid://shopify/Location/22530642"}]}) {
-    product {
-      id
-    }
-    productVariant {
-      id
-    }
-    userErrors {
-      field
-      message
+mutation {
+    productVariantUpdate(input: {id:"gid://shopify/ProductVariant/37898847125679",sku:"20174",options:["Powder","",""],price:"165.00",inventoryQuantities:[{availableQuantity:6,locationId:"gid://shopify/Location/22530642"},{availableQuantity:3,locationId:"gid://shopify/Location/36654383164"}]}) {
+      product {
+        id
+      }
+      productVariant {
+        id
+      }
+      userErrors {
+        field
+        message
+      }
     }
   }
-}
