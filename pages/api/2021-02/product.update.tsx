@@ -28,6 +28,12 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
     res.status(200).json("not on shopify");
     return;
   }
+
+  if (shook) {
+    res.status(200).json('Shopify Webhook not available yet... 2021-02-10');
+    return;
+  }
+
   const delay = Math.floor(Math.random() * 50) * 100;
   console.log(delay);
 
