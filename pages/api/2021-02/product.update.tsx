@@ -23,7 +23,6 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
   const firebase = loadFirebase();
   const db = firebase.firestore();
   let duplicate = false;
-  const update = false;
 
   if (source !== "SHOPIFY") {
     res.status(200).json("not on shopify");
