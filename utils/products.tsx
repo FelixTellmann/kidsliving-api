@@ -1,4 +1,4 @@
-import { addTag, isSameDescription, isSameTags, mergeDescriptions, mergeTags, removeTag } from "./index";
+import { addTag, isSameDescription, isSameTags, mergeDescriptions, mergeTags, queryfy, removeTag } from "./index";
 
 const { VEND_CPT_OUTLET_ID, VEND_JHB_OUTLET_ID, SHOPIFY_CPT_OUTLET_ID, SHOPIFY_JHB_OUTLET_ID } = process.env;
 
@@ -106,7 +106,7 @@ export const createGqlNewProductMutation = (
     inventoryQuantities,
   };
 
-  return `mutation {productVariantCreate(input: ${JSON.stringify(config)}) {
+  return `mutation {productVariantCreate(input: ${queryfy(config)}) {
     product {
       id
     }

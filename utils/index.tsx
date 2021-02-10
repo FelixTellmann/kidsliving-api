@@ -47,3 +47,27 @@ export const isSameDescription = (description: string, secondDescription: string
 
   return isSame;
 };
+
+export const queryfy = (obj: unknown): string | number => {
+  // Make sure we don't alter integers.
+  if (typeof obj === 'number') {
+    return obj;
+  }
+
+  // Stringify everything other than objects.
+  if (typeof obj !== 'object') {
+    return JSON.stringify(obj);
+  }
+
+  if (Array.isArray(obj)) {
+    const props = obj.map((val) => queryfy(val)).join(',');
+    return `[${props}]`;
+  }
+
+  console.log(obj);
+  // Iterate through object keys to convert into a string
+  // to be interpolated into the query.
+  const props = Object.keys(obj).map((key) => `${key}:${queryfy(obj[key])}`).join(',');
+
+  return `{${props}}`;
+};

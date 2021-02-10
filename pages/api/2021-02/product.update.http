@@ -8,6 +8,16 @@ Accept: application/json
   "payload": "{\"handle\":\"testing-testing-do-not-fulfill\",\"source_id\":\"4536570904636\",\"source\":\"SHOPIFY\"}"
 }
 ###
+# VEND
+POST http://localhost:3000/api/2021-02/product.update
+Content-Type: application/json
+Accept: application/json
+
+{
+  "retailer_id": "02dcd191-ae2b-11e6-f485-4cb686805cbf",
+  "payload": "{\"handle\":\"testingtesting-newtestproduct\",\"source_id\":\"6279344259247\",\"source\":\"SHOPIFY\"}"
+}
+###
 # VEND via WEBSITE
 POST https://kidsliving-api.vercel.app /api/2021-02/product.update
 Content-Type: application/json
@@ -105,14 +115,7 @@ POST https://kids-living.myshopify.com/admin/api/2021-01/graphql.json
 Content-Type: application/graphql
 X-Shopify-Access-Token: 7522f1ec2ce1989ac523647deae8d00b
 
-mutation {
-  productVariantCreate(input: {
-  productId: "gid://shopify/Product/4536570904636",
-  sku: "random123",
-  options: ["fancier4211", "", ""],
-  price: "123.00",
-  inventoryQuantities: [{availableQuantity: 5, locationId: "gid://shopify/Location/22530642"}]}
-  ) {
+mutation {productVariantCreate(input: {productId:"gid://shopify/Product/6279344259247","sku":"20504","options":["white","",""],"price":"0.00","inventoryQuantities":[{"availableQuantity":0,"locationId":"gid://shopify/Location/22530642"}]}) {
     product {
       id
     }

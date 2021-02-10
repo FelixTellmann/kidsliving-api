@@ -36,7 +36,7 @@ export const fetchShopify: fetchProps = (api, method = "GET", body = {}) => {
   return axios(config);
 };
 
-export const fetchShopifyGQL = (body: string | unknown = {}): AxiosPromise => {
+export const fetchShopifyGQL = (body: string): AxiosPromise => {
   return axios({
     method: "POST",
     url: `https://${SHOPIFY_API_STORE}.myshopify.com/admin/api/${SHOPIFY_API_VERSION}/graphql.json`,
@@ -45,6 +45,6 @@ export const fetchShopifyGQL = (body: string | unknown = {}): AxiosPromise => {
       "Content-Type": "application/graphql",
       "X-Shopify-Access-Token": SHOPIFY_API_PASSWORD,
     },
-    data: typeof body === "string" ? body : JSON.stringify(body),
+    data: body,
   });
 };
