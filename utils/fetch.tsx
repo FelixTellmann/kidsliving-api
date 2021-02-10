@@ -36,3 +36,16 @@ export const fetchShopify: fetchProps = (api, method = "GET", body = {}) => {
 
   return axios(config);
 };
+
+export const fetchShopifyGQL = (body: string | unknown = {}): AxiosPromise => {
+  return axios({
+    method: "POST",
+    url: `https://${SHOPIFY_API_STORE}.myshopify.com/admin/api/${SHOPIFY_API_VERSION}/graphql.json`,
+    headers: {
+      Accept: "application/graphql",
+      "Content-Type": "application/graphql",
+      "X-Shopify-Access-Token": SHOPIFY_API_PASSWORD,
+    },
+    data: typeof body === "string" ? body : JSON.stringify(body),
+  });
+};

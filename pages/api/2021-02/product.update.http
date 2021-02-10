@@ -5,6 +5,16 @@ Accept: application/json
 
 {
   "retailer_id": "02dcd191-ae2b-11e6-f485-4cb686805cbf",
+  "payload": "{\"handle\":\"testing-testing-do-not-fulfill\",\"source_id\":\"4536570904636\",\"source\":\"SHOPIFY\"}"
+}
+
+#### VEND
+POST http://localhost:3000/api/2021-02/product.update
+Content-Type: application/json
+Accept: application/json
+
+{
+  "retailer_id": "02dcd191-ae2b-11e6-f485-4cb686805cbf",
   "payload": "{\"handle\":\"miffyplaymatwithbow\",\"source_id\":\"2540522471484\",\"source\":\"SHOPIFY\"}"
 }
 
@@ -25,20 +35,40 @@ x-shopify-shop-domain: kids-living.myshopify.com
 
 # SHOPIFY
 POST https://kids-living.myshopify.com/admin/api/2021-01/graphql.json
-Host: kids-living.myshopify.com
 Content-Type: application/graphql
 X-Shopify-Access-Token: 7522f1ec2ce1989ac523647deae8d00b
 
 {
-    products(first: 5) {
-      edges {
-        node {
-          id
-          handle
+    product(id: "gid://shopify/Product/2540522471484") {
+      title
+      description
+      tags
+      variants(first: 32) {
+        edges {
+          node {
+            id
+            image {
+              id
+            }
+            inventoryQuantity
+            price
+            sku
+            inventoryItem {
+              id
+              inventoryLevels(first: 2) {
+                edges {
+                  node {
+                    id
+                    location {
+                      id
+                      name
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
-      }
-      pageInfo {
-        hasNextPage
       }
     }
   }

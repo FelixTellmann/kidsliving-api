@@ -1,7 +1,14 @@
 import { loadFirebase } from "lib/db";
 import { NextApiRequest, NextApiResponse } from "next";
-import { fetchShopify, fetchVend } from "utils/fetch";
-import { getDifferences, hasVariantImage, isInactive, isUnpublished, simplifyProducts } from "utils/products";
+import { fetchShopify, fetchShopifyGQL, fetchVend } from "utils/fetch";
+import {
+  createGqlQuery,
+  getDifferences,
+  hasVariantImage,
+  isInactive,
+  isUnpublished,
+  simplifyProducts,
+} from "utils/products";
 import { isSameTags, mergeDescriptions, mergeTags } from "../../../utils";
 
 export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> => {
@@ -40,11 +47,14 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
       }
     });
 
+    // console.log(result[result.length - 1].value.data.extensions.cost);
+
     /** STEP 2
      * Get data from Shopify & Vend for verification - exit if not found / error */
-    const [v_req, s_req] = await Promise.allSettled([
+    const [v_req, s_req, s_gql_req] = await Promise.allSettled([
       fetchVend(`products?handle=${handle}`),
       fetchShopify(`products/${source_id}.json?fields=images,variants,tags,status,product_type,id,body_html`),
+      fetchShopifyGQL(createGqlQuery(source_id)),
     ]);
 
     if (v_req.status === "rejected" && v_req.reason.response.status === 429) {
@@ -59,7 +69,13 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
       return;
     }
 
-    if (v_req.status === "rejected" || s_req.status === "rejected") {
+    if (s_gql_req.status === 'fulfilled' && s_gql_req.value.data?.errors?.length > 0) {
+      console.log("too many shopify requests - error");
+      res.status(429).json("too many requests - shopify");
+      return;
+    }
+
+    if (v_req.status === "rejected" || s_req.status === "rejected" || s_gql_req.status === 'rejected') {
       res.status(500).json("too many requests - shopify");
       return;
     }
@@ -67,48 +83,25 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
     /** STEP 3
      * Analyse Vend Data */
     const vend = simplifyProducts(v_req.value.data?.products, "vend");
-
     /** STEP 4
      *  Analyse Shopify Data */
     const shopify = simplifyProducts(s_req.value.data?.product, "shopify");
 
-    if (process.env.NODE_ENV === "development") {
+    const shopify_gql = simplifyProducts(s_gql_req.value.data?.data?.product, "shopify_gql");
+
+    console.log(shopify_gql);
+    /** Step 5
+     * Compare Vend & Shopify Data */
+    const to_process = getDifferences(vend, shopify);
+
+    /* await fetchShopify(to_process.shopifyProduct.api, to_process.shopifyProduct.method, to_process.shopifyProduct.body); */
+    /* if (process.env.NODE_ENV === "development") {
       console.log(JSON.stringify({
         vend_0: vend[0],
         shopify_0: shopify[0],
+        to_process,
       }, null, 2));
-    } // LOGGING
-
-    /** Step 5
-     * Compare Vend & Shopify Data */
-    const asd = getDifferences(vend, shopify);
-
-    console.log(asd);
-    /* const a = await Promise.allSettled([
-      updates.length > 0 ? fetchShopify(`/products/${updates[0].product_id}.json`,
-        "PUT",
-        {
-          product: {
-            id: updates[0].product_id,
-            tags: updates[0].tags,
-            body_html: updates[0].description,
-            product_type: updates[0].product_type,
-          },
-        }) : null,
-      ...updates.map(({ variant_id, sku, price, option1, option2, option3 }) => fetchShopify(`/variants/${variant_id}.json`,
-        "PUT",
-        {
-          variant: {
-            id: variant_id,
-            sku,
-            price,
-            option1,
-            option2,
-            option3,
-          },
-        })),
-    ]);
-    console.log(a); */
+    } // LOGGING */
   } catch (err) {
     res.status(200).json(`error: ${err.message}`);
     return;

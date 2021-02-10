@@ -41,7 +41,5 @@ export const isSameTags = (tagList: string, secondTagList: string): boolean => {
 };
 
 export const isSameDescription = (description: string, secondDescription: string): boolean => {
-  console.log(description.replace(/[^A-Za-z0-9]/gi, ''));
-  console.log(secondDescription.replace(/[^A-Za-z0-9]/gi, ''));
   return description.replace(/[^A-Za-z0-9]/gi, '') === secondDescription.replace(/[^A-Za-z0-9]/gi, '');
 };
