@@ -51,20 +51,13 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
 
     /** STEP 2
      * Get data from Shopify & Vend for verification - exit if not found / error */
-    const [v_req, s_req, s_gql_req] = await Promise.allSettled([
+    const [v_req, s_gql_req] = await Promise.allSettled([
       fetchVend(`products?handle=${handle}`),
-      fetchShopify(`products/${source_id}.json?fields=images,variants,tags,status,product_type,id,body_html`),
       fetchShopifyGQL(createGqlQuery(source_id)),
     ]);
 
     if (v_req.status === "rejected" && v_req.reason.response.status === 429) {
       console.log("too many vend requests - error");
-      res.status(429).json("too many requests - shopify");
-      return;
-    }
-
-    if (s_req.status === "rejected" && s_req.reason.response.status === 429) {
-      console.log("too many shopify requests - error");
       res.status(429).json("too many requests - shopify");
       return;
     }
@@ -75,7 +68,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
       return;
     }
 
-    if (v_req.status === "rejected" || s_req.status === "rejected" || s_gql_req.status === 'rejected') {
+    if (v_req.status === "rejected" || s_gql_req.status === 'rejected') {
       res.status(500).json("too many requests - shopify");
       return;
     }
@@ -85,20 +78,17 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
     const vend = simplifyProducts(v_req.value.data?.products, "vend");
     /** STEP 4
      *  Analyse Shopify Data */
-    const shopify = simplifyProducts(s_req.value.data?.product, "shopify");
-
     const shopify_gql = simplifyProducts(s_gql_req.value.data?.data?.product, "shopify_gql");
 
-    console.log(shopify_gql);
     /** Step 5
      * Compare Vend & Shopify Data */
-    const to_process = getDifferences(vend, shopify);
+    const to_process = getDifferences(vend, shopify_gql);
 
     /* await fetchShopify(to_process.shopifyProduct.api, to_process.shopifyProduct.method, to_process.shopifyProduct.body); */
     if (process.env.NODE_ENV === "development") {
       console.log(JSON.stringify({
         vend_0: vend[0],
-        shopify_0: shopify[0],
+        shopify_0: shopify_gql[0],
         to_process,
       }, null, 2));
     } // LOGGING

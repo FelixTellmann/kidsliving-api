@@ -16,6 +16,9 @@ export type productModel = {
   price: string
   sku: string
   product_type?: string
+  option1?: string
+  option2?: string
+  option3?: string
   inventory_item_id?: number
   inventory_CPT?: number
   inventory_JHB?: number
@@ -33,6 +36,7 @@ export type productModel = {
   v_has_sell_jhb_tag?: boolean
   v_has_needs_variant_image_tag?: boolean
   v_single_product?: boolean
+  s_has_jhb_inventory?: boolean
 };
 
 export const createGqlQuery = (product_id: number): string => {
@@ -56,6 +60,9 @@ export const createGqlQuery = (product_id: number): string => {
             inventoryQuantity
             price
             sku
+            selectedOptions {
+              value
+            }
             inventoryItem {
               id
               inventoryLevels(first: 2) {
@@ -65,7 +72,6 @@ export const createGqlQuery = (product_id: number): string => {
                     available
                     location {
                       id
-                      name
                     }
                   }
                 }
@@ -109,6 +115,9 @@ export const simplifyProducts = ((products: any, source: "vend" | "shopify" | "s
         tax,
         sku,
         type,
+        variant_option_one_value,
+        variant_option_two_value,
+        variant_option_three_value,
         inventory,
       } = variant;
 
@@ -125,6 +134,9 @@ export const simplifyProducts = ((products: any, source: "vend" | "shopify" | "s
         price: (+price + +tax).toFixed(2),
         sku,
         product_type: type,
+        option1: variant_option_one_value || null,
+        option2: variant_option_two_value || null,
+        option3: variant_option_three_value || null,
         inventory_item_id: undefined,
         inventory_CPT,
         inventory_JHB,
@@ -155,6 +167,9 @@ export const simplifyProducts = ((products: any, source: "vend" | "shopify" | "s
         id: variant_id,
         price,
         sku,
+        option1,
+        option2,
+        option3,
         inventory_quantity,
         inventory_item_id,
         inventory_policy,
@@ -171,6 +186,9 @@ export const simplifyProducts = ((products: any, source: "vend" | "shopify" | "s
         price,
         sku,
         product_type,
+        option1,
+        option2,
+        option3,
         inventory_item_id,
         inventory_CPT: undefined,
         inventory_JHB: undefined,
@@ -197,7 +215,6 @@ export const simplifyProducts = ((products: any, source: "vend" | "shopify" | "s
     } = products;
 
     const s_needs_variant_image = !variants.every(hasVariantImage) || (variants.length === 1 && !featuredImage);
-    console.log(s_needs_variant_image);
     const tags = s_gql_tags.join(",");
 
     return variants.reduce((acc: productModel[], { node: variant }: productModel): productModel[] => {
@@ -212,35 +229,44 @@ export const simplifyProducts = ((products: any, source: "vend" | "shopify" | "s
         },
         inventory_policy,
         image,
+        selectedOptions,
       } = variant;
 
-      const inventory_CPT = inventoryLevels.filter(({ node: { location: { id, name } } }) => id.replace(
+      const inventory_CPT = inventoryLevels.filter(({ node: { location: { id } } }) => id.replace(
         "gid://shopify/Location/",
         "",
       ) === SHOPIFY_CPT_OUTLET_ID)[0]?.node?.available;
-      const inventory_JHB = inventoryLevels.filter(({ node: { location: { id, name } } }) => id.replace(
+      const inventory_JHB = inventoryLevels.filter(({ node: { location: { id } } }) => id.replace(
         "gid://shopify/Location/",
         "",
       ) === SHOPIFY_JHB_OUTLET_ID)[0]?.node?.available;
+      const s_has_jhb_inventory = inventoryLevels.filter(({ node: { location: { id } } }) => id.replace(
+        "gid://shopify/Location/",
+        "",
+      ) === SHOPIFY_JHB_OUTLET_ID).length > 0;
 
       acc.push({
         vend_id: undefined,
         vend_unpublished: undefined,
-        product_id: +s_gql_product_id.replace("gid://shopify/Product/", "") || undefined,
-        variant_id: +s_gql_variant_id.replace("gid://shopify/ProductVariant/", "") || undefined,
+        product_id: +s_gql_product_id.replace("gid://shopify/Product/", "") || null,
+        variant_id: +s_gql_variant_id.replace("gid://shopify/ProductVariant/", "") || null,
         tags,
         description: descriptionHtml,
         price,
         sku,
         product_type: productType,
-        inventory_item_id: +s_gql_inventory_item_id.replace("gid://shopify/InventoryItem/", "") || undefined,
+        inventory_item_id: +s_gql_inventory_item_id.replace("gid://shopify/InventoryItem/", "") || null,
         inventory_CPT,
         inventory_JHB,
         inventory_quantity: inventoryQuantity,
         inventory_policy,
-        image_id: +image?.id.replace("gid://shopify/ProductImage/", "") || undefined,
+        option1: selectedOptions[0]?.value || null,
+        option2: selectedOptions[1]?.value || null,
+        option3: selectedOptions[2]?.value || null,
+        image_id: +image?.id.replace("gid://shopify/ProductImage/", "") || null,
         s_status: status.toLowerCase(),
         s_needs_variant_image,
+        s_has_jhb_inventory,
       });
 
       return acc;
@@ -248,18 +274,20 @@ export const simplifyProducts = ((products: any, source: "vend" | "shopify" | "s
   }
 });
 
-type shopifyDeleteVariantsProps = { api: string, method: "GET" | "POST" | "PUT" | "DELETE", body?: any }[];
+type requestConfig = { api: string, method: "GET" | "POST" | "PUT" | "DELETE", body?: any };
 
 type getDifferenceReturn = {
-  vendProducts: { api: string, method: "GET" | "POST" | "PUT" | "DELETE", body?: any }[],
-  shopifyProduct: { api: string, method: "GET" | "POST" | "PUT" | "DELETE", body?: any }[],
-  shopifyVariants: { api: string, method: "GET" | "POST" | "PUT" | "DELETE", body?: any }[],
-  shopifyNewVariants: { api: string, method: "GET" | "POST" | "PUT" | "DELETE", body?: any }[],
-  shopifyDeleteVariants?: shopifyDeleteVariantsProps
+  vendProducts: requestConfig[] | unknown[]
+  shopifyProduct: requestConfig[] | unknown[]
+  shopifyVariants: requestConfig[] | unknown[]
+  shopifyNewVariants: requestConfig[] | unknown[]
+  shopifyDeleteVariants?: requestConfig[] | unknown[]
+  shopifyConnectInventory?: requestConfig[] | unknown[]
+  shopifyDisconnectInventory?: requestConfig[] | unknown[]
 };
 
 export const getDifferences = (source: productModel[], target: productModel[]): getDifferenceReturn => {
-  const shopifyDeleteVariants = target.reduce((acc, targetVariant): shopifyDeleteVariantsProps => {
+  const shopifyDeleteVariants = target.reduce((acc, targetVariant): requestConfig[] => {
     if (!source.some(({ variant_id }) => variant_id === targetVariant.variant_id)) {
       acc.push({
         api: `/products/${targetVariant.product_id}/variants/${targetVariant.variant_id}.json`,
@@ -269,58 +297,83 @@ export const getDifferences = (source: productModel[], target: productModel[]): 
     return acc;
   }, []);
 
+  const needs_new_variant_image = source.some((s) => !target.some((t) => s.variant_id === t.variant_id));
+  console.log(needs_new_variant_image, 'needs_new_variant_image');
   return {
     shopifyDeleteVariants,
     ...source.reduce((acc, sourceVariant): getDifferenceReturn => {
       /** OPTION 1
        * Found variant via id */
+
       if (target.some(({ variant_id }) => variant_id === sourceVariant.variant_id)) {
         const targetVariant = target.find(({ variant_id }) => variant_id === sourceVariant.variant_id);
         const override = { ...targetVariant, ...sourceVariant };
-        let vendUpdate = false;
+        let vendProductUpdate = false;
         let shopifyProductUpdate = false;
         let shopifyVariantUpdate = false;
+        let shopifyInventoryLevelConnect = false;
+        let shopifyInventoryLevelDisconnect = false;
         const reason = [];
 
-        if (override.v_inconsistent_description || override.v_inconsistent_tags || override.v_incorrectly_unpublished) {
-          vendUpdate = true;
-          reason.push("inconsistent description,tags, or published status on Vend");
+        if (override.v_inconsistent_description) {
+          vendProductUpdate = true;
+          reason.push("inconsistent description on Vend");
         }
 
-        if (override.v_has_needs_variant_image_tag && !override.s_needs_variant_image) {
+        if (override.v_inconsistent_tags) {
+          vendProductUpdate = true;
+          reason.push("inconsistent tags on Vend");
+        }
+
+        if (override.v_incorrectly_unpublished) {
+          vendProductUpdate = true;
+          reason.push("inconsistent unpublished on Vend");
+        }
+
+        if (override.v_has_needs_variant_image_tag && !override.s_needs_variant_image && !needs_new_variant_image) {
           override.tags = removeTag(override.tags, "FX_needs_variant_image");
-          vendUpdate = true;
+          vendProductUpdate = true;
           shopifyProductUpdate = true;
           reason.push("remove FX_needs_variant_image");
         }
 
-        if (override.s_needs_variant_image && !override.v_has_needs_variant_image_tag) {
+        if (!override.v_has_needs_variant_image_tag && (override.s_needs_variant_image || needs_new_variant_image)) {
           override.tags = addTag(override.tags, "FX_needs_variant_image");
-          vendUpdate = true;
+          vendProductUpdate = true;
           shopifyProductUpdate = true;
           reason.push("add FX_needs_variant_image");
         }
 
+        if (override.s_has_jhb_inventory && !override.v_has_sell_jhb_tag) {
+          shopifyInventoryLevelDisconnect = true;
+          reason.push("Disconnect inventory");
+        }
+
+        if (!override.s_has_jhb_inventory && override.v_has_sell_jhb_tag) {
+          shopifyInventoryLevelConnect = true;
+          reason.push("connect inventory");
+        }
+
         if (sourceVariant.sku !== targetVariant.sku) {
-          vendUpdate = true;
+          vendProductUpdate = true;
           shopifyVariantUpdate = true;
           reason.push("sku");
         }
 
         if (sourceVariant.price !== targetVariant.price) {
-          vendUpdate = true;
+          vendProductUpdate = true;
           shopifyVariantUpdate = true;
           reason.push("price");
         }
 
         if (!isSameTags(sourceVariant.tags, targetVariant.tags)) {
-          vendUpdate = true;
+          vendProductUpdate = true;
           shopifyProductUpdate = true;
           reason.push("tags");
         }
 
         if (!isSameDescription(sourceVariant.description, targetVariant.description)) {
-          vendUpdate = true;
+          vendProductUpdate = true;
           shopifyProductUpdate = true;
           reason.push("description");
         }
@@ -328,14 +381,14 @@ export const getDifferences = (source: productModel[], target: productModel[]): 
         if (sourceVariant.product_type !== targetVariant.product_type
           && sourceVariant.product_type !== "General"
           && targetVariant.product_type !== "General") {
-          vendUpdate = true;
+          vendProductUpdate = true;
           shopifyProductUpdate = true;
           reason.push(`product_type - ${sourceVariant.product_type} !== ${targetVariant.product_type}`);
         }
 
         process.env.NODE_ENV === "development" && console.log(reason);
 
-        if (vendUpdate) {
+        if (vendProductUpdate) {
           acc.vendProducts.push({
             api: `/products`,
             method: `POST`,
@@ -381,6 +434,13 @@ export const getDifferences = (source: productModel[], target: productModel[]): 
           });
         }
 
+        if (shopifyInventoryLevelDisconnect) {
+          acc.shopifyDisconnectInventory.push({
+            api: `/inventory_levels.json?inventory_item_id=${override.inventory_item_id}&location_id=${SHOPIFY_JHB_OUTLET_ID}`,
+            method: "DELETE",
+          });
+        }
+
         /** OPTION 2
          * NO Variant found */
       } else {
@@ -400,6 +460,14 @@ export const getDifferences = (source: productModel[], target: productModel[]): 
         });
       }
       return acc;
-    }, { vendProducts: [], shopifyProduct: [], shopifyVariants: [], shopifyNewVariants: [] }),
+    }, {
+      vendProducts: [],
+      shopifyProduct: [],
+      shopifyVariants: [],
+      shopifyNewVariants: [],
+      shopifyDeleteVariants: [],
+      shopifyConnectInventory: [],
+      shopifyDisconnectInventory: [],
+    }),
   };
 };
