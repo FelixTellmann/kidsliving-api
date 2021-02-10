@@ -145,6 +145,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
       }
       if (request.status === "fulfilled") {
         request.value.data?.extensions?.cost && console.log(request.value.data?.extensions?.cost);
+        request.value.data?.extensions?.cost && result.push(request.value.data?.extensions?.cost);
         result.push(request.value.data);
       }
     });
