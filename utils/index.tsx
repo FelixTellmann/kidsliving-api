@@ -30,7 +30,7 @@ export const mergeTags = (tagList: string, tagListAddon: string): string => [
 ].filter((t) => t !== "").join(",");
 
 export const mergeDescriptions = (description: string, descriptionAddon: string): string => {
-  return description.length > descriptionAddon.length ? descriptionAddon : descriptionAddon;
+  return description.length > descriptionAddon.length ? description : descriptionAddon;
 };
 
 export const isSameTags = (tagList: string, secondTagList: string): boolean => {

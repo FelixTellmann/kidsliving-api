@@ -413,10 +413,10 @@ export const getDifferences = (source: productModel[], shopify: productModel[]):
           reason.push("tags");
         }
 
-        /* if (!isSameDescription(vend.description, targetVariant.description)) {
+        if (!isSameDescription(vend.description, targetVariant.description)) {
           shopifyProductUpdate = true;
           reason.push("description");
-        } */
+        }
 
         if (vend.product_type !== targetVariant.product_type
           && vend.product_type !== "General"

@@ -95,6 +95,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
     } // LOGGING
 
     const final = await Promise.allSettled(updateArray);
+
     final.forEach((request) => {
       console.log(request.status);
       if (request.status === 'rejected') {
