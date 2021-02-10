@@ -18,7 +18,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
   }
 
   const { handle, source = "SHOPIFY", id, source_id = String(id) } = vhook ? JSON.parse(payload) : body;
-  const product_id = source_id.replace(/_pupub/gi, '');
+  const product_id = source_id?.replace(/_pupub/gi, '');
   console.log(handle, source_id);
 
   const firebase = loadFirebase();
