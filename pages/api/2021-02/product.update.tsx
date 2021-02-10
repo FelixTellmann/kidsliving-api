@@ -26,6 +26,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
   let duplicate = false;
 
   if (source !== "SHOPIFY") {
+    console.log(`source !== "SHOPIFY"`);
     res.status(200).json("not on shopify");
     return;
   }
