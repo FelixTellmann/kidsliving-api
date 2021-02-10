@@ -499,16 +499,18 @@ export const getDifferences = (source: productModel[], shopify: productModel[]):
         }
 
         if (shopifyVariantUpdate || shopifyInventoryLevelConnect) {
-          acc.shopifyVariants.push(createGqlUpdateVariantMutation(
-            override.variant_id,
-            override.sku,
-            override.price,
-            override.inventory_CPT,
-            override.v_has_sell_jhb_tag ? override.inventory_JHB : undefined,
-            override.option1,
-            override.option2,
-            override.option3,
-          ));
+          acc.shopifyVariants.push({
+            body: createGqlUpdateVariantMutation(
+              override.variant_id,
+              override.sku,
+              override.price,
+              override.inventory_CPT,
+              override.v_has_sell_jhb_tag ? override.inventory_JHB : undefined,
+              override.option1,
+              override.option2,
+              override.option3,
+            ),
+          });
         }
 
         if (shopifyInventoryLevelDisconnect) {

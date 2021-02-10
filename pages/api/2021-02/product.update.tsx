@@ -140,7 +140,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
     final.forEach((request) => {
       console.log(request.status);
       if (request.status === "rejected") {
-        console.log(request.reason.response.message);
+        console.log(request.reason.response);
         result.push(request.reason.response.message, request.reason.response.status);
       }
       if (request.status === "fulfilled") {
