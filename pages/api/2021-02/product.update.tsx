@@ -137,7 +137,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
     await db.collection("product.update")
       .doc(product_id)
       .set({
-        created_at: prevTimer,
+        created_at: Date.now(),
         created_at_ISO: new Date(Date.now()).toISOString().split(".")[0].split("T").join(" ").replace(/-/gi, "/"),
         handle,
         product_id,
