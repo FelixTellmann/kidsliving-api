@@ -20,6 +20,8 @@
     "deploy-env": "^2.0.1",
     "firebase": "^8.2.4",
     "firebase-admin": "^9.4.2",
+    "global": "^4.4.0",
+    "graphql-js-schema": "^0.7.1",
     "json2csv": "^5.0.5",
     "next": "^10.0.4",
     "ngrok": "^3.4.0",

@@ -84,7 +84,7 @@ export const createGqlQuery = (product_id: number): string => {
   }`;
 };
 
-export const createGqlNewProductMutation = (
+export const createGqlNewVariantMutation = (
   product_id: number,
   sku: string,
   price: string,
@@ -119,6 +119,45 @@ export const createGqlNewProductMutation = (
     }
   }
 }`;
+};
+
+export const createGqlUpdateVariantMutation = (
+  product_id: number,
+  variant_id: number,
+  sku: string,
+  price: string,
+  inventory_CPT: number,
+  inventory_JHB?: number,
+  option1?: string,
+  option2?: string,
+  option3?: string,
+): string => {
+  const inv = [{ availableQuantity: inventory_CPT, locationId: "gid://shopify/Location/22530642" }];
+  inventory_JHB && inv.push({ availableQuantity: inventory_JHB, locationId: "gid://shopify/Location/36654383164" });
+
+  const config = {
+    id: `gid://shopify/ProductVariant/${variant_id}`,
+    productId: `gid://shopify/Product/${product_id}`,
+    sku,
+    options: [option1 || "", option2 || "", option3 || ""],
+    price,
+    inventoryQuantities: inv,
+  };
+
+  return `mutation {
+    productVariantUpdate(input: ${queryfy(config)}) {
+      product {
+        id
+      }
+      productVariant {
+        id
+      }
+      userErrors {
+        field
+        message
+      }
+    }
+  }`;
 };
 
 export const isUnpublished = (({ source_id, variant_source_id }: any): boolean => {
@@ -319,7 +358,7 @@ type getDifferenceReturn = {
   shopifyProduct: requestConfig[]
   shopifyVariants: requestConfig[]
   shopifyNewVariants: gqlConfig[]
-  shopifyConnectInventory: requestConfig[]
+  shopifyConnectInventory: gqlConfig[]
   shopifyDisconnectInventory: requestConfig[]
 };
 
@@ -337,6 +376,9 @@ export const getDifferences = (source: productModel[], shopify: productModel[]):
   }, []);
 
   const needs_new_variant_image = source.some((s) => !shopify.some((t) => s.variant_id === t.variant_id));
+
+  /* TODO Inventory Accuracy!
+*     TODO: Active / Unpublished Statusses */
 
   return {
     shopifyDeleteVariants,
@@ -458,21 +500,16 @@ export const getDifferences = (source: productModel[], shopify: productModel[]):
           });
         }
 
-        if (shopifyVariantUpdate) {
-          acc.shopifyVariants.push({
-            api: `/variants/${override.variant_id}.json`,
-            method: "PUT",
-            body: {
-              variant: {
-                id: override.variant_id,
-                sku: override.sku,
-                price: override.price,
-                option1: override.option1,
-                option2: override.option2,
-                option3: override.option3,
-              },
-            },
-          });
+        if (shopifyVariantUpdate || shopifyInventoryLevelConnect) {
+          acc.shopifyVariants.push(createGqlUpdateVariantMutation(override.product_id,
+            override.variant_id,
+            override.sku,
+            override.price,
+            override.inventory_CPT,
+            override.v_has_sell_jhb_tag ? override.inventory_JHB : undefined,
+            override.option1,
+            override.option2,
+            override.option3));
         }
 
         if (shopifyInventoryLevelDisconnect) {
@@ -501,7 +538,7 @@ export const getDifferences = (source: productModel[], shopify: productModel[]):
         }
 
         acc.shopifyNewVariants.push({
-          body: createGqlNewProductMutation(vend.product_id,
+          body: createGqlNewVariantMutation(vend.product_id,
             vend.sku,
             vend.price,
             vend.inventory_CPT,

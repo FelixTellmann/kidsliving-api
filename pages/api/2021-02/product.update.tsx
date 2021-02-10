@@ -121,9 +121,8 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
       ...to_process.vendProducts.map(({ api, method, body }) => fetchVend(api, method, body)),
       ...to_process.shopifyDeleteVariants.map(({ api, method }) => fetchShopify(api, method)),
       ...to_process.shopifyProduct.map(({ api, method, body }) => fetchShopify(api, method, body)),
-      ...to_process.shopifyVariants.map(({ api, method, body }) => fetchShopify(api, method, body)),
+      ...to_process.shopifyVariants.map(({ body }) => fetchShopifyGQL(body)),
       ...to_process.shopifyNewVariants.map(({ body }) => fetchShopifyGQL(body)),
-      ...to_process.shopifyConnectInventory.map(({ api, method, body }) => fetchShopify(api, method, body)),
       ...to_process.shopifyDisconnectInventory.map(({ api, method, body }) => fetchShopify(api, method, body)),
     ];
 
@@ -165,7 +164,6 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
         }, null, 2),
         result: JSON.stringify(result),
       });
-
   } catch (err) {
     res.status(200).json(`error: ${err.message}`);
     return;
