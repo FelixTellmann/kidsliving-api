@@ -18,7 +18,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
   }
 
   const { handle, source = "SHOPIFY", id, source_id = String(id) } = vhook ? JSON.parse(payload) : body;
-  console.log(handle, source, source_id);
+  console.log(handle, source_id);
 
   const firebase = loadFirebase();
   const db = firebase.firestore();
@@ -31,6 +31,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
   }
   const delay = Math.floor(Math.random() * 50) * 100;
   console.log(delay);
+
   try {
     const prevTimer = Date.now();
     await new Promise((resolve) => setTimeout(resolve, delay));
@@ -38,7 +39,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
     /* Rather Block return request - should be identical in anyways - so very limited requests will be used... */
     await db.collection("product.update").doc(handle).get().then((doc) => {
       console.log(Date.now() - prevTimer);
-      if (doc.exists && doc.data().created_at > Date.now() - 30 * 1000) { // 30 seconds ago
+      if (doc.exists && doc.data().created_at > Date.now() - 45 * 1000) { // 30 seconds ago
         duplicate = true;
       }
     });
@@ -46,7 +47,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
     if (duplicate) {
       console.log(Date.now() - prevTimer);
       console.log(`id: ${handle} - Already processing`);
-      res.status(200).json('duplicate');
+      res.status(200).json("duplicate");
       return;
     }
 
@@ -57,7 +58,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
         created_at_ISO: new Date(prevTimer).toISOString().split(".")[0].split("T").join(" ").replace(/-/gi, "/"),
         handle,
         source_id,
-        source: vhook ? 'vend' : 'shopify',
+        source: vhook ? "vend" : "shopify",
       });
 
     // console.log(result[result.length - 1].value.data.extensions.cost);
@@ -101,10 +102,13 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
       return [...acc, ...itm];
     }, []).length;
 
-    if (to_process_count > 0) {
-      console.log(Math.random());
-      /* Store in DB that Updates are being done ?? here? */
+    if (to_process_count === 0) {
+      console.log(`No Changes`);
+      res.status(200).json("No Changes");
+      return;
     }
+
+    console.log(`${to_process_count} number of requests`);
 
     const updateArray = [
       ...to_process.vendProducts.map(({ api, method, body }) => fetchVend(api, method, body)),
