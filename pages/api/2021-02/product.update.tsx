@@ -18,6 +18,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
   }
 
   const { handle, source = "SHOPIFY", id, source_id = String(id) } = vhook ? JSON.parse(payload) : body;
+  const product_id = source_id.replace(/_pupub/gi, '');
   console.log(handle, source_id);
 
   const firebase = loadFirebase();
@@ -42,7 +43,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
     await new Promise((resolve) => setTimeout(resolve, delay));
     console.log(Date.now() - prevTimer);
     /* Rather Block return request - should be identical in anyways - so very limited requests will be used... */
-    await db.collection("product.update").doc(handle).get().then((doc) => {
+    await db.collection("product.update").doc(product_id).get().then((doc) => {
       console.log(Date.now() - prevTimer);
       if (doc.exists && doc.data().created_at > Date.now() - 45 * 1000) { // 30 seconds ago
         duplicate = true;
@@ -57,12 +58,12 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
     }
 
     await db.collection("product.update")
-      .doc(handle)
+      .doc(product_id)
       .set({
         created_at: prevTimer,
         created_at_ISO: new Date(prevTimer).toISOString().split(".")[0].split("T").join(" ").replace(/-/gi, "/"),
         handle,
-        source_id,
+        product_id,
         source: vhook ? "vend" : "shopify",
       });
 
@@ -72,7 +73,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
      * Get data from Shopify & Vend for verification - exit if not found / error */
     const [v_req, s_gql_req] = await Promise.allSettled([
       fetchVend(`products?handle=${handle}`),
-      fetchShopifyGQL(createGqlQuery(source_id)),
+      fetchShopifyGQL(createGqlQuery(product_id)),
     ]);
 
     if (v_req.status === "rejected" && v_req.reason.response.status === 429) {
