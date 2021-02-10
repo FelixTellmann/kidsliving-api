@@ -36,7 +36,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
     return;
   }
 
-  const delay = Math.floor(Math.random() * 50) * 100;
+  const delay = Math.floor(Math.random() * 60) * 100;
   console.log(delay);
 
   try {
@@ -135,6 +135,21 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
       }, null, 2));
     } // LOGGING
 
+    const final = await Promise.allSettled(updateArray);
+
+    const result = [];
+    final.forEach((request) => {
+      console.log(request.status);
+      if (request.status === "rejected") {
+        console.log(request.reason.response.message);
+        result.push(request.reason.response.message, request.reason.response.status);
+      }
+      if (request.status === "fulfilled") {
+        request.value.data?.extensions?.cost && console.log(request.value.data?.extensions?.cost);
+        result.push(request.value.data);
+      }
+    });
+
     await db.collection("product.update")
       .doc(product_id)
       .set({
@@ -148,19 +163,9 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
           shopify_0: shopify_gql[0], */
           to_process,
         }, null, 2),
+        result: JSON.stringify(result),
       });
 
-    const final = await Promise.allSettled(updateArray);
-
-    final.forEach((request) => {
-      console.log(request.status);
-      if (request.status === "rejected") {
-        console.log(request.reason.response.message);
-      }
-      if (request.status === "fulfilled") {
-        request.value.data?.extensions?.cost && console.log(request.value.data?.extensions?.cost);
-      }
-    });
   } catch (err) {
     res.status(200).json(`error: ${err.message}`);
     return;
