@@ -426,7 +426,7 @@ export const getDifferences = (source: productModel[], shopify: productModel[]):
           reason.push(`product_type - ${vend.product_type} !== ${targetVariant.product_type}`);
         }
 
-        process.env.NODE_ENV === "development" && console.log(reason);
+        process.env.NODE_ENV === "development" && reason.length > 0 && console.log(reason);
 
         if (vendProductUpdate) {
           acc.vendProducts.push({

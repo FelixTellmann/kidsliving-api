@@ -29,15 +29,36 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
     res.status(200).json("not on shopify");
     return;
   }
-
+  const delay = Math.floor(Math.random() * 50) * 100;
+  console.log(delay);
   try {
+    const prevTimer = Date.now();
+    await new Promise((resolve) => setTimeout(resolve, delay));
+    console.log(Date.now() - prevTimer);
     /* Rather Block return request - should be identical in anyways - so very limited requests will be used... */
     await db.collection("product.update").doc(handle).get().then((doc) => {
-      if (doc.exists && doc.data().created_at > Date.now() - 60 * 1000) { // 60 seconds ago
+      console.log(Date.now() - prevTimer);
+      if (doc.exists && doc.data().created_at > Date.now() - 30 * 1000) { // 30 seconds ago
         duplicate = true;
-        console.log(`id: ${handle} - Already processing`);
       }
     });
+
+    if (duplicate) {
+      console.log(Date.now() - prevTimer);
+      console.log(`id: ${handle} - Already processing`);
+      res.status(200).json('duplicate');
+      return;
+    }
+
+    await db.collection("product.update")
+      .doc(handle)
+      .set({
+        created_at: prevTimer,
+        created_at_ISO: new Date(prevTimer).toISOString().split(".")[0].split("T").join(" ").replace(/-/gi, "/"),
+        handle,
+        source_id,
+        source: vhook ? 'vend' : 'shopify',
+      });
 
     // console.log(result[result.length - 1].value.data.extensions.cost);
 
@@ -76,6 +97,15 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
      * Compare Vend & Shopify Data */
     const to_process = getDifferences(vend, shopify_gql);
 
+    const to_process_count = Object.values(to_process).reduce((acc, itm) => {
+      return [...acc, ...itm];
+    }, []).length;
+
+    if (to_process_count > 0) {
+      console.log(Math.random());
+      /* Store in DB that Updates are being done ?? here? */
+    }
+
     const updateArray = [
       ...to_process.vendProducts.map(({ api, method, body }) => fetchVend(api, method, body)),
       ...to_process.shopifyDeleteVariants.map(({ api, method }) => fetchShopify(api, method)),
@@ -88,8 +118,8 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
 
     if (process.env.NODE_ENV === "development") {
       console.log(JSON.stringify({
-        vend_0: vend[0],
-        shopify_0: shopify_gql[0],
+        /* vend_0: vend[0],
+        shopify_0: shopify_gql[0], */
         to_process,
       }, null, 2));
     } // LOGGING
@@ -98,10 +128,10 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
 
     final.forEach((request) => {
       console.log(request.status);
-      if (request.status === 'rejected') {
+      if (request.status === "rejected") {
         console.log(request.reason.response.message);
       }
-      if (request.status === 'fulfilled') {
+      if (request.status === "fulfilled") {
         request.value.data?.extensions?.cost && console.log(request.value.data?.extensions?.cost);
       }
     });
