@@ -196,7 +196,8 @@ export const simplifyProducts = ((products: any, source: "vend" | "shopify" | "s
       variants: { edges: variants },
     } = products;
 
-    const s_needs_variant_image = !variants.every(hasVariantImage) && (variants.length === 1 && !featuredImage);
+    const s_needs_variant_image = !variants.every(hasVariantImage) || (variants.length === 1 && !featuredImage);
+    console.log(s_needs_variant_image);
     const tags = s_gql_tags.join(",");
 
     return variants.reduce((acc: productModel[], { node: variant }: productModel): productModel[] => {

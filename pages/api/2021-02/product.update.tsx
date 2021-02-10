@@ -95,13 +95,13 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
     const to_process = getDifferences(vend, shopify);
 
     /* await fetchShopify(to_process.shopifyProduct.api, to_process.shopifyProduct.method, to_process.shopifyProduct.body); */
-    /* if (process.env.NODE_ENV === "development") {
+    if (process.env.NODE_ENV === "development") {
       console.log(JSON.stringify({
         vend_0: vend[0],
         shopify_0: shopify[0],
         to_process,
       }, null, 2));
-    } // LOGGING */
+    } // LOGGING
   } catch (err) {
     res.status(200).json(`error: ${err.message}`);
     return;
