@@ -21,7 +21,9 @@ export type productModel = {
   option3?: string
   inventory_item_id?: number
   inventory_CPT?: number
+  inventory_CPT_level_id?: number
   inventory_JHB?: number
+  inventory_JHB_level_id?: number
   inventory_quantity?: number
   inventory_policy?: "continue" | "deny",
   image_id?: number
@@ -39,7 +41,7 @@ export type productModel = {
   s_has_jhb_inventory?: boolean
 };
 
-export const createGqlQuery = (product_id: number): string => {
+export const createGqlQueryProduct = (product_id: number): string => {
   return `{
     product(id: "gid://shopify/Product/${product_id}") {
       id
@@ -310,10 +312,22 @@ export const simplifyProducts = ((products: any, source: "vend" | "shopify" | "s
         "gid://shopify/Location/",
         "",
       ) === SHOPIFY_CPT_OUTLET_ID)[0]?.node?.available;
+
+      const inventory_CPT_level_id = inventoryLevels.filter(({ node: { location: { id } } }) => id.replace(
+        "gid://shopify/Location/",
+        "",
+      ) === SHOPIFY_CPT_OUTLET_ID)[0]?.node?.id;
+
       const inventory_JHB = inventoryLevels.filter(({ node: { location: { id } } }) => id.replace(
         "gid://shopify/Location/",
         "",
       ) === SHOPIFY_JHB_OUTLET_ID)[0]?.node?.available;
+
+      const inventory_JHB_level_id = inventoryLevels.filter(({ node: { location: { id } } }) => id.replace(
+        "gid://shopify/Location/",
+        "",
+      ) === SHOPIFY_JHB_OUTLET_ID)[0]?.node?.id;
+
       const s_has_jhb_inventory = inventoryLevels.filter(({ node: { location: { id } } }) => id.replace(
         "gid://shopify/Location/",
         "",
@@ -331,7 +345,9 @@ export const simplifyProducts = ((products: any, source: "vend" | "shopify" | "s
         product_type: productType,
         inventory_item_id: +s_gql_inventory_item_id?.replace("gid://shopify/InventoryItem/", "") || null,
         inventory_CPT,
+        inventory_CPT_level_id: +inventory_CPT_level_id.replace('gid://shopify/InventoryLevel/', ''),
         inventory_JHB,
+        inventory_JHB_level_id: +inventory_JHB_level_id.replace('gid://shopify/InventoryLevel/', ''),
         inventory_quantity: inventoryQuantity,
         inventory_policy,
         option1: selectedOptions[0]?.value || null,

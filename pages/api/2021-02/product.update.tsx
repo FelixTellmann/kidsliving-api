@@ -1,7 +1,7 @@
 import { loadFirebase } from "lib/db";
 import { NextApiRequest, NextApiResponse } from "next";
 import { fetchShopify, fetchShopifyGQL, fetchVend } from "utils/fetch";
-import { createGqlQuery, getDifferences, simplifyProducts } from "utils/products";
+import { createGqlQueryProduct, getDifferences, simplifyProducts } from "utils/products";
 
 export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> => {
   /** STEP 1
@@ -74,7 +74,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
      * Get data from Shopify & Vend for verification - exit if not found / error */
     const [v_req, s_gql_req] = await Promise.allSettled([
       fetchVend(`products?handle=${handle}`),
-      fetchShopifyGQL(createGqlQuery(product_id)),
+      fetchShopifyGQL(createGqlQueryProduct(product_id)),
     ]);
 
     if (v_req.status === "rejected" && v_req.reason.response.status === 429) {
