@@ -1,4 +1,3 @@
-import { act } from "react-dom/test-utils";
 import { addTag, isSameDescription, isSameTags, mergeDescriptions, mergeTags, queryfy, removeTag } from "./index";
 
 const { VEND_CPT_OUTLET_ID, VEND_JHB_OUTLET_ID, SHOPIFY_CPT_OUTLET_ID, SHOPIFY_JHB_OUTLET_ID } = process.env;
@@ -137,13 +136,16 @@ export const createGqlUpdateVariantMutation = (
   option3?: string,
 ): string => {
   const inv = [{ availableQuantity: inventory_CPT, locationId: "gid://shopify/Location/22530642" }];
-  inventory_JHB && inv.push({ availableQuantity: inventory_JHB, locationId: "gid://shopify/Location/36654383164" });
+  inventory_JHB && inventory_JHB_level_id
+  && inv.push({ availableQuantity: inventory_JHB, locationId: "gid://shopify/Location/36654383164" });
 
-  let activateInventory = '';
+  let activateInventory = "";
   if (inventory_JHB && !inventory_JHB_level_id) {
-    activateInventory = `
-    inventoryActivate($inventoryItemId: ${`gid://shopify/InventoryItem/${inventory_item_id}`}, $locationId: "gid://shopify/Location/36654383164") {
-      inventoryActivate(inventoryItemId: $inventoryItemId, locationId: $locationId) {
+    activateInventory = `   
+      inventoryActivate(
+        inventoryItemId: "${`gid://shopify/InventoryItem/${inventory_item_id}`}", 
+        locationId: "gid://shopify/Location/36654383164", 
+        available: ${inventory_JHB}) {
         inventoryLevel {
           id
         }
@@ -151,8 +153,7 @@ export const createGqlUpdateVariantMutation = (
           field
           message
         }
-      }
-    }`;
+      }`;
   }
 
   const config = {
@@ -362,9 +363,9 @@ export const simplifyProducts = ((products: any, source: "vend" | "shopify" | "s
         product_type: productType,
         inventory_item_id: +s_gql_inventory_item_id?.replace("gid://shopify/InventoryItem/", "") || null,
         inventory_CPT,
-        inventory_CPT_level_id: +inventory_CPT_level_id?.replace('gid://shopify/InventoryLevel/', ''),
+        inventory_CPT_level_id: +inventory_CPT_level_id?.replace("gid://shopify/InventoryLevel/", ""),
         inventory_JHB,
-        inventory_JHB_level_id: +inventory_JHB_level_id?.replace('gid://shopify/InventoryLevel/', '') || null,
+        inventory_JHB_level_id: +inventory_JHB_level_id?.replace("gid://shopify/InventoryLevel/", "") || null,
         inventory_quantity: inventoryQuantity,
         inventory_policy,
         option1: selectedOptions[0]?.value || null,
