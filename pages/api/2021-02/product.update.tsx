@@ -166,6 +166,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
         result: JSON.stringify(result),
       });
   } catch (err) {
+    console.log(err.message);
     res.status(200).json(`error: ${err.message}`);
     return;
   }
