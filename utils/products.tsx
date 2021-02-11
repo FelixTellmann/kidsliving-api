@@ -136,8 +136,10 @@ export const createGqlUpdateVariantMutation = (
   option3?: string,
 ): string => {
   const inv = [{ availableQuantity: inventory_CPT, locationId: "gid://shopify/Location/22530642" }];
-  inventory_JHB && inventory_JHB_level_id
-  && inv.push({ availableQuantity: inventory_JHB, locationId: "gid://shopify/Location/36654383164" });
+
+  if (inventory_JHB && inventory_JHB_level_id) {
+    inv.push({ availableQuantity: inventory_JHB, locationId: "gid://shopify/Location/36654383164" });
+  }
 
   let activateInventory = "";
   if (inventory_JHB && !inventory_JHB_level_id) {
