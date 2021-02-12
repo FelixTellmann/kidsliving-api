@@ -21,9 +21,9 @@ export type productModel = {
   option3?: string
   inventory_item_id?: number
   inventory_CPT?: number
-  inventory_CPT_level_id?: number
+  inventory_CPT_level_id?: string
   inventory_JHB?: number
-  inventory_JHB_level_id?: number
+  inventory_JHB_level_id?: string
   inventory_quantity?: number
   inventory_policy?: "continue" | "deny",
   image_id?: number
@@ -127,10 +127,9 @@ export const createGqlUpdateVariantMutation = (
   variant_id: number,
   sku: string,
   price: string,
-  inventory_item_id: number,
   inventory_CPT: number,
   inventory_JHB?: number,
-  inventory_JHB_level_id?: number,
+  inventory_JHB_level_id?: string,
   option1?: string,
   option2?: string,
   option3?: string,
@@ -141,23 +140,6 @@ export const createGqlUpdateVariantMutation = (
     inv.push({ availableQuantity: inventory_JHB, locationId: "gid://shopify/Location/36654383164" });
   }
 
-  let activateInventory = "";
-  if (inventory_JHB && !inventory_JHB_level_id) {
-    activateInventory = `   
-      inventoryActivate(
-        inventoryItemId: "${`gid://shopify/InventoryItem/${inventory_item_id}`}", 
-        locationId: "gid://shopify/Location/36654383164", 
-        available: ${inventory_JHB}) {
-        inventoryLevel {
-          id
-        }
-        userErrors {
-          field
-          message
-        }
-      }`;
-  }
-
   const config = {
     id: `gid://shopify/ProductVariant/${variant_id}`,
     sku,
@@ -166,9 +148,7 @@ export const createGqlUpdateVariantMutation = (
     inventoryQuantities: inv,
   };
 
-  return `mutation {
-    ${activateInventory}
-    productVariantUpdate(input: ${queryfy(config)}) {
+  return `productVariantUpdate(input: ${queryfy(config)}) {
       product {
         id
       }
@@ -179,8 +159,45 @@ export const createGqlUpdateVariantMutation = (
         field
         message
       }
+    }`;
+};
+
+export const createGqlConnectInvLocationMutation = (
+  inventory_JHB: number,
+  inventory_item_id: number,
+  v_has_sell_jhb_tag?: boolean,
+  inventory_JHB_level_id?: string,
+): string => {
+  if (v_has_sell_jhb_tag && !inventory_JHB_level_id) {
+    return `inventoryActivate(
+      inventoryItemId: "gid://shopify/InventoryItem/${inventory_item_id}", 
+      locationId: "gid://shopify/Location/36654383164", 
+      available: ${inventory_JHB}) {
+      inventoryLevel {
+        id
+      }
+      userErrors {
+        field
+        message
+      }
+    }`;
+  }
+  return "";
+};
+
+export const createGqlDisconnectInvLocationMutation = (
+  v_has_sell_jhb_tag?: boolean,
+  inventory_JHB_level_id?: string,
+): string => {
+  if (!v_has_sell_jhb_tag && inventory_JHB_level_id) {
+    return `inventoryDeactivate(inventoryLevelId: "${inventory_JHB_level_id}") {
+    userErrors {
+      field
+      message
     }
   }`;
+  }
+  return "";
 };
 
 export const isUnpublished = (({ source_id, variant_source_id }: any): boolean => {
@@ -353,6 +370,7 @@ export const simplifyProducts = ((products: any, source: "vend" | "shopify" | "s
         "",
       ) === SHOPIFY_JHB_OUTLET_ID).length > 0;
 
+      console.log(inventory_JHB_level_id);
       acc.push({
         vend_id: undefined,
         vend_unpublished: undefined,
@@ -365,9 +383,9 @@ export const simplifyProducts = ((products: any, source: "vend" | "shopify" | "s
         product_type: productType,
         inventory_item_id: +s_gql_inventory_item_id?.replace("gid://shopify/InventoryItem/", "") || null,
         inventory_CPT,
-        inventory_CPT_level_id: +inventory_CPT_level_id?.replace("gid://shopify/InventoryLevel/", ""),
+        inventory_CPT_level_id: inventory_CPT_level_id?.replace("gid://shopify/InventoryLevel/", ""),
         inventory_JHB,
-        inventory_JHB_level_id: +inventory_JHB_level_id?.replace("gid://shopify/InventoryLevel/", "") || null,
+        inventory_JHB_level_id: inventory_JHB_level_id || null,
         inventory_quantity: inventoryQuantity,
         inventory_policy,
         option1: selectedOptions[0]?.value || null,
@@ -546,27 +564,37 @@ export const getDifferences = (source: productModel[], target: productModel[]): 
 
         /**
          * TODO Add Disconnect into the update here too. */
-        if (shopifyVariantUpdate || shopifyInventoryLevelConnect) {
-          acc.shopifyVariants.push({
-            body: createGqlUpdateVariantMutation(
-              override.variant_id,
-              override.sku,
-              override.price,
-              override.inventory_item_id,
-              override.inventory_CPT,
-              override.v_has_sell_jhb_tag ? override.inventory_JHB : undefined,
-              override.inventory_JHB_level_id,
-              override.option1,
-              override.option2,
-              override.option3,
-            ),
-          });
-        }
+        if (shopifyVariantUpdate || shopifyInventoryLevelConnect || shopifyInventoryLevelDisconnect) {
+          const shopifyConnectInventoryMutation = createGqlConnectInvLocationMutation(
+            override.inventory_JHB,
+            override.inventory_item_id,
+            override.v_has_sell_jhb_tag,
+            override.inventory_JHB_level_id,
+          );
+          console.log(override.v_has_sell_jhb_tag, shopifyInventoryLevelDisconnect, override.inventory_JHB_level_id);
+          const shopifyDisonnectInventoryMutation = createGqlDisconnectInvLocationMutation(
+            override.v_has_sell_jhb_tag,
+            override.inventory_JHB_level_id,
+          );
 
-        if (shopifyInventoryLevelDisconnect) {
-          acc.shopifyDisconnectInventory.push({
-            api: `/inventory_levels.json?inventory_item_id=${override.inventory_item_id}&location_id=${SHOPIFY_JHB_OUTLET_ID}`,
-            method: "DELETE",
+          const shopifyVariantMutation = createGqlUpdateVariantMutation(
+            override.variant_id,
+            override.sku,
+            override.price,
+            override.inventory_CPT,
+            override.v_has_sell_jhb_tag ? override.inventory_JHB : undefined,
+            override.inventory_JHB_level_id,
+            override.option1,
+            override.option2,
+            override.option3,
+          );
+
+          acc.shopifyVariants.push({
+            body: `mutation {
+              ${shopifyDisonnectInventoryMutation}
+              ${shopifyConnectInventoryMutation}
+              ${shopifyVariantMutation}
+            }`,
           });
         }
       } else {

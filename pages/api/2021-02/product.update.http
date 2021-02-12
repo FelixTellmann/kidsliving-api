@@ -116,13 +116,7 @@ Content-Type: application/graphql
 X-Shopify-Access-Token: 7522f1ec2ce1989ac523647deae8d00b
 
 mutation {
-    productVariantUpdate(input: {id:"gid://shopify/ProductVariant/37898847125679",sku:"20174",options:["Powder","",""],price:"165.00",inventoryQuantities:[{availableQuantity:6,locationId:"gid://shopify/Location/22530642"},{availableQuantity:3,locationId:"gid://shopify/Location/36654383164"}]}) {
-      product {
-        id
-      }
-      productVariant {
-        id
-      }
+    inventoryDeactivate(inventoryLevelId: "gid://shopify/InventoryLevel/70523519036?inventory_item_id=39992756895919") {
       userErrors {
         field
         message

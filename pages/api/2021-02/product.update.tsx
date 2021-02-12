@@ -144,6 +144,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
         result.push(request.reason.response.message, request.reason.response.status);
       }
       if (request.status === "fulfilled") {
+        console.log(request.value?.data?.errors);
         request.value.data?.extensions?.cost && console.log(request.value.data?.extensions?.cost);
         request.value.data?.extensions?.cost && result.push(request.value.data?.extensions?.cost);
         request.value.data?.product?.id && result.push({ id: request.value.data?.product?.id, name: request.value.data?.product?.name });
