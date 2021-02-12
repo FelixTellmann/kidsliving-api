@@ -544,6 +544,8 @@ export const getDifferences = (source: productModel[], target: productModel[]): 
           });
         }
 
+        /**
+         * TODO Add Disconnect into the update here too. */
         if (shopifyVariantUpdate || shopifyInventoryLevelConnect) {
           acc.shopifyVariants.push({
             body: createGqlUpdateVariantMutation(
