@@ -104,7 +104,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
 
     /** Step 5
      * Compare Vend & Shopify Data */
-    const to_process = getDifferences(vend, shopify_gql, 'vend-update');
+    const to_process = getDifferences(vend, shopify_gql);
 
     const to_process_count = Object.values(to_process).reduce((acc, itm) => {
       return [...acc, ...itm];
