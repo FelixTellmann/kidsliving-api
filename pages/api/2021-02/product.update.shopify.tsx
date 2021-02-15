@@ -26,15 +26,20 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
 
   const delay = Math.floor(Math.random() * 60) * 100;
   console.log(delay);
+  const s_created_at = Date.now();
+  let v_created_at = Date.now();
 
   try {
     const prevTimer = Date.now();
     await new Promise((resolve) => setTimeout(resolve, delay));
     console.log(Date.now() - prevTimer);
     /* Rather Block return request - should be identical in anyways - so very limited requests will be used... */
-    await db.collection("product.update.shopify").doc(product_id).get().then((doc) => {
+    await db.collection("product.update").doc(product_id).get().then((doc) => {
       console.log(Date.now() - prevTimer);
-      if (doc.exists && doc.data().created_at > Date.now() - 45 * 1000) { // 30 seconds ago
+      if (doc.exists) { // 30 seconds ago
+        if (doc.data().s_created_at > Date.now() - 45 * 1000 || doc.data().v_created_at > Date.now() - 60 * 2 * 1000) {
+          v_created_at = doc.data().v_created_at;
+        }
         duplicate = true;
       }
     });
@@ -46,10 +51,11 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
       return;
     }
 
-    await db.collection("product.update.shopify")
+    await db.collection("product.update")
       .doc(product_id)
       .set({
-        created_at: prevTimer,
+        s_created_at,
+        v_created_at,
         created_at_ISO: new Date(prevTimer).toISOString().split(".")[0].split("T").join(" ").replace(/-/gi, "/"),
         handle,
         product_id,
@@ -139,10 +145,11 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
       }
     });
 
-    await db.collection("product.update.shopify")
+    await db.collection("product.update")
       .doc(product_id)
       .set({
-        created_at: Date.now(),
+        s_created_at: Date.now(),
+        v_created_at,
         created_at_ISO: new Date(Date.now()).toISOString().split(".")[0].split("T").join(" ").replace(/-/gi, "/"),
         handle,
         product_id,
