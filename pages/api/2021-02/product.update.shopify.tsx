@@ -6,18 +6,17 @@ import { createGqlQueryProduct, getDifferences, simplifyProducts } from "utils/p
 export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> => {
   /** STEP 1
    * Validate incoming webhook - get handle && source_id   * */
-  const { VEND_RETAILER_ID, SHOPIFY_DOMAIN } = process.env;
+  const { SHOPIFY_DOMAIN } = process.env;
 
   const { body: { payload, retailer_id, ...body }, headers } = req;
-  const vhook = retailer_id === VEND_RETAILER_ID;
   const shook = headers[`x-shopify-shop-domain`] === SHOPIFY_DOMAIN;
 
-  if (!vhook && !shook) {
+  if (!shook) {
     res.status(405).json("Not Allowed");
     return;
   }
 
-  const { handle, source = "SHOPIFY", id, source_id = String(id) } = vhook ? JSON.parse(payload) : body;
+  const { handle, source = "SHOPIFY", id, source_id = String(id) } = body;
   const product_id = source_id?.replace(/_unpub/gi, '');
   console.log(handle, source_id);
 
@@ -44,7 +43,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
     await new Promise((resolve) => setTimeout(resolve, delay));
     console.log(Date.now() - prevTimer);
     /* Rather Block return request - should be identical in anyways - so very limited requests will be used... */
-    await db.collection("product.update").doc(product_id).get().then((doc) => {
+    await db.collection("product.update.shopify").doc(product_id).get().then((doc) => {
       console.log(Date.now() - prevTimer);
       if (doc.exists && doc.data().created_at > Date.now() - 45 * 1000) { // 30 seconds ago
         duplicate = true;
@@ -58,14 +57,14 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
       return;
     }
 
-    await db.collection("product.update")
+    await db.collection("product.update.shopify")
       .doc(product_id)
       .set({
         created_at: prevTimer,
         created_at_ISO: new Date(prevTimer).toISOString().split(".")[0].split("T").join(" ").replace(/-/gi, "/"),
         handle,
         product_id,
-        source: vhook ? "vend" : "shopify",
+        source: "shopify",
       });
 
     // console.log(result[result.length - 1].value.data.extensions.cost);
@@ -151,14 +150,14 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
       }
     });
 
-    await db.collection("product.update")
+    await db.collection("product.update.shopify")
       .doc(product_id)
       .set({
         created_at: Date.now(),
         created_at_ISO: new Date(Date.now()).toISOString().split(".")[0].split("T").join(" ").replace(/-/gi, "/"),
         handle,
         product_id,
-        source: vhook ? "vend" : "shopify",
+        source: "shopify",
         processed: JSON.stringify({
           /* vend_0: vend[0],
           shopify_0: shopify_gql[0], */

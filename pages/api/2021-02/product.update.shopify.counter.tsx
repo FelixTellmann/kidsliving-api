@@ -37,7 +37,7 @@ export const ProductUpdateShopifyCounter = async (req: NextApiRequest, res: Next
     await new Promise((resolve) => setTimeout(resolve, delay));
     console.log(Date.now() - prevTimer);
     /* Rather Block return request - should be identical in anyways - so very limited requests will be used... */
-    await db.collection("product.update.shopify").doc("count").get().then((doc) => {
+    await db.collection("product.update.shopify.count").doc("count").get().then((doc) => {
       console.log(Date.now() - prevTimer);
       if (doc.exists) { // 1 request per 10 seconds
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -76,7 +76,7 @@ export const ProductUpdateShopifyCounter = async (req: NextApiRequest, res: Next
       return acc;
     }, {});
 
-    await db.collection("product.update.shopify")
+    await db.collection("product.update.shopify.count")
       .doc("count")
       .set({ ...db_data });
   } catch (err) {
