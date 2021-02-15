@@ -1,12 +1,13 @@
 # VEND
 POST http://localhost:3000/api/2021-02/product.update.shopify
 Content-Type: application/json
-Accept: application/json
+x-shopify-shop-domain: kids-living.myshopify.com
 
 {
-  "retailer_id": "02dcd191-ae2b-11e6-f485-4cb686805cbf",
-  "payload": "{\"handle\":\"2-handlespoutcupseafriends\",\"source_id\":\"6172231499951\",\"source\":\"SHOPIFY\"}"
+  "id": 4536570904636,
+  "handle": "testing-testing-do-not-fulfill"
 }
+
 ###
 # VEND
 POST http://localhost:3000/api/2021-02/product.update.shopify
@@ -69,7 +70,7 @@ Content-Type: application/graphql
 X-Shopify-Access-Token: 7522f1ec2ce1989ac523647deae8d00b
 
 {
-    product(id: "gid://shopify/Product/2540522471484") {
+    product(id: "gid://shopify/Product/4536570904636") {
       title
       description
       tags
@@ -115,11 +116,16 @@ POST https://kids-living.myshopify.com/admin/api/2021-01/graphql.json
 Content-Type: application/graphql
 X-Shopify-Access-Token: 7522f1ec2ce1989ac523647deae8d00b
 
-mutation {
-    inventoryDeactivate(inventoryLevelId: "gid://shopify/InventoryLevel/70523519036?inventory_item_id=39992756895919") {
-      userErrors {
-        field
-        message
-      }
+mutation {productVariantCreate(input: {productId:"gid://shopify/Product/4536570904636",sku:"20502",options:["Default Title","",""],price:"0.00",inventoryQuantities:[{availableQuantity:0,locationId:"gid://shopify/Location/22530642"}]}) {
+    product {
+      id
+    }
+    productVariant {
+      id
+    }
+    userErrors {
+      field
+      message
     }
   }
+}

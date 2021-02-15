@@ -327,7 +327,8 @@ export const simplifyProducts = ((products: any, source: "vend" | "shopify" | "s
       variants: { edges: variants },
     } = products;
 
-    const s_needs_variant_image = (variants.length > 1 && !variants.every(hasVariantImage)) || (variants.length === 1 && !featuredImage);
+    const s_needs_variant_image = (variants.length > 1 && !variants.every(hasVariantImage))
+      || (variants.length === 1 && !featuredImage);
     const tags = s_gql_tags.join(",");
 
     return variants.reduce((acc: productModel[], { node: variant }: productModel): productModel[] => {
@@ -430,8 +431,21 @@ function createShopifyDeleteVariants(vend: productModel[], shopify: productModel
 }
 
 export const getDifferences = (source: productModel[], target: productModel[], direction: directionP): finalReturn => {
-  const vend = direction === 'vend-update' ? source : target;
-  const shopify = direction === 'vend-update' ? target : source;
+  const vend = direction === "vend-update" ? source : target;
+  const shopify = direction === "vend-update" ? target : source;
+
+  /* if there is an error with the product_id matching - return empty */
+  if (!vend.every(({ product_id }) => shopify.every((s) => s.product_id === product_id))) {
+    return {
+      shopifyDeleteVariants: [],
+      vendProducts: [],
+      shopifyProduct: [],
+      shopifyVariants: [],
+      shopifyNewVariants: [],
+      shopifyConnectInventory: [],
+      shopifyDisconnectInventory: [],
+    };
+  }
 
   /* Create Delete Array */
   const shopifyDeleteVariants = createShopifyDeleteVariants(vend, shopify);
@@ -467,13 +481,20 @@ export const getDifferences = (source: productModel[], target: productModel[], d
 
       /** OPTION 2
        * Found variant via id */
-      if (shopify.some(({ variant_id }) => variant_id === vend_variant.variant_id)) {
-        const shopify_variant = target.find(({ variant_id }) => variant_id === vend_variant.variant_id);
+      if (shopify.some(({ variant_id }) => variant_id === vend_variant.variant_id)
+        || shopify.some(({ sku }) => sku === vend_variant.sku)) {
+        const sku_match = !shopify.some(({ variant_id }) => variant_id === vend_variant.variant_id);
+        const shopify_variant = shopify.find(({ variant_id }) => variant_id === vend_variant.variant_id)
+          || shopify.find(({ sku }) => sku === vend_variant.sku);
         const override = { ...shopify_variant, ...vend_variant };
         let shopifyProductUpdate = false;
         let shopifyVariantUpdate = false;
         let shopifyInventoryLevelConnect = false;
         let shopifyInventoryLevelDisconnect = false;
+
+        if (sku_match) {
+          override.variant_id = shopify_variant.variant_id;
+        }
 
         if (override.v_has_needs_variant_image_tag && !override.s_needs_variant_image && !needs_new_variant_image) {
           override.tags = removeTag(override.tags, "FX_needs_variant_image");
@@ -499,7 +520,7 @@ export const getDifferences = (source: productModel[], target: productModel[], d
           reason.push("connect inventory");
         }
 
-        if (vend_variant.sku !== shopify_variant.sku) {
+        if (!sku_match && vend_variant.sku !== shopify_variant.sku) {
           vendProductUpdate = true;
           shopifyVariantUpdate = true;
           reason.push("sku");
@@ -609,20 +630,19 @@ export const getDifferences = (source: productModel[], target: productModel[], d
         /** OPTION 2
          * NO Variant found */
 
-        if (vendProductUpdate) {
-          acc.vendProducts.push({
-            api: `/products`,
-            method: `POST`,
-            body: {
-              id: vend_variant.vend_id,
-              source_id: vend_variant.source_id,
-              source_variant_id: vend_variant.variant_id,
-              description: vend_variant.description,
-              tags: vend_variant.tags,
-              source: "SHOPIFY",
-            },
-          });
-        }
+        acc.vendProducts.push({
+          api: `/products`,
+          method: `POST`,
+          body: {
+            id: vend_variant.vend_id,
+            source_id: vend_variant.product_id,
+            source_variant_id: vend_variant.variant_id,
+            description: vend_variant.description,
+            tags: vend_variant.v_has_needs_variant_image_tag ? vend_variant.tags : addTag(vend_variant.tags,
+              "FX_needs_variant_image"),
+            source: "SHOPIFY",
+          },
+        });
 
         acc.shopifyNewVariants.push({
           body: createGqlNewVariantMutation(vend_variant.product_id,
