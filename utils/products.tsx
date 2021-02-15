@@ -370,7 +370,6 @@ export const simplifyProducts = ((products: any, source: "vend" | "shopify" | "s
         "",
       ) === SHOPIFY_JHB_OUTLET_ID).length > 0;
 
-      console.log(inventory_JHB_level_id);
       acc.push({
         vend_id: undefined,
         vend_unpublished: undefined,

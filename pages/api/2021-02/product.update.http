@@ -15,7 +15,7 @@ Accept: application/json
 
 {
   "retailer_id": "02dcd191-ae2b-11e6-f485-4cb686805cbf",
-  "payload": "{\"handle\":\"testingtesting-newtestproduct\",\"source_id\":\"6279344259247\",\"source\":\"SHOPIFY\"}"
+  "payload": "{\"handle\":\"CottonballLights\",\"source_id\":\"6246512853167\",\"source\":\"SHOPIFY\"}"
 }
 ###
 # VEND via WEBSITE
