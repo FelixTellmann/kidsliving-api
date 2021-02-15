@@ -1,5 +1,5 @@
 # VEND
-POST http://localhost:3000/api/2021-02/product.update
+POST http://localhost:3000/api/2021-02/product.update.shopify
 Content-Type: application/json
 Accept: application/json
 
@@ -9,7 +9,7 @@ Accept: application/json
 }
 ###
 # VEND
-POST http://localhost:3000/api/2021-02/product.update
+POST http://localhost:3000/api/2021-02/product.update.shopify
 Content-Type: application/json
 Accept: application/json
 
@@ -19,7 +19,7 @@ Accept: application/json
 }
 ###
 # VEND via WEBSITE
-POST https://kidsliving-api.vercel.app /api/2021-02/product.update
+POST https://kidsliving-api.vercel.app /api/2021-02/product.update.shopify
 Content-Type: application/json
 Accept: application/json
 
@@ -29,7 +29,7 @@ Accept: application/json
 }
 
 #### VEND
-POST http://localhost:3000/api/2021-02/product.update
+POST http://localhost:3000/api/2021-02/product.update.shopify
 Content-Type: application/json
 Accept: application/json
 
@@ -39,7 +39,7 @@ Accept: application/json
 }
 
 #### VEND
-POST http://localhost:3000/api/2021-02/product.update
+POST http://localhost:3000/api/2021-02/product.update.shopify
 Content-Type: application/json
 Accept: application/json
 
@@ -51,7 +51,7 @@ Accept: application/json
 ###
 
 # SHOPIFY
-POST http://localhost:3000/api/2021-02/product.update
+POST http://localhost:3000/api/2021-02/product.update.shopify
 Content-Type: application/json
 Accept: application/json
 x-shopify-shop-domain: kids-living.myshopify.com

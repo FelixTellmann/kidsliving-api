@@ -16,24 +16,13 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
     return;
   }
 
-  const { handle, source = "SHOPIFY", id, source_id = String(id) } = body;
+  const { handle, id, source_id = String(id) } = body;
   const product_id = source_id?.replace(/_unpub/gi, '');
   console.log(handle, source_id);
 
   const firebase = loadFirebase();
   const db = firebase.firestore();
   let duplicate = false;
-
-  if (source !== "SHOPIFY") {
-    console.log(`source !== "SHOPIFY"`);
-    res.status(200).json("not on shopify");
-    return;
-  }
-
-  if (shook) {
-    res.status(200).json('Shopify Webhook not available yet... 2021-02-10');
-    return;
-  }
 
   const delay = Math.floor(Math.random() * 60) * 100;
   console.log(delay);
@@ -102,7 +91,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
 
     /** Step 5
      * Compare Vend & Shopify Data */
-    const to_process = getDifferences(vend, shopify_gql);
+    const to_process = getDifferences(vend, shopify_gql, 'shopify-update');
 
     const to_process_count = Object.values(to_process).reduce((acc, itm) => {
       return [...acc, ...itm];

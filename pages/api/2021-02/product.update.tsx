@@ -97,13 +97,14 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
     /** STEP 3
      * Analyse Vend Data */
     const vend = simplifyProducts(v_req.value.data?.products, "vend");
+
     /** STEP 4
      *  Analyse Shopify Data */
     const shopify_gql = simplifyProducts(s_gql_req.value.data?.data?.product, "shopify_gql");
 
     /** Step 5
      * Compare Vend & Shopify Data */
-    const to_process = getDifferences(vend, shopify_gql);
+    const to_process = getDifferences(vend, shopify_gql, 'vend-update');
 
     const to_process_count = Object.values(to_process).reduce((acc, itm) => {
       return [...acc, ...itm];
