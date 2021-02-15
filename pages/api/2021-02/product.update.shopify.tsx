@@ -37,16 +37,22 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
     await db.collection("product.update").doc(product_id).get().then((doc) => {
       console.log(Date.now() - prevTimer);
       if (doc.exists) { // 30 seconds ago
-        if (doc.data().s_created_at > Date.now() - 45 * 1000 || doc.data().v_created_at > Date.now() - 60 * 2 * 1000) {
-          v_created_at = doc.data().v_created_at;
+        if (doc.data().s_created_at > Date.now() - 45 * 1000) {
+          console.log(`wait: ${Math.floor(((Date.now() - 45 * 1000) - doc.data().s_created_at) / -1000)}s`);
+
+          duplicate = true;
         }
-        duplicate = true;
+        if (doc.data().v_created_at > Date.now() - 60 * 2 * 1000) {
+          console.log(`wait: ${Math.floor(((Date.now() - 60 * 2 * 1000) - doc.data().v_created_at) / -1000)}s`);
+          duplicate = true;
+        }
+        v_created_at = doc.data().v_created_at;
       }
     });
 
     if (duplicate) {
       console.log(Date.now() - prevTimer);
-      console.log(`id: ${handle} - Already processing`);
+      console.log(`id: ${handle} - Already processing - shopify`);
       res.status(200).json("duplicate");
       return;
     }

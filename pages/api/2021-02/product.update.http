@@ -7,6 +7,7 @@ Accept: application/json
   "retailer_id": "02dcd191-ae2b-11e6-f485-4cb686805cbf",
   "payload": "{\"handle\":\"testing-testing-do-not-fulfill\",\"source_id\":\"4536570904636\",\"source\":\"SHOPIFY\"}"
 }
+
 ###
 # VEND
 POST http://localhost:3000/api/2021-02/product.update
