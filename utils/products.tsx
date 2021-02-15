@@ -430,10 +430,7 @@ function createShopifyDeleteVariants(vend: productModel[], shopify: productModel
   }, []);
 }
 
-export const getDifferences = (source: productModel[], target: productModel[], direction: directionP): finalReturn => {
-  const vend = direction === "vend-update" ? source : target;
-  const shopify = direction === "vend-update" ? target : source;
-
+export const getDifferences = (vend: productModel[], shopify: productModel[], shopify_update = false, vend_udpate = !shopify_update): finalReturn => {
   /* if there is an error with the product_id matching - return empty */
   if (!vend.every(({ product_id }) => shopify.every((s) => s.product_id === product_id))) {
     return {
@@ -533,21 +530,31 @@ export const getDifferences = (source: productModel[], target: productModel[], d
         }
 
         if (!isSameTags(vend_variant.tags, shopify_variant.tags)) {
-          vendProductUpdate = true;
-          shopifyProductUpdate = true;
+          vendProductUpdate = shopify_update;
+          shopifyProductUpdate = vend_udpate;
+          if (shopify_update) {
+            override.tags = shopify_variant.tags;
+          }
           reason.push("tags");
         }
 
         if (!isSameDescription(vend_variant.description, shopify_variant.description)) {
-          shopifyProductUpdate = true;
+          vendProductUpdate = shopify_update;
+          shopifyProductUpdate = vend_udpate;
+          if (shopify_update) {
+            override.description = shopify_variant.description;
+          }
           reason.push("description");
         }
 
         if (vend_variant.product_type !== shopify_variant.product_type
           && vend_variant.product_type !== "General"
           && shopify_variant.product_type !== "General") {
-          vendProductUpdate = true;
-          shopifyProductUpdate = true;
+          vendProductUpdate = shopify_update;
+          shopifyProductUpdate = vend_udpate;
+          if (shopify_update) {
+            override.product_type = shopify_variant.product_type;
+          }
           reason.push(`product_type - ${vend_variant.product_type} !== ${shopify_variant.product_type}`);
         }
 
