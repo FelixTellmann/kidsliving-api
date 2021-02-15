@@ -21,7 +21,7 @@ export const ProductUpdateShopify = async (req: NextApiRequest, res: NextApiResp
 
   const firebase = loadFirebase();
   const db = firebase.firestore();
-  let duplicate = false;
+  const duplicate = false;
   let db_data = {
     updated_at: Date.now(),
     count: 0,
@@ -44,9 +44,9 @@ export const ProductUpdateShopify = async (req: NextApiRequest, res: NextApiResp
         // @ts-ignore
         db_data = doc.data();
         const { updated_at } = db_data;
-        if (updated_at > Date.now() - 10 * 1000) {
+        /* if (updated_at > Date.now() - 10 * 1000) {
           duplicate = true;
-        }
+        } */
       }
     });
 
