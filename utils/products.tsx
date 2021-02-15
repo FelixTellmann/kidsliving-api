@@ -108,47 +108,8 @@ export const createGqlNewVariantMutation = (
     inventoryQuantities,
   };
 
-  return `mutation {productVariantCreate(input: ${queryfy(config)}) {
-    product {
-      id
-    }
-    productVariant {
-      id
-    }
-    userErrors {
-      field
-      message
-    }
-  }
-}`;
-};
-
-export const createGqlUpdateVariantMutation = (
-  variant_id: number,
-  sku: string,
-  price: string,
-  inventory_CPT: number,
-  inventory_JHB?: number,
-  inventory_JHB_level_id?: string,
-  option1?: string,
-  option2?: string,
-  option3?: string,
-): string => {
-  const inv = [{ availableQuantity: inventory_CPT, locationId: "gid://shopify/Location/22530642" }];
-
-  if (inventory_JHB && inventory_JHB_level_id) {
-    inv.push({ availableQuantity: inventory_JHB, locationId: "gid://shopify/Location/36654383164" });
-  }
-
-  const config = {
-    id: `gid://shopify/ProductVariant/${variant_id}`,
-    sku,
-    options: [option1 || "", option2 || "", option3 || ""],
-    price,
-    inventoryQuantities: inv,
-  };
-
-  return `productVariantUpdate(input: ${queryfy(config)}) {
+  return `mutation {
+    productVariantCreate(input: ${queryfy(config)}) {
       product {
         id
       }
@@ -159,7 +120,76 @@ export const createGqlUpdateVariantMutation = (
         field
         message
       }
-    }`;
+    }
+  }`;
+};
+
+export const createGqlUpdateVariantMutation = (
+  variant_id: number,
+  sku: string,
+  price: string,
+  inventory_CPT: number,
+  inventory_CPT_level_id: string,
+  s_inventory_CPT: number,
+  option1?: string,
+  option2?: string,
+  option3?: string,
+): string => {
+  const inventory_CPT_config = `
+  inventoryAdjustQuantity(input: ${queryfy({
+    inventoryLevelId: inventory_CPT_level_id,
+    availableDelta: inventory_CPT - s_inventory_CPT,
+  })}) {
+    inventoryLevel {
+      id
+    }
+    userErrors {
+      field
+      message
+    }
+  }`;
+
+  const config = {
+    id: `gid://shopify/ProductVariant/${variant_id}`,
+    sku,
+    options: [option1 || "", option2 || "", option3 || ""],
+    price,
+  };
+
+  return `
+  ${inventory_CPT_config}
+  productVariantUpdate(input: ${queryfy(config)}) {
+    product {
+      id
+    }
+    productVariant {
+      id
+    }
+    userErrors {
+      field
+      message
+    }
+  }`;
+};
+export const createGqlAdjustJHBInventoryQuantity = (
+  inventory_JHB: number,
+  inventory_JHB_level_id: string,
+  s_inventory_JHB: number,
+): string => {
+  return `mutation {
+    inventoryAdjustQuantity(input: ${queryfy({
+    inventoryLevelId: inventory_JHB_level_id,
+    availableDelta: inventory_JHB - s_inventory_JHB,
+  })}) {
+      inventoryLevel { 
+        id
+      }
+      userErrors {
+        field
+        message
+      }
+    }
+  }`;
 };
 
 export const createGqlConnectInvLocationMutation = (
@@ -383,8 +413,10 @@ export const simplifyProducts = ((products: any, source: "vend" | "shopify" | "s
         product_type: productType,
         inventory_item_id: +s_gql_inventory_item_id?.replace("gid://shopify/InventoryItem/", "") || null,
         inventory_CPT,
-        inventory_CPT_level_id: inventory_CPT_level_id?.replace("gid://shopify/InventoryLevel/", ""),
+        s_inventory_CPT: inventory_CPT,
+        inventory_CPT_level_id: inventory_CPT_level_id || null,
         inventory_JHB,
+        s_inventory_JHB: inventory_JHB,
         inventory_JHB_level_id: inventory_JHB_level_id || null,
         inventory_quantity: inventoryQuantity,
         inventory_policy,
@@ -430,7 +462,12 @@ function createShopifyDeleteVariants(vend: productModel[], shopify: productModel
   }, []);
 }
 
-export const getDifferences = (vend: productModel[], shopify: productModel[], shopify_update = false, vend_udpate = !shopify_update): finalReturn => {
+export const getDifferences = (
+  vend: productModel[],
+  shopify: productModel[],
+  shopify_update = false,
+  vend_udpate = !shopify_update,
+): finalReturn => {
   /* if there is an error with the product_id matching - return empty */
   if (!vend.every(({ product_id }) => shopify.every((s) => s.product_id === product_id))) {
     return {
@@ -618,12 +655,19 @@ export const getDifferences = (vend: productModel[], shopify: productModel[], sh
             override.sku,
             override.price,
             override.inventory_CPT,
-            override.v_has_sell_jhb_tag ? override.inventory_JHB : undefined,
-            override.inventory_JHB_level_id,
+            override.inventory_CPT_level_id,
+            override.s_inventory_CPT,
             override.option1,
             override.option2,
             override.option3,
           );
+
+          if (override.v_has_sell_jhb_tag && override.inventory_JHB_level_id) {
+            acc.shopifyVariants.push({
+              body: createGqlAdjustJHBInventoryQuantity(override.inventory_JHB,
+                override.inventory_JHB_level_id, override.s_inventory_JHB),
+            });
+          }
 
           acc.shopifyVariants.push({
             body: `mutation {
