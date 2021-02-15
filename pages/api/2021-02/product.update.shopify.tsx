@@ -63,7 +63,7 @@ export const ProductUpdateShopify = async (req: NextApiRequest, res: NextApiResp
       duplicate_counts: { },
       product_ids: {
         ...db_data.product_ids,
-        source_id: db_data.product_ids[source_id] ? +db_data.product_ids[source_id] + 1 : 1,
+        [source_id]: db_data.product_ids[source_id] ? +db_data.product_ids[source_id] + 1 : 1,
       },
     };
 
