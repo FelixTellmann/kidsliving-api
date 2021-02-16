@@ -106,6 +106,11 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
       return;
     }
 
+    if (v_req.status === "fulfilled" && v_req.value.data.products.length > 32) {
+      res.status(200).json("Too many variants to handle safely.");
+      return;
+    }
+
     /** STEP 3
      * Analyse Vend Data */
     const vend = simplifyProducts(v_req.value.data?.products, "vend");
