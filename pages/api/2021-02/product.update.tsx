@@ -31,6 +31,12 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
     return;
   }
 
+  if (handle !== "danishpacifier") {
+    console.log(`Too many variants`);
+    res.status(200).json("Too many variants");
+    return;
+  }
+
   if (shook) {
     res.status(200).json('Shopify Webhook not available yet... 2021-02-10');
     return;
