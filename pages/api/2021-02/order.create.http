@@ -5,14 +5,25 @@ Content-Type: application/graphql
 X-Shopify-Access-Token: 7522f1ec2ce1989ac523647deae8d00b
 
 {
-  order(id: "gid://shopify/Order/3250022416559") {
-    fulfillmentOrders(first: 30) {
+  order(id: "gid://shopify/Order/3251164250287") {
+    fulfillmentOrders(first: 4) {
       edges {
         node {
           id
           status
           assignedLocation {
             name
+          }
+          lineItems(first: 30) {
+            edges {
+              node {
+                lineItem {
+                  name
+                }
+                remainingQuantity
+                totalQuantity
+              }
+            }
           }
         }
       }

@@ -31,7 +31,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
     return;
   }
 
-  if (handle !== "danishpacifier") {
+  if (handle === "danishpacifier") {
     console.log(`Too many variants`);
     res.status(200).json("Too many variants");
     return;
@@ -112,7 +112,8 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
       return;
     }
 
-    if (v_req.status === "fulfilled" && v_req.value.data.products.length > 32) {
+    console.log(v_req.value?.data?.products?.length);
+    if (v_req.status === "fulfilled" && v_req.value?.data?.products?.length > 32) {
       res.status(200).json("Too many variants to handle safely.");
       return;
     }

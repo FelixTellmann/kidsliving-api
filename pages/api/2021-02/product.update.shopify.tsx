@@ -20,7 +20,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
   const product_id = source_id?.replace(/_unpub/gi, '');
   console.log(handle, source_id);
 
-  if (handle !== "danishpacifier") {
+  if (handle === "danishpacifier") {
     console.log(`Too many variants`);
     res.status(200).json("Too many variants");
     return;
