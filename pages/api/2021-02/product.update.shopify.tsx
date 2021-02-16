@@ -20,6 +20,12 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
   const product_id = source_id?.replace(/_unpub/gi, '');
   console.log(handle, source_id);
 
+  if (handle !== "danishpacifier") {
+    console.log(`Too many variants`);
+    res.status(200).json("Too many variants");
+    return;
+  }
+
   const firebase = loadFirebase();
   const db = firebase.firestore();
   let duplicate = false;
@@ -91,6 +97,11 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
 
     if (v_req.status === "rejected" || s_gql_req.status === "rejected") {
       res.status(500).json("Request Rejected - shopify / Vend");
+      return;
+    }
+
+    if (v_req.status === "fulfilled" && v_req.value.data.products.length > 32) {
+      res.status(200).json("Too many variants to handle safely.");
       return;
     }
 
