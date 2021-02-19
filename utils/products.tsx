@@ -451,8 +451,6 @@ type getDifferenceReturn = {
 
 type finalReturn = getDifferenceReturn & { shopifyDeleteVariants: requestConfig[] };
 
-type directionP = "vend-update" | "shopify-update";
-
 function createShopifyDeleteVariants(vend: productModel[], shopify: productModel[]) {
   return shopify.reduce((acc, targetVariant): requestConfig[] => {
     if (!vend.some(({ variant_id, sku }) => variant_id === targetVariant.variant_id || sku === targetVariant.sku)) {
