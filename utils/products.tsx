@@ -518,11 +518,9 @@ export const getDifferences = (
 
       /** OPTION 2
        * Found variant via id */
-      if (shopify.some(({ variant_id }) => variant_id === vend_variant.variant_id)
-        || shopify.some(({ sku }) => sku === vend_variant.sku)) {
+      if (shopify.some(({ variant_id, sku }) => variant_id === vend_variant.variant_id || sku === vend_variant.sku)) {
         const sku_match = !shopify.some(({ variant_id }) => variant_id === vend_variant.variant_id);
-        const shopify_variant = shopify.find(({ variant_id }) => variant_id === vend_variant.variant_id)
-          || shopify.find(({ sku }) => sku === vend_variant.sku);
+        const shopify_variant = shopify.find(({ variant_id, sku}) => variant_id === vend_variant.variant_id || sku === vend_variant.sku);
         const override = { ...shopify_variant, ...vend_variant };
         let shopifyProductUpdate = false;
         let shopifyVariantUpdate = false;
@@ -531,6 +529,7 @@ export const getDifferences = (
 
         if (sku_match) {
           override.variant_id = shopify_variant.variant_id;
+          vendProductUpdate = true;
         }
 
         if (override.v_has_needs_variant_image_tag && !override.s_needs_variant_image && !needs_new_variant_image) {
