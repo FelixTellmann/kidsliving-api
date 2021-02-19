@@ -460,6 +460,10 @@ function createShopifyDeleteVariants(vend: productModel[], shopify: productModel
         api: `/products/${targetVariant.product_id}/variants/${targetVariant.variant_id}.json`,
         method: "DELETE",
       });
+      acc.push({
+        api: `products/${targetVariant.product_id}/images/${targetVariant.image_id}.json`,
+        method: "DELETE",
+      });
     }
     return acc;
   }, []);
@@ -520,7 +524,7 @@ export const getDifferences = (
        * Found variant via id */
       if (shopify.some(({ variant_id, sku }) => variant_id === vend_variant.variant_id || sku === vend_variant.sku)) {
         const sku_match = !shopify.some(({ variant_id }) => variant_id === vend_variant.variant_id);
-        const shopify_variant = shopify.find(({ variant_id, sku}) => variant_id === vend_variant.variant_id || sku === vend_variant.sku);
+        const shopify_variant = shopify.find(({ variant_id, sku }) => variant_id === vend_variant.variant_id || sku === vend_variant.sku);
         const override = { ...shopify_variant, ...vend_variant };
         let shopifyProductUpdate = false;
         let shopifyVariantUpdate = false;
