@@ -455,7 +455,7 @@ type directionP = "vend-update" | "shopify-update";
 
 function createShopifyDeleteVariants(vend: productModel[], shopify: productModel[]) {
   return shopify.reduce((acc, targetVariant): requestConfig[] => {
-    if (!vend.some(({ variant_id }) => variant_id === targetVariant.variant_id)) {
+    if (!vend.some(({ variant_id, sku }) => variant_id === targetVariant.variant_id || sku === targetVariant.sku)) {
       acc.push({
         api: `/products/${targetVariant.product_id}/variants/${targetVariant.variant_id}.json`,
         method: "DELETE",
