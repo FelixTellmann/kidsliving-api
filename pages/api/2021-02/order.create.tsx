@@ -488,6 +488,7 @@ export const ProductUpdateShopifyCounter = async (req: NextApiRequest, res: Next
 
   const firebase = loadFirebase();
   const db = firebase.firestore();
+
   const duplicate = false;
 
   await db.collection("testing")
