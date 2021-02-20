@@ -102,8 +102,8 @@ type vendFetchSearchSale = {
   }
 };
 
-type IFetchVendSearchSaleByInvoiceId = (invoice_number: string, user_id: string) => Promise<vendFetchSearchSale>;
+type IFetchVendSearchSaleByInvoiceId = (invoice_number: string, user_id?: string) => Promise<vendFetchSearchSale>;
 
 export const fetchVendSaleByInvoiceId: IFetchVendSearchSaleByInvoiceId = (invoice_id, user_id = VEND_USER_SALE_ID) => {
-  return fetchVend(`/2.0/search?type=sales&invoice_number=${invoice_id}&user_id=${user_id}`);
+  return fetchVend(`/2.0/search?type=sales&invoice_number=${invoice_id}&user_id=${user_id}`.trim());
 };

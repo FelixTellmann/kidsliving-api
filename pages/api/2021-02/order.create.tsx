@@ -3,6 +3,7 @@ import { fetchShopifyOrderById } from "entities/order";
 import { fetchVendProductBySku } from "entities/product/vendFetchProducts";
 import { loadFirebase } from "lib/db";
 import type { NextApiRequest, NextApiResponse } from "next";
+import { fetchVendSaleByInvoiceId } from "../../../entities/search/vendFetchSearchSale";
 
 const test = {
   id: 3257938804911,
@@ -467,9 +468,11 @@ export const ProductUpdateShopifyCounter = async (req: NextApiRequest, res: Next
     getSaleProducts.push(fetchVendProductBySku(sku));
   });
 
-  const [shopifyOrderDetails, customer, sales] = await Promise.allSettled([
+  console.log(body.order_number);
+  const [shopifyOrderDetails, customer, vendSale, sales] = await Promise.allSettled([
     fetchShopifyOrderById(body.id),
     fetchVendCustomerByEmail(body.email),
+    fetchVendSaleByInvoiceId(body.order_number),
     Promise.allSettled(getSaleProducts),
   ]);
 
@@ -483,6 +486,7 @@ export const ProductUpdateShopifyCounter = async (req: NextApiRequest, res: Next
 
   /* TODO: Match variant_source_id back to line-item variant id! or if length is 1 and variatn_source_id isnt setup properly (due to new variant created) */
   sales.value.forEach((d) => d.status !== "rejected" && console.log(d.value.data));
+  console.log(vendSale.value.data.data, 'asd');
   console.log(shopifyOrderDetails.value.data.data.order);
   console.log(customer.value.data.customers[0].first_name);
 

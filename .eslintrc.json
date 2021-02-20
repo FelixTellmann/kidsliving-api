@@ -51,10 +51,7 @@
           ".tsx"
         ]
       }
-    },
-    "json/sort-package-json": "standard",
-    "json/ignore-files": ["**/package-lock.json"],
-    "json/json-with-comments-files": ["**/tsconfig.json", ".vscode/**"]
+    }
   },
   "overrides": [
     {
@@ -64,8 +61,7 @@
       ],
       "parser": "@typescript-eslint/parser",
       "plugins": [
-        "@typescript-eslint",
-        "json-format"
+        "@typescript-eslint"
       ],
       "parserOptions": {
         "project": "./tsconfig.json"
