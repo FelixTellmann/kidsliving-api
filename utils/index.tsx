@@ -27,7 +27,7 @@ export const mergeTags = (tagList: string, tagListAddon: string): string => [
     ...tagList.split(",").map((t: string) => t.trim()),
     ...tagListAddon.split(",").map((t: string) => t.trim()),
   ]),
-].filter((t) => t !== "").join(",");
+]?.filter((t) => t !== "").join(",");
 
 export const mergeDescriptions = (description: string, descriptionAddon: string): string => {
   return description.length > descriptionAddon.length ? description : descriptionAddon;
