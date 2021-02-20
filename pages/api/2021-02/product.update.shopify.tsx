@@ -96,6 +96,10 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
     }
 
     if (v_req.status === "rejected" || s_gql_req.status === "rejected") {
+      if (handle === 'giftvoucher') {
+        res.status(200).json("Request Rejected - ERROR -Giftvoucher");
+        return;
+      }
       res.status(500).json("Request Rejected - shopify / Vend");
       return;
     }

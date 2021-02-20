@@ -51,7 +51,10 @@
           ".tsx"
         ]
       }
-    }
+    },
+    "json/sort-package-json": "standard",
+    "json/ignore-files": ["**/package-lock.json"],
+    "json/json-with-comments-files": ["**/tsconfig.json", ".vscode/**"]
   },
   "overrides": [
     {
@@ -61,7 +64,8 @@
       ],
       "parser": "@typescript-eslint/parser",
       "plugins": [
-        "@typescript-eslint"
+        "@typescript-eslint",
+        "json-format"
       ],
       "parserOptions": {
         "project": "./tsconfig.json"
@@ -134,7 +138,8 @@
             "allowArgumentsExplicitlyTypedAsAny": true
           }
         ],
-        "@typescript-eslint/no-unsafe-return": 0
+        "@typescript-eslint/no-unsafe-return": 0,
+        "quote-props": "error"
       }
     }
   ]

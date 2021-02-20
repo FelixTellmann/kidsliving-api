@@ -1,4 +1,194 @@
+# SHOPIFY
+POST http://localhost:3000/api/2021-02/order.create
+Content-Type: application/json
+Accept: application/json
+x-shopify-shop-domain: kids-living.myshopify.com
 
+{
+  "id": 3257938804911,
+  "email": "felix@tellmann.co.za",
+  "line_items": [
+    {
+      "id": 9228283117743,
+      "variant_id": 38312911372463,
+      "title": "TESTING TESTING - DO NOT FULFILL",
+      "quantity": 1,
+      "sku": "20502",
+      "variant_title": "fancy",
+      "vendor": "Kids Living",
+      "fulfillment_service": "manual",
+      "product_id": 4536570904636,
+      "requires_shipping": true,
+      "taxable": false,
+      "gift_card": false,
+      "name": "TESTING TESTING - DO NOT FULFILL - fancy",
+      "variant_inventory_management": "shopify",
+      "properties": [],
+      "product_exists": true,
+      "fulfillable_quantity": 1,
+      "grams": 0,
+      "price": "1.00",
+      "total_discount": "0.00",
+      "fulfillment_status": null,
+      "price_set": {
+        "shop_money": {
+          "amount": "1.00",
+          "currency_code": "ZAR"
+        },
+        "presentment_money": {
+          "amount": "1.00",
+          "currency_code": "ZAR"
+        }
+      },
+      "total_discount_set": {
+        "shop_money": {
+          "amount": "0.00",
+          "currency_code": "ZAR"
+        },
+        "presentment_money": {
+          "amount": "0.00",
+          "currency_code": "ZAR"
+        }
+      },
+      "discount_allocations": [
+        {
+          "amount": "1.00",
+          "discount_application_index": 0,
+          "amount_set": {
+            "shop_money": {
+              "amount": "1.00",
+              "currency_code": "ZAR"
+            },
+            "presentment_money": {
+              "amount": "1.00",
+              "currency_code": "ZAR"
+            }
+          }
+        }
+      ],
+      "duties": [],
+      "admin_graphql_api_id": "gid://shopify/LineItem/9228283117743",
+      "tax_lines": [
+        {
+          "title": "VAT",
+          "price": "0.00",
+          "rate": 0.15,
+          "price_set": {
+            "shop_money": {
+              "amount": "0.00",
+              "currency_code": "ZAR"
+            },
+            "presentment_money": {
+              "amount": "0.00",
+              "currency_code": "ZAR"
+            }
+          }
+        }
+      ],
+      "origin_location": {
+        "id": 2030453063740,
+        "country_code": "ZA",
+        "province_code": "WC",
+        "name": "Kids Living",
+        "address1": "15 Hudson Street",
+        "address2": "Greenpoint",
+        "city": "Cape Town",
+        "zip": "8001"
+      }
+    },
+    {
+      "id": 9228283150511,
+      "variant_id": 38312872968367,
+      "title": "TESTING TESTING - DO NOT FULFILL",
+      "quantity": 1,
+      "sku": "TESTINGTESTINGDefaultTitle",
+      "variant_title": "cool",
+      "vendor": "Kids Living",
+      "fulfillment_service": "manual",
+      "product_id": 4536570904636,
+      "requires_shipping": true,
+      "taxable": false,
+      "gift_card": false,
+      "name": "TESTING TESTING - DO NOT FULFILL - cool",
+      "variant_inventory_management": "shopify",
+      "properties": [],
+      "product_exists": true,
+      "fulfillable_quantity": 1,
+      "grams": 0,
+      "price": "1.00",
+      "total_discount": "0.00",
+      "fulfillment_status": null,
+      "price_set": {
+        "shop_money": {
+          "amount": "1.00",
+          "currency_code": "ZAR"
+        },
+        "presentment_money": {
+          "amount": "1.00",
+          "currency_code": "ZAR"
+        }
+      },
+      "total_discount_set": {
+        "shop_money": {
+          "amount": "0.00",
+          "currency_code": "ZAR"
+        },
+        "presentment_money": {
+          "amount": "0.00",
+          "currency_code": "ZAR"
+        }
+      },
+      "discount_allocations": [
+        {
+          "amount": "1.00",
+          "discount_application_index": 0,
+          "amount_set": {
+            "shop_money": {
+              "amount": "1.00",
+              "currency_code": "ZAR"
+            },
+            "presentment_money": {
+              "amount": "1.00",
+              "currency_code": "ZAR"
+            }
+          }
+        }
+      ],
+      "duties": [],
+      "admin_graphql_api_id": "gid://shopify/LineItem/9228283150511",
+      "tax_lines": [
+        {
+          "title": "VAT",
+          "price": "0.00",
+          "rate": 0.15,
+          "price_set": {
+            "shop_money": {
+              "amount": "0.00",
+              "currency_code": "ZAR"
+            },
+            "presentment_money": {
+              "amount": "0.00",
+              "currency_code": "ZAR"
+            }
+          }
+        }
+      ],
+      "origin_location": {
+        "id": 2030453063740,
+        "country_code": "ZA",
+        "province_code": "WC",
+        "name": "Kids Living",
+        "address1": "15 Hudson Street",
+        "address2": "Greenpoint",
+        "city": "Cape Town",
+        "zip": "8001"
+      }
+    }
+  ]
+}
+
+
+###
 # SHOPIFY create
 POST https://kids-living.myshopify.com/admin/api/2021-01/graphql.json
 Content-Type: application/graphql
@@ -8,7 +198,7 @@ X-Shopify-Access-Token: 7522f1ec2ce1989ac523647deae8d00b
 
 {
   order(id: "gid://shopify/Order/3251164250287") {
-    fulfillmentOrders(first: 2) {
+    fulfillmentOrders(first: 10) {
       edges {
         node {
           id
@@ -16,7 +206,7 @@ X-Shopify-Access-Token: 7522f1ec2ce1989ac523647deae8d00b
           assignedLocation {
             name
           }
-          lineItems(first: 2) {
+          lineItems(first: 20) {
             edges {
               node {
                 lineItem {

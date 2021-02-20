@@ -84,3 +84,9 @@ type IFetchVendProductByHandle = (handle: string) => Promise<vendFetchProducts>;
 export const fetchVendProductByHandle: IFetchVendProductByHandle = (handle) => {
   return fetchVend(`products?handle=${handle}`);
 };
+
+type IFetchVendProductBySku = (sku: string) => Promise<vendFetchProducts>;
+
+export const fetchVendProductBySku: IFetchVendProductBySku = (sku) => {
+  return fetchVend(`products?sku=${sku}`);
+};

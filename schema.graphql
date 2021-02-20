@@ -129,7 +129,7 @@ interface HasEvents {
         - `subject_type`
         - `verb`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax)
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax)
         for more information about using filters.
         """
         query: String,
@@ -1447,7 +1447,7 @@ type CalculatedOrder implements Node {
         Supported filter parameters:
         - `editable`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax)
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax)
         for more information about using filters.
         """
         query: String,
@@ -1741,7 +1741,7 @@ type Collection implements HasMetafields & HasPublishedTranslations & Node & Pub
         - `created_at`
         - `updated_at`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax).
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax).
         """
         query: String,
         "Reverse the order of the underlying list."
@@ -2250,7 +2250,7 @@ type Customer implements CommentEventSubject & HasEvents & HasMetafields & Legac
         - `subject_type`
         - `verb`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax)
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax)
         for more information about using filters.
         """
         query: String,
@@ -2365,7 +2365,7 @@ type Customer implements CommentEventSubject & HasEvents & HasMetafields & Legac
         - `test`
         - `updated_at`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax)
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax)
         for more information about using filters.
         """
         query: String,
@@ -2965,7 +2965,7 @@ type DeliveryLocationGroup implements Node {
         - `province`
         - `zip`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax)
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax)
         for more information about using filters.
         """
         query: String,
@@ -3436,7 +3436,7 @@ type DiscountAutomaticBxgy implements HasEvents & Node {
         - `subject_type`
         - `verb`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax)
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax)
         for more information about using filters.
         """
         query: String,
@@ -3537,7 +3537,7 @@ type DiscountAutomaticNode implements HasEvents & Node {
         - `subject_type`
         - `verb`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax)
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax)
         for more information about using filters.
         """
         query: String,
@@ -3627,7 +3627,7 @@ type DiscountCodeBasic {
         Supported filter parameters:
         - `times_used`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax)
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax)
         for more information about using filters.
         """
         query: String,
@@ -3635,8 +3635,8 @@ type DiscountCodeBasic {
         reverse: Boolean = false,
         """
 
-        ID of an existing saved search.
-        The search’s query string is used as the query argument.
+        ID of an existing saved customer.
+        The customer’s query string is used as the query argument.
         """
         savedSearchId: ID,
         "Sort the underlying list by the given key."
@@ -3737,7 +3737,7 @@ type DiscountCodeBxgy {
         Supported filter parameters:
         - `times_used`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax)
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax)
         for more information about using filters.
         """
         query: String,
@@ -3745,8 +3745,8 @@ type DiscountCodeBxgy {
         reverse: Boolean = false,
         """
 
-        ID of an existing saved search.
-        The search’s query string is used as the query argument.
+        ID of an existing saved customer.
+        The customer’s query string is used as the query argument.
         """
         savedSearchId: ID,
         "Sort the underlying list by the given key."
@@ -3841,7 +3841,7 @@ type DiscountCodeFreeShipping {
         Supported filter parameters:
         - `times_used`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax)
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax)
         for more information about using filters.
         """
         query: String,
@@ -3849,8 +3849,8 @@ type DiscountCodeFreeShipping {
         reverse: Boolean = false,
         """
 
-        ID of an existing saved search.
-        The search’s query string is used as the query argument.
+        ID of an existing saved customer.
+        The customer’s query string is used as the query argument.
         """
         savedSearchId: ID,
         "Sort the underlying list by the given key."
@@ -3928,7 +3928,7 @@ type DiscountCodeNode implements HasEvents & Node {
         - `subject_type`
         - `verb`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax)
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax)
         for more information about using filters.
         """
         query: String,
@@ -4257,7 +4257,7 @@ type DraftOrder implements CommentEventSubject & HasEvents & HasLocalizationExte
         - `subject_type`
         - `verb`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax)
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax)
         for more information about using filters.
         """
         query: String,
@@ -4725,7 +4725,7 @@ type FailedRequirement {
     message: String!
 }
 
-"A filter option is one possible value in a search filter."
+"A filter option is one possible value in a customer filter."
 type FilterOption {
     "The filter option's label for display purposes."
     label: String!
@@ -5648,7 +5648,7 @@ type InventoryItem implements LegacyInteroperability & Node {
         - `inventory_item_id`
         - `updated_at`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax)
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax)
         for more information about using filters.
         """
         query: String,
@@ -6163,7 +6163,7 @@ type Location implements LegacyInteroperability & Node {
         - `inventory_item_id`
         - `updated_at`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax)
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax)
         for more information about using filters.
         """
         query: String,
@@ -7141,16 +7141,16 @@ type Mutation {
     ): DiscountAutomaticBasicUpdatePayload
     """
 
-    Asynchronously delete automatic discounts in bulk if a `search` or `saved_search_id` argument is provided or if a
+    Asynchronously delete automatic discounts in bulk if a `customer` or `saved_search_id` argument is provided or if a
     maximum discount threshold is reached (1,000). Otherwise, deletions will occur inline.
-    **Warning:** All automatic discounts will be deleted if a blank `search` argument is provided.
+    **Warning:** All automatic discounts will be deleted if a blank `customer` argument is provided.
     """
     discountAutomaticBulkDelete(
         "The IDs of the automatic discounts to delete."
         ids: [ID!],
-        "The ID of the saved search."
+        "The ID of the saved customer."
         savedSearchId: ID,
-        "The search query for filtering automatic discounts on."
+        "The customer query for filtering automatic discounts on."
         search: String
     ): DiscountAutomaticBulkDeletePayload
     "Creates a BXGY automatic discount."
@@ -7194,38 +7194,38 @@ type Mutation {
     ): DiscountCodeBasicUpdatePayload
     """
 
-    Asynchronously activate code discounts in bulk using a search query, a `savedSearchId` or a list of IDs.
+    Asynchronously activate code discounts in bulk using a customer query, a `savedSearchId` or a list of IDs.
     """
     discountCodeBulkActivate(
         "The IDs of the code discounts to activate."
         ids: [ID!],
-        "The ID of the saved search."
+        "The ID of the saved customer."
         savedSearchId: ID,
-        "The search query for filtering discounts."
+        "The customer query for filtering discounts."
         search: String
     ): DiscountCodeBulkActivatePayload
     """
 
-    Asynchronously deactivates code discounts in bulk using a search query, a `savedSearchId` or a list of IDs.
+    Asynchronously deactivates code discounts in bulk using a customer query, a `savedSearchId` or a list of IDs.
     """
     discountCodeBulkDeactivate(
         "The IDs of the code discounts to deactivate."
         ids: [ID!],
-        "The ID of the saved search."
+        "The ID of the saved customer."
         savedSearchId: ID,
-        "The search query for filtering discounts."
+        "The customer query for filtering discounts."
         search: String
     ): DiscountCodeBulkDeactivatePayload
     """
 
-    Asynchronously delete code discounts in bulk using a search query, a `savedSearchId` or a list of IDs.
+    Asynchronously delete code discounts in bulk using a customer query, a `savedSearchId` or a list of IDs.
     """
     discountCodeBulkDelete(
         "The IDs of the code discounts to delete."
         ids: [ID!],
-        "The ID of the saved search."
+        "The ID of the saved customer."
         savedSearchId: ID,
-        "The search query for filtering discounts."
+        "The customer query for filtering discounts."
         search: String
     ): DiscountCodeBulkDeletePayload
     "Creates a BXGY code discount."
@@ -7265,16 +7265,16 @@ type Mutation {
     """
 
     Asynchronously delete discount redeem codes in bulk. Specify the redeem codes to delete by providing a
-    search query, a `savedSearchId`, or a list of redeem code IDs.
+    customer query, a `savedSearchId`, or a list of redeem code IDs.
     """
     discountCodeRedeemCodeBulkDelete(
         "The ID of the redeem code's discount."
         discountId: ID!,
         "The IDs of the discount redeem codes to delete."
         ids: [ID!],
-        "The ID of the saved search."
+        "The ID of the saved customer."
         savedSearchId: ID,
-        "The search query for filtering discount redeem codes."
+        "The customer query for filtering discount redeem codes."
         search: String
     ): DiscountCodeRedeemCodeBulkDeletePayload
     """
@@ -7999,19 +7999,19 @@ type Mutation {
         "The input fields for the mutation."
         input: RefundInput!
     ): RefundCreatePayload
-    "Creates a saved search."
+    "Creates a saved customer."
     savedSearchCreate(
-        "Specifies the input fields for a saved search."
+        "Specifies the input fields for a saved customer."
         input: SavedSearchCreateInput!
     ): SavedSearchCreatePayload
-    "Delete a saved search."
+    "Delete a saved customer."
     savedSearchDelete(
-        "Input fields to delete a saved search."
+        "Input fields to delete a saved customer."
         input: SavedSearchDeleteInput!
     ): SavedSearchDeletePayload
-    "Update a saved search."
+    "Update a saved customer."
     savedSearchUpdate(
-        "Input fields to update a saved search."
+        "Input fields to update a saved customer."
         input: SavedSearchUpdateInput!
     ): SavedSearchUpdatePayload
     """
@@ -8566,7 +8566,7 @@ type Order implements CommentEventSubject & HasEvents & HasLocalizationExtension
         - `subject_type`
         - `verb`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax)
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax)
         for more information about using filters.
         """
         query: String,
@@ -8599,7 +8599,7 @@ type Order implements CommentEventSubject & HasEvents & HasLocalizationExtension
         - `assigned_location_id`
         - `status`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax).
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax).
         """
         query: String,
         "Reverse the order of the underlying list."
@@ -9440,7 +9440,7 @@ type PriceRule implements CommentEventSubject & HasEvents & LegacyInteroperabili
         Supported filter parameters:
         - `times_used`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax)
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax)
         for more information about using filters.
         """
         query: String,
@@ -9448,8 +9448,8 @@ type PriceRule implements CommentEventSubject & HasEvents & LegacyInteroperabili
         reverse: Boolean = false,
         """
 
-        ID of an existing saved search.
-        The search’s query string is used as the query argument.
+        ID of an existing saved customer.
+        The customer’s query string is used as the query argument.
         """
         savedSearchId: ID,
         "Sort the underlying list by the given key."
@@ -9479,7 +9479,7 @@ type PriceRule implements CommentEventSubject & HasEvents & LegacyInteroperabili
         - `subject_type`
         - `verb`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax)
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax)
         for more information about using filters.
         """
         query: String,
@@ -9601,15 +9601,15 @@ type PriceRuleCustomerSelection {
         - `total_spent`
         - `updated_at`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax).
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax).
         """
         query: String,
         "Reverse the order of the underlying list."
         reverse: Boolean = false,
         """
 
-        ID of an existing saved search.
-        The search’s query string is used as the query argument.
+        ID of an existing saved customer.
+        The customer’s query string is used as the query argument.
         """
         savedSearchId: ID,
         "Sort the underlying list by the given key."
@@ -9995,7 +9995,7 @@ type Product implements HasMetafields & HasPublishedTranslations & LegacyInterop
         - `title`
         - `updated_at`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax)
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax)
         for more information about using filters.
         """
         query: String,
@@ -11125,7 +11125,7 @@ type QueryRoot {
         - `status`
         - `type`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax)
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax)
         for more information about using filters.
         """
         query: String,
@@ -11133,8 +11133,8 @@ type QueryRoot {
         reverse: Boolean = false,
         """
 
-        ID of an existing saved search.
-        The search’s query string is used as the query argument.
+        ID of an existing saved customer.
+        The customer’s query string is used as the query argument.
         """
         savedSearchId: ID,
         "Sort the underlying list by the given key."
@@ -11169,7 +11169,7 @@ type QueryRoot {
         - `status`
         - `type`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax)
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax)
         for more information about using filters.
         """
         query: String,
@@ -11177,8 +11177,8 @@ type QueryRoot {
         reverse: Boolean = false,
         """
 
-        ID of an existing saved search.
-        The search’s query string is used as the query argument.
+        ID of an existing saved customer.
+        The customer’s query string is used as the query argument.
         """
         savedSearchId: ID,
         "Sort the underlying list by the given key."
@@ -11248,7 +11248,7 @@ type QueryRoot {
         - `type`
         - `updated_at`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax)
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax)
         for more information about using filters.
         """
         query: String,
@@ -11256,8 +11256,8 @@ type QueryRoot {
         reverse: Boolean = false,
         """
 
-        ID of an existing saved search.
-        The search’s query string is used as the query argument.
+        ID of an existing saved customer.
+        The customer’s query string is used as the query argument.
         """
         savedSearchId: ID,
         "Sort the underlying list by the given key."
@@ -11320,7 +11320,7 @@ type QueryRoot {
         - `title`
         - `updated_at`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax)
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax)
         for more information about using filters.
         """
         query: String,
@@ -11328,8 +11328,8 @@ type QueryRoot {
         reverse: Boolean = false,
         """
 
-        ID of an existing saved search.
-        The search’s query string is used as the query argument.
+        ID of an existing saved customer.
+        The customer’s query string is used as the query argument.
         """
         savedSearchId: ID,
         "Sort the underlying list by the given key."
@@ -11366,7 +11366,7 @@ type QueryRoot {
         Supported filter parameters:
         - `name`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax)
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax)
         for more information about using filters.
         """
         query: String,
@@ -11401,7 +11401,7 @@ type QueryRoot {
         - `total_spent`
         - `updated_at`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax).
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax).
         """
         query: String,
         "Reverse the order of the underlying list."
@@ -11424,7 +11424,7 @@ type QueryRoot {
         Supported filter parameters:
         - `occurred_at`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax)
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax)
         for more information about using filters.
         """
         query: String,
@@ -11472,7 +11472,7 @@ type QueryRoot {
         Supported filter parameters:
         - `times_used`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax)
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax)
         for more information about using filters.
         """
         query: String,
@@ -11523,7 +11523,7 @@ type QueryRoot {
         - `tag`
         - `updated_at`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax)
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax)
         for more information about using filters.
         """
         query: String,
@@ -11570,7 +11570,7 @@ type QueryRoot {
         - `sku`
         - `updated_at`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax)
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax)
         for more information about using filters.
         """
         query: String,
@@ -11622,7 +11622,7 @@ type QueryRoot {
         - `province`
         - `zip`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax)
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax)
         for more information about using filters.
         """
         query: String,
@@ -11668,7 +11668,7 @@ type QueryRoot {
         - `title`
         - `updated_at`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax)
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax)
         for more information about using filters.
         """
         query: String,
@@ -11676,8 +11676,8 @@ type QueryRoot {
         reverse: Boolean = false,
         """
 
-        ID of an existing saved search.
-        The search’s query string is used as the query argument.
+        ID of an existing saved customer.
+        The customer’s query string is used as the query argument.
         """
         savedSearchId: ID,
         "Sort the underlying list by the given key."
@@ -11711,7 +11711,7 @@ type QueryRoot {
         - `started_at`
         - `type`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax)
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax)
         for more information about using filters.
         """
         query: String,
@@ -11809,7 +11809,7 @@ type QueryRoot {
         - `test`
         - `updated_at`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax)
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax)
         for more information about using filters.
         """
         query: String,
@@ -11817,8 +11817,8 @@ type QueryRoot {
         reverse: Boolean = false,
         """
 
-        ID of an existing saved search.
-        The search’s query string is used as the query argument.
+        ID of an existing saved customer.
+        The customer’s query string is used as the query argument.
         """
         savedSearchId: ID,
         "Sort the underlying list by the given key."
@@ -11863,7 +11863,7 @@ type QueryRoot {
         - `times_used`
         - `updated_at`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax)
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax)
         for more information about using filters.
         """
         query: String,
@@ -11871,8 +11871,8 @@ type QueryRoot {
         reverse: Boolean = false,
         """
 
-        ID of an existing saved search.
-        The search’s query string is used as the query argument.
+        ID of an existing saved customer.
+        The customer’s query string is used as the query argument.
         """
         savedSearchId: ID,
         "Sort the underlying list by the given key."
@@ -11961,7 +11961,7 @@ type QueryRoot {
         - `updated_at`
         - `vendor`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax)
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax)
         for more information about using filters.
         """
         query: String,
@@ -11969,8 +11969,8 @@ type QueryRoot {
         reverse: Boolean = false,
         """
 
-        ID of an existing saved search.
-        The search’s query string is used as the query argument.
+        ID of an existing saved customer.
+        The customer’s query string is used as the query argument.
         """
         savedSearchId: ID,
         "Sort the underlying list by the given key."
@@ -12008,7 +12008,7 @@ type QueryRoot {
         - `updated_at`
         - `vendor`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax)
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax)
         for more information about using filters.
         """
         query: String,
@@ -12016,8 +12016,8 @@ type QueryRoot {
         reverse: Boolean = false,
         """
 
-        ID of an existing saved search.
-        The search’s query string is used as the query argument.
+        ID of an existing saved customer.
+        The customer’s query string is used as the query argument.
         """
         savedSearchId: ID,
         "Sort the underlying list by the given key."
@@ -12091,7 +12091,7 @@ type QueryRoot {
         - `name`
         - `created_at`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax).
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax).
         """
         query: String,
         "Reverse the order of the underlying list."
@@ -12152,7 +12152,7 @@ type QueryRoot {
         - `processed_at`
         - `test`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax)
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax)
         for more information about using filters.
         """
         query: String,
@@ -12204,7 +12204,7 @@ type QueryRoot {
         - `created_at`
         - `updated_at`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax)
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax)
         for more information about using filters.
         """
         query: String,
@@ -12485,21 +12485,21 @@ type SEO {
     title: String
 }
 
-"A saved search is a representation of a search query saved in the admin."
+"A saved customer is a representation of a customer query saved in the admin."
 type SavedSearch implements LegacyInteroperability & Node {
-    "The filters of a saved search."
+    "The filters of a saved customer."
     filters: [SearchFilter!]!
     "Globally unique identifier."
     id: ID!
     "The ID of the corresponding resource in the REST Admin API."
     legacyResourceId: UnsignedInt64!
-    "The name of a saved search."
+    "The name of a saved customer."
     name: String!
-    "The query string of a saved search. This includes search terms and filters."
+    "The query string of a saved customer. This includes customer terms and filters."
     query: String!
-    "The type of resource this saved search is searching in."
+    "The type of resource this saved customer is searching in."
     resourceType: SearchResultType!
-    "The search terms of a saved search."
+    "The customer terms of a saved customer."
     searchTerms: String!
 }
 
@@ -12516,7 +12516,7 @@ type SavedSearchConnection {
 
 "Return type for `savedSearchCreate` mutation."
 type SavedSearchCreatePayload {
-    "The saved search that was created."
+    "The saved customer that was created."
     savedSearch: SavedSearch
     "List of errors that occurred executing the mutation."
     userErrors: [UserError!]!
@@ -12524,9 +12524,9 @@ type SavedSearchCreatePayload {
 
 "Return type for `savedSearchDelete` mutation."
 type SavedSearchDeletePayload {
-    "The id of the saved search that was deleted."
+    "The id of the saved customer that was deleted."
     deletedSavedSearchId: ID
-    "The shop of the saved search that was deleted."
+    "The shop of the saved customer that was deleted."
     shop: Shop!
     "List of errors that occurred executing the mutation."
     userErrors: [UserError!]!
@@ -12545,7 +12545,7 @@ type SavedSearchEdge {
 
 "Return type for `savedSearchUpdate` mutation."
 type SavedSearchUpdatePayload {
-    "The saved search that was updated."
+    "The saved customer that was updated."
     savedSearch: SavedSearch
     "List of errors that occurred executing the mutation."
     userErrors: [UserError!]!
@@ -12642,31 +12642,31 @@ type ScriptTagUpdatePayload {
     userErrors: [UserError!]!
 }
 
-"A filter in a search query represented by a key value pair."
+"A filter in a customer query represented by a key value pair."
 type SearchFilter {
-    "The key of the search filter."
+    "The key of the customer filter."
     key: String!
-    "The value of the search filter."
+    "The value of the customer filter."
     value: String!
 }
 
-"A list of search filters along with their specific options in value and label pair for filtering."
+"A list of customer filters along with their specific options in value and label pair for filtering."
 type SearchFilterOptions {
     "A list of options that can be use to filter product availability."
     productAvailability: [FilterOption!]!
 }
 
-"Represents an individual result returned from a search."
+"Represents an individual result returned from a customer."
 type SearchResult {
-    "Returns the search result description text."
+    "Returns the customer result description text."
     description: String
-    "Returns the Image resource presented to accompany a search result."
+    "Returns the Image resource presented to accompany a customer result."
     image: Image
-    "Returns the ID of the resource returned in the search result."
+    "Returns the ID of the resource returned in the customer result."
     reference: Node!
     "Returns the resource title."
     title: String!
-    "Returns the absolute URL to the resource in the search result."
+    "Returns the absolute URL to the resource in the customer result."
     url: URL!
 }
 
@@ -13260,7 +13260,7 @@ type Shop implements HasMetafields & HasPublishedTranslations & Node {
         - `title`
         - `updated_at`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax)
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax)
         for more information about using filters.
         """
         query: String,
@@ -13268,8 +13268,8 @@ type Shop implements HasMetafields & HasPublishedTranslations & Node {
         reverse: Boolean = false,
         """
 
-        ID of an existing saved search.
-        The search’s query string is used as the query argument.
+        ID of an existing saved customer.
+        The customer’s query string is used as the query argument.
         """
         savedSearchId: ID,
         "Sort the underlying list by the given key."
@@ -13317,7 +13317,7 @@ type Shop implements HasMetafields & HasPublishedTranslations & Node {
         Supported filter parameters:
         - `name`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax)
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax)
         for more information about using filters.
         """
         query: String,
@@ -13357,7 +13357,7 @@ type Shop implements HasMetafields & HasPublishedTranslations & Node {
         - `total_spent`
         - `updated_at`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax).
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax).
         """
         query: String,
         "Reverse the order of the underlying list."
@@ -13365,7 +13365,7 @@ type Shop implements HasMetafields & HasPublishedTranslations & Node {
         "Sort the underlying list by the given key."
         sortKey: CustomerSortKeys = ID
     ): CustomerConnection! @deprecated(reason : "Use `QueryRoot.customers` instead.")
-    "The shop's meta description used in search engine results."
+    "The shop's meta description used in customer engine results."
     description: String
     "The domains configured for the shop."
     domains: [Domain!]!
@@ -13406,7 +13406,7 @@ type Shop implements HasMetafields & HasPublishedTranslations & Node {
         - `tag`
         - `updated_at`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax)
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax)
         for more information about using filters.
         """
         query: String,
@@ -13443,7 +13443,7 @@ type Shop implements HasMetafields & HasPublishedTranslations & Node {
         - `assigned_location_id`
         - `status`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax).
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax).
         """
         query: String,
         "Reverse the order of the underlying list."
@@ -13475,7 +13475,7 @@ type Shop implements HasMetafields & HasPublishedTranslations & Node {
         - `sku`
         - `updated_at`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax)
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax)
         for more information about using filters.
         """
         query: String,
@@ -13515,7 +13515,7 @@ type Shop implements HasMetafields & HasPublishedTranslations & Node {
         - `province`
         - `zip`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax)
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax)
         for more information about using filters.
         """
         query: String,
@@ -13542,7 +13542,7 @@ type Shop implements HasMetafields & HasPublishedTranslations & Node {
         - `started_at`
         - `type`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax)
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax)
         for more information about using filters.
         """
         query: String,
@@ -13644,7 +13644,7 @@ type Shop implements HasMetafields & HasPublishedTranslations & Node {
         - `test`
         - `updated_at`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax)
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax)
         for more information about using filters.
         """
         query: String,
@@ -13693,7 +13693,7 @@ type Shop implements HasMetafields & HasPublishedTranslations & Node {
         - `times_used`
         - `updated_at`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax)
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax)
         for more information about using filters.
         """
         query: String,
@@ -13701,8 +13701,8 @@ type Shop implements HasMetafields & HasPublishedTranslations & Node {
         reverse: Boolean = false,
         """
 
-        ID of an existing saved search.
-        The search’s query string is used as the query argument.
+        ID of an existing saved customer.
+        The customer’s query string is used as the query argument.
         """
         savedSearchId: ID,
         "Sort the underlying list by the given key."
@@ -13816,7 +13816,7 @@ type Shop implements HasMetafields & HasPublishedTranslations & Node {
         - `updated_at`
         - `vendor`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax)
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax)
         for more information about using filters.
         """
         query: String,
@@ -13862,7 +13862,7 @@ type Shop implements HasMetafields & HasPublishedTranslations & Node {
         - `updated_at`
         - `vendor`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax)
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax)
         for more information about using filters.
         """
         query: String,
@@ -13870,8 +13870,8 @@ type Shop implements HasMetafields & HasPublishedTranslations & Node {
         reverse: Boolean = false,
         """
 
-        ID of an existing saved search.
-        The search’s query string is used as the query argument.
+        ID of an existing saved customer.
+        The customer’s query string is used as the query argument.
         """
         savedSearchId: ID,
         "Sort the underlying list by the given key."
@@ -13883,18 +13883,18 @@ type Shop implements HasMetafields & HasPublishedTranslations & Node {
     resourceLimits: ShopResourceLimits!
     "The URL of the rich text editor."
     richTextEditorUrl: URL!
-    "Return admin search results."
+    "Return admin customer results."
     search(
         "Returns the elements that come after the specified cursor."
         after: String,
         "Returns up to the first `n` elements from the list."
         first: Int!,
-        "The search query to filter by."
+        "The customer query to filter by."
         query: String!,
-        "The search result types to filter by."
+        "The customer result types to filter by."
         types: [SearchResultType!]
     ): SearchResultConnection!
-    "List of search filter options."
+    "List of customer filter options."
     searchFilters: SearchFilterOptions!
     "Whether the shop has outstanding setup steps."
     setupRequired: Boolean!
@@ -14191,7 +14191,7 @@ type ShopifyPaymentsAccount implements Node {
         - `initiated_at`
         - `status`
 
-        See the detailed [search syntax](https://help.shopify.com/api/getting-started/search-syntax)
+        See the detailed [customer syntax](https://help.shopify.com/api/getting-started/customer-syntax)
         for more information about using filters.
         """
         query: String,
@@ -15740,7 +15740,7 @@ type UTMParameters {
     medium: String
     "The source of traffic to the merchant's store, such as Google or an email newsletter."
     source: String
-    "Paid search terms used by a marketing campaign."
+    "Paid customer terms used by a marketing campaign."
     term: String
 }
 
@@ -15935,8 +15935,8 @@ enum AppInstallationSortKeys {
     INSTALLED_AT
     """
 
-    During a search (i.e. when the `query` parameter has been specified on the connection) this sorts the
-    results by relevance to the search term(s). When no search query is specified, this sort key is not
+    During a customer (i.e. when the `query` parameter has been specified on the connection) this sorts the
+    results by relevance to the customer term(s). When no customer query is specified, this sort key is not
     deterministic and should not be used.
     """
     RELEVANCE
@@ -15972,8 +15972,8 @@ enum AppSubscriptionSortKeys {
     ID
     """
 
-    During a search (i.e. when the `query` parameter has been specified on the connection) this sorts the
-    results by relevance to the search term(s). When no search query is specified, this sort key is not
+    During a customer (i.e. when the `query` parameter has been specified on the connection) this sorts the
+    results by relevance to the customer term(s). When no customer query is specified, this sort key is not
     deterministic and should not be used.
     """
     RELEVANCE
@@ -16005,8 +16005,8 @@ enum AppTransactionSortKeys {
     ID
     """
 
-    During a search (i.e. when the `query` parameter has been specified on the connection) this sorts the
-    results by relevance to the search term(s). When no search query is specified, this sort key is not
+    During a customer (i.e. when the `query` parameter has been specified on the connection) this sorts the
+    results by relevance to the customer term(s). When no customer query is specified, this sort key is not
     deterministic and should not be used.
     """
     RELEVANCE
@@ -16020,8 +16020,8 @@ enum AppUsageRecordSortKeys {
     ID
     """
 
-    During a search (i.e. when the `query` parameter has been specified on the connection) this sorts the
-    results by relevance to the search term(s). When no search query is specified, this sort key is not
+    During a customer (i.e. when the `query` parameter has been specified on the connection) this sorts the
+    results by relevance to the customer term(s). When no customer query is specified, this sort key is not
     deterministic and should not be used.
     """
     RELEVANCE
@@ -16035,8 +16035,8 @@ enum AutomaticDiscountSortKeys {
     ID
     """
 
-    During a search (i.e. when the `query` parameter has been specified on the connection) this sorts the
-    results by relevance to the search term(s). When no search query is specified, this sort key is not
+    During a customer (i.e. when the `query` parameter has been specified on the connection) this sorts the
+    results by relevance to the customer term(s). When no customer query is specified, this sort key is not
     deterministic and should not be used.
     """
     RELEVANCE
@@ -16102,8 +16102,8 @@ enum CodeDiscountSortKeys {
     ID
     """
 
-    During a search (i.e. when the `query` parameter has been specified on the connection) this sorts the
-    results by relevance to the search term(s). When no search query is specified, this sort key is not
+    During a customer (i.e. when the `query` parameter has been specified on the connection) this sorts the
+    results by relevance to the customer term(s). When no customer query is specified, this sort key is not
     deterministic and should not be used.
     """
     RELEVANCE
@@ -16169,8 +16169,8 @@ enum CollectionSortKeys {
     ID
     """
 
-    During a search (i.e. when the `query` parameter has been specified on the connection) this sorts the
-    results by relevance to the search term(s). When no search query is specified, this sort key is not
+    During a customer (i.e. when the `query` parameter has been specified on the connection) this sorts the
+    results by relevance to the customer term(s). When no customer query is specified, this sort key is not
     deterministic and should not be used.
     """
     RELEVANCE
@@ -17109,8 +17109,8 @@ enum CustomerSavedSearchSortKeys {
     NAME
     """
 
-    During a search (i.e. when the `query` parameter has been specified on the connection) this sorts the
-    results by relevance to the search term(s). When no search query is specified, this sort key is not
+    During a customer (i.e. when the `query` parameter has been specified on the connection) this sorts the
+    results by relevance to the customer term(s). When no customer query is specified, this sort key is not
     deterministic and should not be used.
     """
     RELEVANCE
@@ -17130,8 +17130,8 @@ enum CustomerSortKeys {
     ORDERS_COUNT
     """
 
-    During a search (i.e. when the `query` parameter has been specified on the connection) this sorts the
-    results by relevance to the search term(s). When no search query is specified, this sort key is not
+    During a customer (i.e. when the `query` parameter has been specified on the connection) this sorts the
+    results by relevance to the customer term(s). When no customer query is specified, this sort key is not
     deterministic and should not be used.
     """
     RELEVANCE
@@ -17179,8 +17179,8 @@ enum DeletionEventSortKeys {
     ID
     """
 
-    During a search (i.e. when the `query` parameter has been specified on the connection) this sorts the
-    results by relevance to the search term(s). When no search query is specified, this sort key is not
+    During a customer (i.e. when the `query` parameter has been specified on the connection) this sorts the
+    results by relevance to the customer term(s). When no customer query is specified, this sort key is not
     deterministic and should not be used.
     """
     RELEVANCE
@@ -17311,8 +17311,8 @@ enum DiscountCodeSortKeys {
     ID
     """
 
-    During a search (i.e. when the `query` parameter has been specified on the connection) this sorts the
-    results by relevance to the search term(s). When no search query is specified, this sort key is not
+    During a customer (i.e. when the `query` parameter has been specified on the connection) this sorts the
+    results by relevance to the customer term(s). When no customer query is specified, this sort key is not
     deterministic and should not be used.
     """
     RELEVANCE
@@ -17438,8 +17438,8 @@ enum DraftOrderSortKeys {
     NUMBER
     """
 
-    During a search (i.e. when the `query` parameter has been specified on the connection) this sorts the
-    results by relevance to the search term(s). When no search query is specified, this sort key is not
+    During a customer (i.e. when the `query` parameter has been specified on the connection) this sorts the
+    results by relevance to the customer term(s). When no customer query is specified, this sort key is not
     deterministic and should not be used.
     """
     RELEVANCE
@@ -17469,8 +17469,8 @@ enum EventSortKeys {
     ID
     """
 
-    During a search (i.e. when the `query` parameter has been specified on the connection) this sorts the
-    results by relevance to the search term(s). When no search query is specified, this sort key is not
+    During a customer (i.e. when the `query` parameter has been specified on the connection) this sorts the
+    results by relevance to the customer term(s). When no customer query is specified, this sort key is not
     deterministic and should not be used.
     """
     RELEVANCE
@@ -17520,8 +17520,8 @@ enum FulfillmentEventSortKeys {
     ID
     """
 
-    During a search (i.e. when the `query` parameter has been specified on the connection) this sorts the
-    results by relevance to the search term(s). When no search query is specified, this sort key is not
+    During a customer (i.e. when the `query` parameter has been specified on the connection) this sorts the
+    results by relevance to the customer term(s). When no customer query is specified, this sort key is not
     deterministic and should not be used.
     """
     RELEVANCE
@@ -17648,8 +17648,8 @@ enum FulfillmentOrderSortKeys {
     ID
     """
 
-    During a search (i.e. when the `query` parameter has been specified on the connection) this sorts the
-    results by relevance to the search term(s). When no search query is specified, this sort key is not
+    During a customer (i.e. when the `query` parameter has been specified on the connection) this sorts the
+    results by relevance to the customer term(s). When no customer query is specified, this sort key is not
     deterministic and should not be used.
     """
     RELEVANCE
@@ -17751,8 +17751,8 @@ enum LocationSortKeys {
     NAME
     """
 
-    During a search (i.e. when the `query` parameter has been specified on the connection) this sorts the
-    results by relevance to the search term(s). When no search query is specified, this sort key is not
+    During a customer (i.e. when the `query` parameter has been specified on the connection) this sorts the
+    results by relevance to the customer term(s). When no customer query is specified, this sort key is not
     deterministic and should not be used.
     """
     RELEVANCE
@@ -17780,8 +17780,8 @@ enum MarketingActivitySortKeys {
     ID
     """
 
-    During a search (i.e. when the `query` parameter has been specified on the connection) this sorts the
-    results by relevance to the search term(s). When no search query is specified, this sort key is not
+    During a customer (i.e. when the `query` parameter has been specified on the connection) this sorts the
+    results by relevance to the customer term(s). When no customer query is specified, this sort key is not
     deterministic and should not be used.
     """
     RELEVANCE
@@ -17848,7 +17848,7 @@ enum MarketingChannel {
     EMAIL
     "Referral links."
     REFERRAL
-    "Paid search."
+    "Paid customer."
     SEARCH
     "Social media."
     SOCIAL
@@ -17860,8 +17860,8 @@ enum MarketingEventSortKeys {
     ID
     """
 
-    During a search (i.e. when the `query` parameter has been specified on the connection) this sorts the
-    results by relevance to the search term(s). When no search query is specified, this sort key is not
+    During a customer (i.e. when the `query` parameter has been specified on the connection) this sorts the
+    results by relevance to the customer term(s). When no customer query is specified, this sort key is not
     deterministic and should not be used.
     """
     RELEVANCE
@@ -17899,7 +17899,7 @@ enum MarketingTactic {
     RECEIPT @deprecated(reason : "'RECEIPT' is deprecated. Use 'TRANSACTIONAL' instead.")
     "A retargeting ad."
     RETARGETING
-    "Paid search."
+    "Paid customer."
     SEARCH @deprecated(reason : "`SEARCH` is deprecated. Use `AD` instead.")
     "Search engine optimization."
     SEO
@@ -18083,8 +18083,8 @@ enum MethodDefinitionSortKeys {
     RATE_PROVIDER_TYPE
     """
 
-    During a search (i.e. when the `query` parameter has been specified on the connection) this sorts the
-    results by relevance to the search term(s). When no search query is specified, this sort key is not
+    During a customer (i.e. when the `query` parameter has been specified on the connection) this sorts the
+    results by relevance to the customer term(s). When no customer query is specified, this sort key is not
     deterministic and should not be used.
     """
     RELEVANCE
@@ -18172,8 +18172,8 @@ enum OrderSortKeys {
     PROCESSED_AT
     """
 
-    During a search (i.e. when the `query` parameter has been specified on the connection) this sorts the
-    results by relevance to the search term(s). When no search query is specified, this sort key is not
+    During a customer (i.e. when the `query` parameter has been specified on the connection) this sorts the
+    results by relevance to the customer term(s). When no customer query is specified, this sort key is not
     deterministic and should not be used.
     """
     RELEVANCE
@@ -18458,8 +18458,8 @@ enum PriceRuleSortKeys {
     ID
     """
 
-    During a search (i.e. when the `query` parameter has been specified on the connection) this sorts the
-    results by relevance to the search term(s). When no search query is specified, this sort key is not
+    During a customer (i.e. when the `query` parameter has been specified on the connection) this sorts the
+    results by relevance to the customer term(s). When no customer query is specified, this sort key is not
     deterministic and should not be used.
     """
     RELEVANCE
@@ -18532,8 +18532,8 @@ enum ProductCollectionSortKeys {
     PRICE
     """
 
-    During a search (i.e. when the `query` parameter has been specified on the connection) this sorts the
-    results by relevance to the search term(s). When no search query is specified, this sort key is not
+    During a customer (i.e. when the `query` parameter has been specified on the connection) this sorts the
+    results by relevance to the customer term(s). When no customer query is specified, this sort key is not
     deterministic and should not be used.
     """
     RELEVANCE
@@ -18551,8 +18551,8 @@ enum ProductImageSortKeys {
     POSITION
     """
 
-    During a search (i.e. when the `query` parameter has been specified on the connection) this sorts the
-    results by relevance to the search term(s). When no search query is specified, this sort key is not
+    During a customer (i.e. when the `query` parameter has been specified on the connection) this sorts the
+    results by relevance to the customer term(s). When no customer query is specified, this sort key is not
     deterministic and should not be used.
     """
     RELEVANCE
@@ -18566,8 +18566,8 @@ enum ProductMediaSortKeys {
     POSITION
     """
 
-    During a search (i.e. when the `query` parameter has been specified on the connection) this sorts the
-    results by relevance to the search term(s). When no search query is specified, this sort key is not
+    During a customer (i.e. when the `query` parameter has been specified on the connection) this sorts the
+    results by relevance to the customer term(s). When no customer query is specified, this sort key is not
     deterministic and should not be used.
     """
     RELEVANCE
@@ -18587,8 +18587,8 @@ enum ProductSortKeys {
     PUBLISHED_AT
     """
 
-    During a search (i.e. when the `query` parameter has been specified on the connection) this sorts the
-    results by relevance to the search term(s). When no search query is specified, this sort key is not
+    During a customer (i.e. when the `query` parameter has been specified on the connection) this sorts the
+    results by relevance to the customer term(s). When no customer query is specified, this sort key is not
     deterministic and should not be used.
     """
     RELEVANCE
@@ -18655,8 +18655,8 @@ enum ProductVariantSortKeys {
     POSITION
     """
 
-    During a search (i.e. when the `query` parameter has been specified on the connection) this sorts the
-    results by relevance to the search term(s). When no search query is specified, this sort key is not
+    During a customer (i.e. when the `query` parameter has been specified on the connection) this sorts the
+    results by relevance to the customer term(s). When no customer query is specified, this sort key is not
     deterministic and should not be used.
     """
     RELEVANCE
@@ -18680,8 +18680,8 @@ enum ProfileItemSortKeys {
     PUBLISHED_AT
     """
 
-    During a search (i.e. when the `query` parameter has been specified on the connection) this sorts the
-    results by relevance to the search term(s). When no search query is specified, this sort key is not
+    During a customer (i.e. when the `query` parameter has been specified on the connection) this sorts the
+    results by relevance to the customer term(s). When no customer query is specified, this sort key is not
     deterministic and should not be used.
     """
     RELEVANCE
@@ -18749,7 +18749,7 @@ enum ScriptTagDisplayScope {
     ORDER_STATUS
 }
 
-"Specifies the type of resources to be returned from a search."
+"Specifies the type of resources to be returned from a customer."
 enum SearchResultType {
     COLLECTION
     CUSTOMER
@@ -18784,8 +18784,8 @@ enum SellingPlanGroupSortKeys {
     NAME
     """
 
-    During a search (i.e. when the `query` parameter has been specified on the connection) this sorts the
-    results by relevance to the search term(s). When no search query is specified, this sort key is not
+    During a customer (i.e. when the `query` parameter has been specified on the connection) this sorts the
+    results by relevance to the customer term(s). When no customer query is specified, this sort key is not
     deterministic and should not be used.
     """
     RELEVANCE
@@ -18945,8 +18945,8 @@ enum ShopImageSortKeys {
     ID
     """
 
-    During a search (i.e. when the `query` parameter has been specified on the connection) this sorts the
-    results by relevance to the search term(s). When no search query is specified, this sort key is not
+    During a customer (i.e. when the `query` parameter has been specified on the connection) this sorts the
+    results by relevance to the customer term(s). When no customer query is specified, this sort key is not
     deterministic and should not be used.
     """
     RELEVANCE
@@ -19398,8 +19398,8 @@ enum WebhookSubscriptionSortKeys {
     ID
     """
 
-    During a search (i.e. when the `query` parameter has been specified on the connection) this sorts the
-    results by relevance to the search term(s). When no search query is specified, this sort key is not
+    During a customer (i.e. when the `query` parameter has been specified on the connection) this sorts the
+    results by relevance to the customer term(s). When no customer query is specified, this sort key is not
     deterministic and should not be used.
     """
     RELEVANCE
@@ -20168,7 +20168,7 @@ input DiscountCustomerSavedSearchesInput {
 input DiscountCustomerSelectionInput {
     "Whether all customers can use this discount."
     all: Boolean
-    "The list of customer saved search IDs to add or remove from the list of customer saved searches."
+    "The list of customer saved customer IDs to add or remove from the list of customer saved searches."
     customerSavedSearches: DiscountCustomerSavedSearchesInput
     "The list of customer IDs to add or remove from the list of customers."
     customers: DiscountCustomersInput
@@ -21331,29 +21331,29 @@ input SEOInput {
     title: String
 }
 
-"Specifies the fields required to create a saved search."
+"Specifies the fields required to create a saved customer."
 input SavedSearchCreateInput {
-    "A descriptive name of the saved search."
+    "A descriptive name of the saved customer."
     name: String!
-    "The query string of a saved search. This includes search terms and filters."
+    "The query string of a saved customer. This includes customer terms and filters."
     query: String!
-    "The type of resouce this saved search is searching in."
+    "The type of resouce this saved customer is searching in."
     resourceType: SearchResultType!
 }
 
-"Specifies the fields to delete a saved search."
+"Specifies the fields to delete a saved customer."
 input SavedSearchDeleteInput {
-    "ID of the saved search to delete."
+    "ID of the saved customer to delete."
     id: ID!
 }
 
-"Specifies the fields required to update a saved search."
+"Specifies the fields required to update a saved customer."
 input SavedSearchUpdateInput {
-    "ID of the saved search to update."
+    "ID of the saved customer to update."
     id: ID!
-    "A descriptive name of the saved search."
+    "A descriptive name of the saved customer."
     name: String
-    "The query string of a saved search. This included search terms and filters."
+    "The query string of a saved customer. This included customer terms and filters."
     query: String
 }
 
