@@ -270,8 +270,8 @@ export const simplifyProducts = ((products: any, source: "vend" | "shopify" | "s
         description,
       } = variant;
 
-      const inventory_CPT = +inventory.filter(({ outlet_id }) => outlet_id === VEND_CPT_OUTLET_ID)[0]?.count || 0;
-      const inventory_JHB = +inventory.filter(({ outlet_id }) => outlet_id === VEND_JHB_OUTLET_ID)[0]?.count || 0;
+      const inventory_CPT = +inventory?.filter(({ outlet_id }) => outlet_id === VEND_CPT_OUTLET_ID)[0]?.count || 0;
+      const inventory_JHB = +inventory?.filter(({ outlet_id }) => outlet_id === VEND_JHB_OUTLET_ID)[0]?.count || 0;
       const v_unpublished = source_id.includes("unpub") || variant_source_id.includes("unpub");
 
       acc.push({
@@ -379,27 +379,27 @@ export const simplifyProducts = ((products: any, source: "vend" | "shopify" | "s
         selectedOptions,
       } = variant;
 
-      const inventory_CPT = inventoryLevels.filter(({ node: { location: { id } } }) => id.replace(
+      const inventory_CPT = inventoryLevels?.filter(({ node: { location: { id } } }) => id.replace(
         "gid://shopify/Location/",
         "",
       ) === SHOPIFY_CPT_OUTLET_ID)[0]?.node?.available;
 
-      const inventory_CPT_level_id = inventoryLevels.filter(({ node: { location: { id } } }) => id.replace(
+      const inventory_CPT_level_id = inventoryLevels?.filter(({ node: { location: { id } } }) => id.replace(
         "gid://shopify/Location/",
         "",
       ) === SHOPIFY_CPT_OUTLET_ID)[0]?.node?.id;
 
-      const inventory_JHB = inventoryLevels.filter(({ node: { location: { id } } }) => id.replace(
+      const inventory_JHB = inventoryLevels?.filter(({ node: { location: { id } } }) => id.replace(
         "gid://shopify/Location/",
         "",
       ) === SHOPIFY_JHB_OUTLET_ID)[0]?.node?.available;
 
-      const inventory_JHB_level_id = inventoryLevels.filter(({ node: { location: { id } } }) => id.replace(
+      const inventory_JHB_level_id = inventoryLevels?.filter(({ node: { location: { id } } }) => id.replace(
         "gid://shopify/Location/",
         "",
       ) === SHOPIFY_JHB_OUTLET_ID)[0]?.node?.id;
 
-      const s_has_jhb_inventory = inventoryLevels.filter(({ node: { location: { id } } }) => id.replace(
+      const s_has_jhb_inventory = inventoryLevels?.filter(({ node: { location: { id } } }) => id.replace(
         "gid://shopify/Location/",
         "",
       ) === SHOPIFY_JHB_OUTLET_ID).length > 0;
