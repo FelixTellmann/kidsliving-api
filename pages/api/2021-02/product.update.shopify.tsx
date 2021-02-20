@@ -77,6 +77,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
     // console.log(result[result.length - 1].value.data.extensions.cost);
 
     /** STEP 2
+     *
      * Get data from Shopify & Vend for verification - exit if not found / error */
     const [v_req, s_gql_req] = await Promise.allSettled([
       fetchVend(`products?handle=${handle}`),
