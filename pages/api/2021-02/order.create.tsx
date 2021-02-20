@@ -476,7 +476,7 @@ export const ProductUpdateShopifyCounter = async (req: NextApiRequest, res: Next
     Promise.allSettled(getSaleProducts),
   ]);
 
-  if (shopifyOrderDetails.status === "rejected" || customer.status === "rejected" || sales.status === "rejected") {
+  if (shopifyOrderDetails.status === "rejected" || customer.status === "rejected" || sales.status === "rejected" || vendSale.status === 'rejected') {
     console.log(shopifyOrderDetails.status, "shopifyOrderDetails.status");
     console.log(customer.status, "customer.status");
     console.log(sales.status, "sales.status");
