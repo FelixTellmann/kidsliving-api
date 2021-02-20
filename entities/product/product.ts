@@ -28,8 +28,8 @@ export interface IProduct {
 
 type IMakeProduct = (products: vendFetchProducts | shopifyFetchProducts | IProduct) => Readonly<IProduct>;
 
-export const makeProduct: IMakeProduct = (products) => {
-  /* if vend data */
+/* export const makeProduct: IMakeProduct = (products) => {
+  /!* if vend data *!/
   if ("data" in products && "products" in products.data) {
     const variants = products.data.products;
 
@@ -143,4 +143,4 @@ export const makeProduct: IMakeProduct = (products) => {
     v_has_needs_variant_image_tag: true,
     s_has_jhb_inventory: true,
   });
-};
+}; */
