@@ -618,7 +618,7 @@ export const getDifferences = (
             method: `POST`,
             body: {
               id: override.vend_id,
-              source_id: override.source_id,
+              source_id: override.product_id,
               source_variant_id: override.variant_id,
               description: override.description,
               tags: override.tags,
