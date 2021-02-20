@@ -1,0 +1,1 @@
+export { makeProduct } from './product';

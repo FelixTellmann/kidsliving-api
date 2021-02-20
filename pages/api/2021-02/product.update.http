@@ -116,11 +116,45 @@ POST https://kids-living.myshopify.com/admin/api/2021-01/graphql.json
 Content-Type: application/graphql
 X-Shopify-Access-Token: 7522f1ec2ce1989ac523647deae8d00b
 
-mutation {
-    inventoryDeactivate(inventoryLevelId: "gid://shopify/InventoryLevel/70523519036?inventory_item_id=39992756895919") {
-      userErrors {
-        field
-        message
+query {
+  product(id: "gid://shopify/Product/777550954556") {
+    id
+    status
+    productType
+    descriptionHtml
+    tags
+    featuredImage {
+      id
+    }
+    variants(first: 32) {
+      edges {
+        node {
+          id
+          image {
+            id
+          }
+          inventoryQuantity
+          price
+          sku
+          selectedOptions {
+            value
+          }
+          inventoryItem {
+            id
+            inventoryLevels(first: 2) {
+              edges {
+                node {
+                  id
+                  available
+                  location {
+                    id
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     }
   }
+}

@@ -230,11 +230,11 @@ export const createGqlDisconnectInvLocationMutation = (
   return "";
 };
 
-export const isUnpublished = (({ source_id, variant_source_id }: any): boolean => {
-  return source_id.includes("unpub") || variant_source_id.includes("unpub");
-});
+export const isUnpublished = (({ source_id, variant_source_id }) => source_id.includes("unpub") || variant_source_id.includes("unpub"));
+export const isPublished = (({ source_id, variant_source_id }) => !source_id.includes("unpub") && !variant_source_id.includes("unpub"));
 
 export const isInactive = (({ active }: any): boolean => !active);
+export const isActive = (({ active }: any): boolean => active);
 
 export const hasVariantImage = (({ image_id, node }: productModel): boolean => !!image_id || !!node?.image);
 
@@ -522,7 +522,8 @@ export const getDifferences = (
        * Found variant via id */
       if (shopify.some(({ variant_id, sku }) => variant_id === vend_variant.variant_id || sku === vend_variant.sku)) {
         const sku_match = !shopify.some(({ variant_id }) => variant_id === vend_variant.variant_id);
-        const shopify_variant = shopify.find(({ variant_id, sku }) => variant_id === vend_variant.variant_id || sku === vend_variant.sku);
+        const shopify_variant = shopify.find(({ variant_id, sku }) => variant_id === vend_variant.variant_id || sku
+          === vend_variant.sku);
         const override = { ...shopify_variant, ...vend_variant };
         let shopifyProductUpdate = false;
         let shopifyVariantUpdate = false;

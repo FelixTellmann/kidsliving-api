@@ -1,0 +1,14 @@
+{
+  "name": "Main GraphQL Schema",
+  "schemaPath": "./schema.graphql",
+  "extensions": {
+    "endpoints": {
+      "Default GraphQL Endpoint": {
+        "url": "https://kids-living.myshopify.com/admin/api/2021-01/graphql.json",
+        "headers": {
+          "X-Shopify-Access-Token": "7522f1ec2ce1989ac523647deae8d00b"
+        }
+      }
+    }
+  }
+}

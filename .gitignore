@@ -6,7 +6,7 @@ node_modules/
 .idea
 .linaria-cache
 .git
-
+.graphqlconfig
 
 
 # production server output

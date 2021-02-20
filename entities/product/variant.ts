@@ -15,8 +15,14 @@ export interface IVariant {
   s_inventoryCPT_level_gql_id?: string
   s_inventoryJHB_level_gql_id?: string
   s_image_gql_id?: string
+  s_has_jhb_inventory?: boolean
   v_is_published?: boolean
   v_is_active?: boolean
+  v_inconsistent_published?: boolean /**/
+  v_inconsistent_description?: boolean /**/
+  v_inconsistent_tags?: boolean
+  v_has_sell_jhb_tag?: boolean
+  v_has_needs_variant_image_tag?: boolean
 }
 
 type IMakeVariant = () => Readonly<IVariant>;
