@@ -1,4 +1,4 @@
-import { fetchShopifyGQL } from "../../utils/fetch";
+import { fetchShopifyGQL } from "utils/fetch";
 
 type shopifyFetchOrder = {
   data: {
