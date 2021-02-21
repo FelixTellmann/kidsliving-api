@@ -83,7 +83,6 @@ const test = {
   tax_lines: [],
   tags: "",
   contact_email: "felix@tellmann.co.za",
-  order_status_url: "https://kidsliving.co.za/15673213/orders/7c8042eea2e25c3a0296d7ec7783fd29/authenticate?key=eeba18140a0e73b71ce5a4be3540c625",
   presentment_currency: "ZAR",
   total_line_items_price_set: {
     shop_money: {
@@ -476,7 +475,8 @@ export const ProductUpdateShopifyCounter = async (req: NextApiRequest, res: Next
     Promise.allSettled(getSaleProducts),
   ]);
 
-  if (shopifyOrderDetails.status === "rejected" || customer.status === "rejected" || sales.status === "rejected" || vendSale.status === 'rejected') {
+  if (shopifyOrderDetails.status === "rejected" || customer.status === "rejected" || sales.status === "rejected"
+    || vendSale.status === "rejected") {
     console.log(shopifyOrderDetails.status, "shopifyOrderDetails.status");
     console.log(customer.status, "customer.status");
     console.log(sales.status, "sales.status");
@@ -486,7 +486,7 @@ export const ProductUpdateShopifyCounter = async (req: NextApiRequest, res: Next
 
   /* TODO: Match variant_source_id back to line-item variant id! or if length is 1 and variatn_source_id isnt setup properly (due to new variant created) */
   sales.value.forEach((d) => d.status !== "rejected" && console.log(d.value.data));
-  console.log(vendSale.value.data.data, 'asd');
+  console.log(vendSale.value.data.data, "asd");
   console.log(shopifyOrderDetails.value.data.data.order);
   console.log(customer.value.data.customers[0].first_name);
 
