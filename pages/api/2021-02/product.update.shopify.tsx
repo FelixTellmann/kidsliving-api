@@ -35,6 +35,12 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
   const s_created_at = Date.now();
   let v_created_at = Date.now();
 
+  if (handle === 'giftvoucher') {
+    console.log('giftvoucher');
+    res.status(200).json("Request Rejected - ERROR -Giftvoucher");
+    return;
+  }
+
   try {
     const prevTimer = Date.now();
     await new Promise((resolve) => setTimeout(resolve, delay));
