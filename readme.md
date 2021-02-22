@@ -14,7 +14,7 @@ Fix the current Product API:
 
 - Vend as primary source of truth
 
-## Vend product.update Webhook 🤔⭐
+### Vend product.update webhook 🤔⭐
 
 1. Get data from Vend & Shopify for the entire product (all variants & necessary info)
     - Primary source of truth - vend: _handle_ - shopify: _product_id_
@@ -41,3 +41,11 @@ Fix the current Product API:
    levels for JHB to Shopify
 7. CUSTOM: For Sales with JHB Inventory, ensure it syncs properly to Vend
 8. ERROR: EFT Payments, when completed in Shopify are not created in Vend
+
+
+### Shopify product.update webhook 🤔⭐
+1. Do all checks as above for vend Webhook. But overwrite description, Tags, Product 
+   Type on vend if necessary. (Allow for manual changes.)
+
+
+## Shopify order.created webhook 🤔
