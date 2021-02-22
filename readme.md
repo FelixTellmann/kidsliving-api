@@ -13,9 +13,9 @@ functionality unique to Kids Living and their Business setup.
 Fix the current Product API:
 
 - Vend as primary source of truth
-- Vend update to Trigger Webhook -> product.update
+- Vend update to Trigger Webhook -> product.update ⭐
     1. Get data from Vend & Shopify for the entire product (all variants & necessary info)
-        - Primary source of truth - vend: _handle_ - shopify: _product_id_
+        - Primary source of truth - vend: _handle_ - shopify: _product_id_ 
     2. Check if Vend data has internal Inconsistencies (description, tags, type,
        unpublished)
     3. Check for Shopify not having all variants / too many variants - For delete 
