@@ -69,5 +69,5 @@ export const queryfy = (obj: unknown): string | number => {
   // to be interpolated into the query.
   const props = Object.keys(obj).map((key) => `${key}:${queryfy(obj[key])}`).join(',');
 
-  return `{${props}}`;
+  return `{${props}}`.replace(/"([A-Z]+)"/g, "$1");
 };

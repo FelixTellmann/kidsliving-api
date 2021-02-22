@@ -37,19 +37,13 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
   const db = firebase.firestore();
   let duplicate = false;
 
-  if (source !== "SHOPIFY") {
+  if (/* source !== "SHOPIFY" */ source_id.length < 2) {
     console.log(`source !== "SHOPIFY"`);
     res.status(200).json("not on shopify");
     return;
   }
 
-  if (handle === "danishpacifier") {
-    console.log(`Too many variants`);
-    res.status(200).json("Too many variants");
-    return;
-  }
-
-  const delay = Math.floor(Math.random() * 60) * 100;
+  const delay = Math.floor(Math.random() * 120) * 50;
   console.log(delay);
   let s_created_at = Date.now();
   let v_created_at = Date.now();
@@ -124,7 +118,11 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
       return;
     }
 
-    console.log(v_req.value?.data?.products?.length);
+    if (!s_gql_req.value.data?.data?.product) {
+      res.status(200).json("No matching product_id on Shopify");
+      return;
+    }
+
     if (v_req.status === "fulfilled" && v_req.value?.data?.products?.length > 32) {
       res.status(200).json("Too many variants to handle safely.");
       return;
@@ -136,11 +134,11 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
 
     /** STEP 4
      *  Analyse Shopify Data */
-    const shopify_gql = simplifyProducts(s_gql_req.value.data?.data?.product, "shopify_gql");
+    const shopify = simplifyProducts(s_gql_req.value.data?.data?.product, "shopify");
 
     /** Step 5
      * Compare Vend & Shopify Data */
-    const to_process = getDifferences(vend, shopify_gql, shook);
+    const to_process = getDifferences(vend, shopify, shook);
 
     const to_process_count = Object.values(to_process).reduce((acc, itm) => {
       return [...acc, ...itm];
@@ -166,7 +164,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
     if (process.env.NODE_ENV === "development") {
       console.log(JSON.stringify({
         /* vend_0: vend[0],
-        shopify_0: shopify_gql[0], */
+        shopify_0: shopify[0], */
         to_process,
       }, null, 2));
     } // LOGGING
@@ -199,7 +197,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
         source: vhook ? "vend" : "shopify",
         processed: JSON.stringify({
           /* vend_0: vend[0],
-          shopify_0: shopify_gql[0], */
+          shopify_0: shopify[0], */
           to_process,
         }, null, 2),
         result: JSON.stringify(result),

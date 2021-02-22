@@ -29,6 +29,7 @@ export type productModel = {
   image_id?: number
   s_status?: "active" | "draft" | "archived"
   v_all_inactive?: boolean
+  v_unpublished?: boolean
   v_all_unpublished?: boolean
   v_incorrectly_unpublished?: boolean
   v_description?: string
@@ -39,45 +40,55 @@ export type productModel = {
   v_has_needs_variant_image_tag?: boolean
   v_single_product?: boolean
   s_has_jhb_inventory?: boolean
+  s_product_metafield_published?: "published" | "unpublished" | null
+  s_product_metafield_id?: string
+  s_variant_metafield_active?: "true" | "false" | null
+  s_variant_metafield_id?: string
 };
 
 export const createGqlQueryProduct = (product_id: number): string => {
   return `{
-    product(id: "gid://shopify/Product/${product_id}") {
+  product(id: "gid://shopify/Product/${product_id}") {
+    id
+    status
+    productType
+    descriptionHtml
+    tags
+    featuredImage {
       id
-      status
-      productType
-      descriptionHtml
-      tags
-      featuredImage {
-        id
-      }
-      variants(first: 32) {
-        edges {
-          node {
+    }
+    metafield(key: "shopify", namespace: "vend") {
+       id
+       key
+       value
+    }
+    variants(first: 32) {
+      edges {
+        node {
+          id
+          image {
             id
-            image {
-              id
-            }
-            inventoryQuantity
-            price
-            sku
-            selectedOptions {
-              value
-            }
-            metafield(key: "shopify", namespace: "vend") {
-              value
-            }
-            inventoryItem {
-              id
-              inventoryLevels(first: 2) {
-                edges {
-                  node {
+          }
+          inventoryQuantity
+          price
+          sku
+          selectedOptions {
+            value
+          }
+          metafield(key: "active", namespace: "vend") {
+            id
+            key
+            value
+          }
+          inventoryItem {
+            id
+            inventoryLevels(first: 2) {
+              edges {
+                node {
+                  id
+                  available
+                  location {
                     id
-                    available
-                    location {
-                      id
-                    }
                   }
                 }
               }
@@ -86,7 +97,8 @@ export const createGqlQueryProduct = (product_id: number): string => {
         }
       }
     }
-  }`;
+  }
+}`;
 };
 
 export const createGqlNewVariantMutation = (
@@ -137,6 +149,8 @@ export const createGqlUpdateVariantMutation = (
   option1?: string,
   option2?: string,
   option3?: string,
+  inventory_policy?: "continue" | "deny",
+  setInactiveMetafield?: boolean,
 ): string => {
   const inventory_CPT_config = `
   inventoryAdjustQuantity(input: ${queryfy({
@@ -152,11 +166,19 @@ export const createGqlUpdateVariantMutation = (
     }
   }`;
 
+  const metafields = setInactiveMetafield
+    ? [{ key: "active", valueType: "STRING", value: "false", namespace: "vend" }]
+    : undefined;
+
+  const inventoryPolicy = inventory_policy?.toUpperCase() || undefined;
+
   const config = {
     id: `gid://shopify/ProductVariant/${variant_id}`,
     sku,
     options: [option1 || "", option2 || "", option3 || ""],
     price,
+    inventoryPolicy,
+    metafields,
   };
 
   return `
@@ -233,15 +255,29 @@ export const createGqlDisconnectInvLocationMutation = (
   return "";
 };
 
-export const isUnpublished = (({ source_id, variant_source_id }) => source_id.includes("unpub") || variant_source_id.includes("unpub"));
-export const isPublished = (({ source_id, variant_source_id }) => !source_id.includes("unpub") && !variant_source_id.includes("unpub"));
+export const createGqlDeleteMetafieldMutation = (s_variant_metafield_id?: string): string => {
+  return `mutation {
+    metafieldDelete(input: {id: "${s_variant_metafield_id}"}) {
+      deletedId
+      userErrors {
+        field
+        message
+      }
+    }
+  }`;
+};
+
+export const isUnpublished = (({ source_id, variant_source_id }) => source_id.includes("unpub")
+  || variant_source_id.includes("unpub"));
+export const isPublished = (({ source_id, variant_source_id }) => !source_id.includes("unpub")
+  && !variant_source_id.includes("unpub"));
 
 export const isInactive = (({ active }: any): boolean => !active);
 export const isActive = (({ active }: any): boolean => active);
 
 export const hasVariantImage = (({ image_id, node }: productModel): boolean => !!image_id || !!node?.image);
 
-export const simplifyProducts = ((products: any, source: "vend" | "shopify" | "shopify_gql"): productModel[] => {
+export const simplifyProducts = ((products: any, source: "vend" | "shopify"): productModel[] => {
   if (source === "vend") {
     const v_all_inactive = products.every(isInactive);
     const v_all_unpublished = products.every(isUnpublished);
@@ -307,52 +343,8 @@ export const simplifyProducts = ((products: any, source: "vend" | "shopify" | "s
       return acc;
     }, []);
   }
+
   if (source === "shopify") {
-    const { id, images, product_type, status, tags, variants, body_html } = products;
-    const s_needs_variant_image = !products.variants.every(hasVariantImage);
-
-    return variants.reduce((acc: productModel[], variant: productModel): productModel[] => {
-      const {
-        id: variant_id,
-        price,
-        sku,
-        option1,
-        option2,
-        option3,
-        inventory_quantity,
-        inventory_item_id,
-        inventory_policy,
-        image_id,
-      } = variant;
-
-      acc.push({
-        vend_id: undefined,
-        vend_unpublished: undefined,
-        product_id: id,
-        variant_id,
-        tags,
-        description: body_html,
-        price,
-        sku,
-        product_type,
-        option1,
-        option2,
-        option3,
-        inventory_item_id,
-        inventory_CPT: undefined,
-        inventory_JHB: undefined,
-        inventory_quantity,
-        inventory_policy,
-        image_id,
-        s_status: status,
-        s_needs_variant_image,
-      });
-
-      return acc;
-    }, []);
-  }
-
-  if (source === "shopify_gql") {
     const {
       id: s_gql_product_id,
       productType,
@@ -361,6 +353,7 @@ export const simplifyProducts = ((products: any, source: "vend" | "shopify" | "s
       tags: s_gql_tags,
       featuredImage,
       variants: { edges: variants },
+      metafield: s_product_metafield,
     } = products;
 
     const s_needs_variant_image = (variants.length > 1 && !variants.every(hasVariantImage))
@@ -380,6 +373,7 @@ export const simplifyProducts = ((products: any, source: "vend" | "shopify" | "s
         inventory_policy,
         image,
         selectedOptions,
+        metafield: s_variant_metafield,
       } = variant;
 
       const inventory_CPT = inventoryLevels?.filter(({ node: { location: { id } } }) => id.replace(
@@ -433,6 +427,10 @@ export const simplifyProducts = ((products: any, source: "vend" | "shopify" | "s
         s_status: status.toLowerCase(),
         s_needs_variant_image,
         s_has_jhb_inventory,
+        s_variant_metafield_active: s_variant_metafield?.value,
+        s_variant_metafield_id: s_variant_metafield?.id,
+        s_product_metafield_published: s_product_metafield?.value,
+        s_product_metafield_id: s_product_metafield?.id,
       });
 
       return acc;
@@ -495,8 +493,8 @@ export const getDifferences = (
   /* Check if new Variants need to be created on Shopify & set it as default for variant image tag */
   const needs_new_variant_image = vend.some((s) => !shopify.some((t) => s.variant_id === t.variant_id));
 
-  /* TODO Inventory Accuracy!
-   * TODO: Active / Unpublished Statusses */
+  /**
+   *TODO: Active / Unpublished Statusses */
 
   return {
     shopifyDeleteVariants,
@@ -532,10 +530,30 @@ export const getDifferences = (
         let shopifyVariantUpdate = false;
         let shopifyInventoryLevelConnect = false;
         let shopifyInventoryLevelDisconnect = false;
+        let shopifyRemoveVariantMetafield = false;
+        let shopifyVariantSetInactive = false;
 
         if (sku_match) {
           override.variant_id = shopify_variant.variant_id;
           vendProductUpdate = true;
+        }
+
+        if (override.v_all_inactive) {
+          /* TODO: Continue FROM HERE! NB Check if active & set metafields on shopify if not available yet!! NB
+          *   TODOTODO */
+        }
+
+        if (override.v_active && override?.s_variant_metafield_active === "false") {
+          shopifyRemoveVariantMetafield = true;
+        }
+
+        if (!override.v_active && !(override?.s_variant_metafield_active === "false")) {
+          shopifyVariantSetInactive = true;
+          /* TODO COntinue Here! */
+        }
+
+        if (override.v_unpublished) {
+
         }
 
         if (override.v_has_needs_variant_image_tag && !override.s_needs_variant_image && !needs_new_variant_image) {
@@ -645,7 +663,18 @@ export const getDifferences = (
           });
         }
 
-        if (shopifyVariantUpdate || shopifyInventoryLevelConnect || shopifyInventoryLevelDisconnect) {
+        if (shopifyRemoveVariantMetafield) {
+          acc.shopifyVariants.push({ body: createGqlDeleteMetafieldMutation(override.s_variant_metafield_id) });
+        }
+
+        if (shopifyVariantUpdate || shopifyInventoryLevelConnect || shopifyInventoryLevelDisconnect
+          || shopifyVariantSetInactive) {
+          if (shopifyVariantSetInactive) {
+            override.inventory_CPT = 0;
+            override.inventory_JHB = 0;
+            override.inventory_policy = "deny";
+          }
+
           const shopifyConnectInventoryMutation = createGqlConnectInvLocationMutation(
             override.inventory_JHB,
             override.inventory_item_id,
@@ -668,6 +697,8 @@ export const getDifferences = (
             override.option1,
             override.option2,
             override.option3,
+            override.inventory_policy,
+            shopifyVariantSetInactive,
           );
 
           if (override.v_has_sell_jhb_tag && override.inventory_JHB_level_id) {
@@ -688,7 +719,6 @@ export const getDifferences = (
       } else {
         /** OPTION 2
          * NO Variant found */
-
         acc.vendProducts.push({
           api: `/products`,
           method: `POST`,
