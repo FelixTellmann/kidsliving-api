@@ -13,24 +13,25 @@ functionality unique to Kids Living and their Business setup.
 Fix the current Product API:
 
 - Vend as primary source of truth
-- Vend update to Trigger Webhook -> product.update ⭐
-    1. Get data from Vend & Shopify for the entire product (all variants & necessary info)
-        - Primary source of truth - vend: _handle_ - shopify: _product_id_ 
-    2. Check if Vend data has internal Inconsistencies (description, tags, type,
-       unpublished)
-    3. Check for Shopify not having all variants / too many variants - For delete 
-       variants Check also for assigned images to remove
-    4. Compare product data Vend vs Shopify - check errors on:
-        - Descriptions
-        - Tags
-        - Price
-        - Product Type
-        - Sku
-        - Variant id
-        - Product id
-        - Inventory CPT
-        - Inventory JHB
-        - option1
-        - option2
-        - option3
-    5. Active / Published -> use Metafield API to deactivate individual variants.
+
+## Vend product.update Webhook 🤔⭐
+1. Get data from Vend & Shopify for the entire product (all variants & necessary info)
+    - Primary source of truth - vend: _handle_ - shopify: _product_id_ 
+2. Check if Vend data has internal Inconsistencies (description, tags, type,
+   unpublished)
+3. Check for Shopify not having all variants / too many variants - For delete 
+   variants Check also for assigned images to remove
+4. Compare product data Vend vs Shopify - check errors on:
+    - Descriptions
+    - Tags
+    - Price
+    - Product Type
+    - Sku
+    - Variant id
+    - Product id
+    - Inventory CPT
+    - Inventory JHB
+    - option1
+    - option2
+    - option3
+5. Active / Published -> use Metafield API to deactivate individual variants.
