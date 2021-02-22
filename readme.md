@@ -37,15 +37,30 @@ Fix the current Product API:
     - option2
     - option3
 5. Active / Published -> use Metafield API to deactivate individual variants.
+   - if source !== Shopify (Unpublished product):
+      1. Check if product actually is on Shopify.
+      2. Check if product is in Draft Status (and no metafield for Deactivating is set)
+      3. If product is not in Draft Status -> Set Draft Status && Metafield About it
+   - if product is RE-Published:
+      1. Check if product is on Shopify
+      2. Check product status, if draft and has metafield for deactivating -> Set 
+         Active & Remove metafield info (clean product)
+   - if product is newly published
+      1. Check if product exists already on Shopify
+      2. Verify that no metafield exists for drafting
+      3. 
+
 6. ⭐ CUSTOM: read the tag "Sell JHB" if it is added on vend - sync the inventory 
    levels for JHB to Shopify
 7. CUSTOM: For Sales with JHB Inventory, ensure it syncs properly to Vend
 8. ERROR: EFT Payments, when completed in Shopify are not created in Vend
 
+Continue Selling
+
 
 ### Shopify product.update webhook 🤔⭐
 1. Do all checks as above for vend Webhook. But overwrite description, Tags, Product 
    Type on vend if necessary. (Allow for manual changes.)
-
+   
 
 ## Shopify order.created webhook 🤔

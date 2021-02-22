@@ -65,6 +65,9 @@ export const createGqlQueryProduct = (product_id: number): string => {
             selectedOptions {
               value
             }
+            metafield(key: "shopify", namespace: "vend") {
+              value
+            }
             inventoryItem {
               id
               inventoryLevels(first: 2) {

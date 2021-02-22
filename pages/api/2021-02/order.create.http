@@ -228,3 +228,109 @@ X-Shopify-Access-Token: 7522f1ec2ce1989ac523647deae8d00b
 }
 
 ###
+# SHOPIFY create
+POST https://kids-living.myshopify.com/admin/api/2021-01/graphql.json
+Content-Type: application/graphql
+X-Shopify-Access-Token: 7522f1ec2ce1989ac523647deae8d00b
+
+# TODO quantities will be known from webhook - make use of it
+
+{
+  productVariant(id: "gid://shopify/ProductVariant/38312911372463") {
+    id
+    metafields(first: 10) {
+      edges {
+        node {
+          id
+          key
+          namespace
+          value
+        }
+      }
+    }
+  }
+}
+
+###
+# SHOPIFY create
+POST https://kids-living.myshopify.com/admin/api/2021-01/graphql.json
+Content-Type: application/graphql
+X-Shopify-Access-Token: 7522f1ec2ce1989ac523647deae8d00b
+
+# TODO quantities will be known from webhook - make use of it
+
+{
+  product(id: "gid://shopify/Product/4536570904636") {
+    id
+    status
+    productType
+    descriptionHtml
+    tags
+    featuredImage {
+      id
+    }
+    metafield(key: "shopify", namespace: "vend") {
+      key
+      value
+    }
+    variants(first: 32) {
+      edges {
+        node {
+          id
+          image {
+            id
+          }
+          inventoryQuantity
+          price
+          sku
+          selectedOptions {
+            value
+          }
+          metafield(key: "active", namespace: "vend") {
+            key
+            value
+          }
+          inventoryItem {
+            id
+            inventoryLevels(first: 2) {
+              edges {
+                node {
+                  id
+                  available
+                  location {
+                    id
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+###
+# SHOPIFY create
+POST https://kids-living.myshopify.com/admin/api/2021-01/graphql.json
+Content-Type: application/graphql
+X-Shopify-Access-Token: 7522f1ec2ce1989ac523647deae8d00b
+
+# TODO quantities will be known from webhook - make use of it
+
+mutation {
+  productVariantUpdate(input: {id: "gid://shopify/ProductVariant/38312911372463", metafields: [{ key: "active", valueType: STRING, value: "false", namespace: "vend"}]}) {
+    product {
+      id
+    }
+    productVariant {
+      id
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+}
+
+###
