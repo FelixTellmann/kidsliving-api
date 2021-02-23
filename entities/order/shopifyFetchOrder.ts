@@ -1,4 +1,4 @@
-import { fetchShopifyGQL } from "utils/fetch";
+import { fetchShopify, fetchShopifyGQL } from "utils/fetch";
 
 type shopifyFetchOrder = {
   data: {
@@ -45,9 +45,9 @@ type shopifyFetchOrder = {
   }
 };
 
-type IFetchShopifyOrderById = (order_id: string | number) => Promise<shopifyFetchOrder>;
+type IFetchShopifyGqlOrderById = (order_id: string | number) => Promise<shopifyFetchOrder>;
 
-export const fetchShopifyOrderById: IFetchShopifyOrderById = (order_id) => {
+export const fetchShopifyGqlOrderById: IFetchShopifyGqlOrderById = (order_id) => {
   return fetchShopifyGQL(`query {
   order(id: "gid://shopify/Order/${order_id}") {
     fulfillmentOrders(first: 2) {
@@ -77,4 +77,108 @@ export const fetchShopifyOrderById: IFetchShopifyOrderById = (order_id) => {
     }
   }
 }`);
+};
+
+export type fulfillmentOrder = {
+  id: number
+  shop_id: number
+  order_id: number
+  assigned_location_id: number
+  fulfillment_service_handle: string
+  request_status: string
+  status: string
+  supported_actions: string[]
+  destination: {
+    id: number
+    address1: string
+    address2: string
+    city: string
+    company: string
+    country: string
+    email: string
+    first_name: string
+    last_name: string
+    phone: string
+    province: string
+    zip: string
+  },
+  line_items: {
+    id: number
+    shop_id: number
+    fulfillment_order_id: number
+    quantity: number
+    line_item_id: number
+    inventory_item_id: number
+    fulfillable_quantity: number
+    variant_id: number
+  }[]
+  assigned_location: {
+    address1: string
+    address2: string
+    city: string
+    country_code: string
+    location_id: number
+    name: string
+    phone: string
+    province: string
+    zip: string
+  },
+  merchant_requests: (unknown | any)[]
+};
+
+export type shopifyFetchFulfillmentOrder = {
+  data: {
+    fulfillment_orders: {
+      id: number
+      shop_id: number
+      order_id: number
+      assigned_location_id: number
+      fulfillment_service_handle: string
+      request_status: string
+      status: string
+      supported_actions: string[]
+      destination: {
+        id: number
+        address1: string
+        address2: string
+        city: string
+        company: string
+        country: string
+        email: string
+        first_name: string
+        last_name: string
+        phone: string
+        province: string
+        zip: string
+      },
+      line_items: {
+        id: number
+        shop_id: number
+        fulfillment_order_id: number
+        quantity: number
+        line_item_id: number
+        inventory_item_id: number
+        fulfillable_quantity: number
+        variant_id: number
+      }[]
+      assigned_location: {
+        address1: string
+        address2: string
+        city: string
+        country_code: string
+        location_id: number
+        name: string
+        phone: string
+        province: string
+        zip: string
+      },
+      merchant_requests: (unknown | any)[]
+    }[]
+  }
+};
+
+type IFetchShopifyFulfillmentOrderById = (order_id: string | number) => Promise<shopifyFetchFulfillmentOrder>;
+
+export const fetchShopifyFulfillmentOrdersById: IFetchShopifyFulfillmentOrderById = (order_id) => {
+  return fetchShopify(`/orders/${order_id}/fulfillment_orders.json`);
 };

@@ -135,7 +135,9 @@
           }
         ],
         "@typescript-eslint/no-unsafe-return": 0,
-        "quote-props": "error"
+        "quote-props": "error",
+        "no-mixed-operators": 0,
+        "padded-blocks": 0
       }
     }
   ]

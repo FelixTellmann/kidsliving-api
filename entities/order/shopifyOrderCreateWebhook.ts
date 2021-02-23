@@ -68,7 +68,7 @@ export type OrderWebhookRequestBody = {
   processing_method: string
   checkout_id: number
   source_name: string
-  fulfillment_status?: unknown | any,
+  fulfillment_status?: "fufilled" | null | "null" | "partial" | "restocked"
   tax_lines: (unknown | any)[]
   tags: string
   contact_email: string

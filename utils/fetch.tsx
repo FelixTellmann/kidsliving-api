@@ -11,7 +11,7 @@ type fetchProps = (
 export const fetchVend: fetchProps = (api, method = "GET", body = {}) => {
   const config = {
     method,
-    url: `https://kidsliving.vendhq.com/api/${api}`,
+    url: `https://kidsliving.vendhq.com/api/${api.replace(/^\//, "")}`,
     headers: {
       Authorization: `Bearer ${VEND_API}`,
       "Content-Type": "application/json",
@@ -25,7 +25,7 @@ export const fetchVend: fetchProps = (api, method = "GET", body = {}) => {
 export const fetchShopify: fetchProps = (api, method = "GET", body = {}) => {
   const config = {
     method,
-    url: `https://${SHOPIFY_API_KEY}:${SHOPIFY_API_PASSWORD}@${SHOPIFY_API_STORE}.myshopify.com/admin/api/${SHOPIFY_API_VERSION}/${api}`,
+    url: `https://${SHOPIFY_API_KEY}:${SHOPIFY_API_PASSWORD}@${SHOPIFY_API_STORE}.myshopify.com/admin/api/${SHOPIFY_API_VERSION}/${api.replace(/^\//, "")}`,
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",

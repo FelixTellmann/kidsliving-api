@@ -1,1 +1,1 @@
-export { fetchShopifyOrderById } from "./shopifyFetchOrder";
+export { fetchShopifyGqlOrderById } from "./shopifyFetchOrder";

@@ -1,4 +1,5 @@
 import { fetchVend } from "utils/fetch";
+import { OrderWebhookRequestBody } from "../order/shopifyOrderCreateWebhook";
 
 export type vendProduct = {
   "id": string,
@@ -93,7 +94,9 @@ export const fetchVendProductBySku: IFetchVendProductBySku = (sku) => {
   return fetchVend(`products?sku=${sku}`);
 };
 
-export const fetchVendAllProductsBySku = (line_items) => {
+type IFetchVendAllProductsBySku = (body: OrderWebhookRequestBody) => Promise<PromiseSettledResult<vendFetchProducts>[]>;
+
+export const fetchVendAllProductsBySku: IFetchVendAllProductsBySku = ({ line_items }) => {
   const getSaleProducts = [];
   line_items.forEach(({ sku }) => {
     getSaleProducts.push(fetchVendProductBySku(sku));

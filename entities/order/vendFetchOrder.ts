@@ -126,12 +126,11 @@ export type registerSale = {
 export type vendFetchOrder = {
   data: {
     "register_sales": registerSale[]
-
   }
 };
 
 type IFetchVendOrderById = (sale_id: string) => Promise<vendFetchOrder>;
 
 export const fetchVendOrderById: IFetchVendOrderById = (sale_id) => {
-  return fetchVend(`/register_sales/${sale_id}`);
+  return fetchVend(`register_sales/${sale_id}`);
 };

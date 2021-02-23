@@ -73,3 +73,8 @@ export const queryfy = (input: unknown): string | number => {
 
   return `{${props}}`.replace(/"([A-Z]+)"/g, "$1");
 };
+
+export const shopifyDateToVendDate = (date: string): string => {
+  const dateArray = date.split('T');
+  return `${dateArray[0]} ${dateArray[1].split('+')[0]}`;
+};
