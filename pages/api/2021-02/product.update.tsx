@@ -1,14 +1,14 @@
 import { loadFirebase } from "lib/db";
 import { NextApiRequest, NextApiResponse } from "next";
 import { fetchShopify, fetchShopifyGQL, fetchVend } from "utils/fetch";
-import { createGqlQueryProduct, getDifferences, simplifyProducts } from "utils/products";
+import { getDifferences, simplifyProducts } from "utils/products";
 import { fetchShopifyProductByProductId } from "../../../entities/product/shopifyFetchProducts";
 import { fetchVendProductByHandle } from "../../../entities/product/vendFetchProducts";
 
 export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> => {
   /** STEP 1
    * Validate incoming webhook - get handle && source_id   * */
-  const { VEND_RETAILER_ID, SHOPIFY_DOMAIN } = process.env;
+  const { VEND_RETAILER_ID, SHOPIFY_DOMAIN, NODE_ENV } = process.env;
 
   const { body: { payload, retailer_id, ...body }, headers } = req;
   const vhook = retailer_id === VEND_RETAILER_ID;
@@ -58,11 +58,11 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
     await db.collection("product.update").doc(product_id).get().then((doc) => {
       console.log(Date.now() - prevTimer);
       if (doc.exists) { // 30 seconds ago
-        if (doc.data().v_created_at > Date.now() - (vhook ? 20 : 40) * 1000) {
+        if (doc.data().v_created_at > Date.now() - (NODE_ENV === "development" ? 0 : (vhook ? 20 : 40) * 1000)) {
           console.log(`wait: ${Math.floor(((Date.now() - 20 * 1000) - doc.data().v_created_at) / -1000)}s`);
           duplicate = true;
         }
-        if (doc.data().s_created_at > Date.now() - (shook ? 20 : 40) * 1000) {
+        if (doc.data().s_created_at > Date.now() - (NODE_ENV === "development" ? 0 : (shook ? 20 : 40) * 1000)) {
           console.log(`wait: ${Math.floor(((Date.now() - 40 * 1000) - doc.data().s_created_at) / -1000)}s`);
           duplicate = true;
         }

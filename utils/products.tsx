@@ -182,6 +182,7 @@ export const createGqlUpdateVariantMutation = (
     metafields,
   };
 
+  console.log(config);
   return `
   ${inventory_CPT_config}
   productVariantUpdate(input: ${queryfy(config)}) {
@@ -552,10 +553,12 @@ export const getDifferences = (
           shopifyRemoveVariantMetafield = true;
         }
 
-        if (!override.v_active && !(override?.s_variant_metafield_active === "false")) {
-          shopifyVariantSetInactive = true;
+        if (!override.v_active) {
           override.inventory_JHB = 0;
           override.inventory_CPT = 0;
+          if (!(override?.s_variant_metafield_active === "false")) {
+            shopifyVariantSetInactive = true;
+          }
           /* TODO Continue Here! */
         }
 

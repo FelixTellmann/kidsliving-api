@@ -48,8 +48,11 @@ export const isSameDescription = (description: string, secondDescription: string
   return isSame;
 };
 
-export const queryfy = (obj: unknown): string | number => {
+export const queryfy = (input: unknown): string | number => {
   // Make sure we don't alter integers.
+
+  const obj = JSON.parse(JSON.stringify(input));
+
   if (typeof obj === 'number') {
     return obj;
   }
@@ -64,7 +67,6 @@ export const queryfy = (obj: unknown): string | number => {
     return `[${props}]`;
   }
 
-  console.log(obj);
   // Iterate through object keys to convert into a string
   // to be interpolated into the query.
   const props = Object.keys(obj).map((key) => `${key}:${queryfy(obj[key])}`).join(',');
