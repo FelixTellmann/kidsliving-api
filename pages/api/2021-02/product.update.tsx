@@ -2,6 +2,8 @@ import { loadFirebase } from "lib/db";
 import { NextApiRequest, NextApiResponse } from "next";
 import { fetchShopify, fetchShopifyGQL, fetchVend } from "utils/fetch";
 import { createGqlQueryProduct, getDifferences, simplifyProducts } from "utils/products";
+import { fetchShopifyProductByProductId } from "../../../entities/product/shopifyFetchProducts";
+import { fetchVendProductByHandle } from "../../../entities/product/vendFetchProducts";
 
 export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> => {
   /** STEP 1
@@ -97,8 +99,8 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
     /** STEP 2
      * Get data from Shopify & Vend for verification - exit if not found / error */
     const [v_req, s_gql_req] = await Promise.allSettled([
-      fetchVend(`products?handle=${handle}`),
-      fetchShopifyGQL(createGqlQueryProduct(product_id)),
+      fetchVendProductByHandle(handle),
+      fetchShopifyProductByProductId(product_id),
     ]);
 
     if (v_req.status === "rejected" && v_req.reason.response.status === 429) {
@@ -107,7 +109,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
       return;
     }
 
-    if (s_gql_req.status === "fulfilled" && s_gql_req.value.data?.errors?.length > 0) {
+    if (s_gql_req.status === "fulfilled" && s_gql_req.value?.data?.errors) {
       console.log("too many shopify requests - error");
       res.status(429).json("too many requests - shopify");
       return;

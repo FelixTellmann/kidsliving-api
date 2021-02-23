@@ -2,7 +2,7 @@ import { fetchShopifyGQL } from "utils/fetch";
 
 export type shopifyFetchProducts = {
   data: {
-    data: {
+    data?: {
       product: {
         id: string,
         status: "ACTIVE" | "ARCHIVED" | "DRAFT",
@@ -10,6 +10,7 @@ export type shopifyFetchProducts = {
         descriptionHtml: string,
         tags: string[],
         featuredImage: { id: string } | null,
+        metafield: { id: string, key: string, value: string } | null
         variants: {
           edges: {
             node: {
@@ -19,6 +20,7 @@ export type shopifyFetchProducts = {
               price: string,
               sku: string,
               selectedOptions: { value: string }[]
+              metafield: { id: string, key: string, value: string } | null
               inventoryItem: {
                 id: string,
                 inventoryLevels: {
@@ -34,9 +36,9 @@ export type shopifyFetchProducts = {
             }
           }[]
         }
-      }
-    },
-    extensions: {
+      } | null
+    }
+    extensions?: {
       cost: {
         requestedQueryCost: number,
         actualQueryCost: number,
@@ -47,6 +49,14 @@ export type shopifyFetchProducts = {
         }
       }
     }
+    errors?: {
+      message: string,
+      locations: { line: number, column: number }[],
+      path: string[],
+      extensions: {
+        [key: string]: string
+      }
+    }[]
   }
 };
 
@@ -63,6 +73,11 @@ export const fetchShopifyProductByProductId: IFetchShopifyProductByProductId = (
     featuredImage {
       id
     }
+    metafield(key: "shopify", namespace: "vend") {
+       id
+       key
+       value
+    }
     variants(first: 32) {
       edges {
         node {
@@ -74,6 +89,11 @@ export const fetchShopifyProductByProductId: IFetchShopifyProductByProductId = (
           price
           sku
           selectedOptions {
+            value
+          }
+          metafield(key: "active", namespace: "vend") {
+            id
+            key
             value
           }
           inventoryItem {

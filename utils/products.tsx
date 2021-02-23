@@ -1,3 +1,4 @@
+import { vendProduct } from "../entities/product/vendFetchProducts";
 import { addTag, isSameDescription, isSameTags, mergeDescriptions, mergeTags, queryfy, removeTag } from "./index";
 
 const { VEND_CPT_OUTLET_ID, VEND_JHB_OUTLET_ID, SHOPIFY_CPT_OUTLET_ID, SHOPIFY_JHB_OUTLET_ID } = process.env;
@@ -267,13 +268,16 @@ export const createGqlDeleteMetafieldMutation = (s_variant_metafield_id?: string
   }`;
 };
 
-export const isUnpublished = (({ source_id, variant_source_id }) => source_id.includes("unpub")
+type IisUnpublished = (input: { source_id: string, variant_source_id: string }) => boolean;
+type IisPublished = (input: { source_id: string, variant_source_id: string }) => boolean;
+
+export const isUnpublished: IisUnpublished = (({ source_id, variant_source_id }) => source_id.includes("unpub")
   || variant_source_id.includes("unpub"));
-export const isPublished = (({ source_id, variant_source_id }) => !source_id.includes("unpub")
+export const isPublished: IisPublished = (({ source_id, variant_source_id }) => !source_id.includes("unpub")
   && !variant_source_id.includes("unpub"));
 
-export const isInactive = (({ active }: any): boolean => !active);
-export const isActive = (({ active }: any): boolean => active);
+export const isInactive = (({ active }: vendProduct): boolean => !active);
+export const isActive = (({ active }: vendProduct): boolean => active);
 
 export const hasVariantImage = (({ image_id, node }: productModel): boolean => !!image_id || !!node?.image);
 
@@ -538,6 +542,7 @@ export const getDifferences = (
           vendProductUpdate = true;
         }
 
+        /* 2021-02-22 */
         if (override.v_all_inactive) {
           /* TODO: Continue FROM HERE! NB Check if active & set metafields on shopify if not available yet!! NB
           *   TODOTODO */
@@ -549,7 +554,9 @@ export const getDifferences = (
 
         if (!override.v_active && !(override?.s_variant_metafield_active === "false")) {
           shopifyVariantSetInactive = true;
-          /* TODO COntinue Here! */
+          override.inventory_JHB = 0;
+          override.inventory_CPT = 0;
+          /* TODO Continue Here! */
         }
 
         if (override.v_unpublished) {
@@ -621,12 +628,12 @@ export const getDifferences = (
           reason.push(`product_type - ${vend_variant.product_type} !== ${shopify_variant.product_type}`);
         }
 
-        if (vend_variant.inventory_CPT !== shopify_variant.inventory_CPT) {
+        if (override.inventory_CPT !== shopify_variant.inventory_CPT) {
           shopifyVariantUpdate = true;
           reason.push(`incorrect Inventory CPT- ${vend_variant.inventory_CPT} !== ${shopify_variant.inventory_CPT}`);
         }
 
-        if (vend_variant.inventory_JHB !== shopify_variant.inventory_JHB && vend_variant.v_has_sell_jhb_tag) {
+        if (override.inventory_JHB !== shopify_variant.inventory_JHB && vend_variant.v_has_sell_jhb_tag) {
           shopifyVariantUpdate = true;
           reason.push(`incorrect Inventory JHB- ${vend_variant.inventory_JHB} !== ${shopify_variant.inventory_JHB}`);
         }
@@ -667,8 +674,7 @@ export const getDifferences = (
           acc.shopifyVariants.push({ body: createGqlDeleteMetafieldMutation(override.s_variant_metafield_id) });
         }
 
-        if (shopifyVariantUpdate || shopifyInventoryLevelConnect || shopifyInventoryLevelDisconnect
-          || shopifyVariantSetInactive) {
+        if (shopifyVariantUpdate || shopifyInventoryLevelConnect || shopifyInventoryLevelDisconnect || shopifyVariantSetInactive) {
           if (shopifyVariantSetInactive) {
             override.inventory_CPT = 0;
             override.inventory_JHB = 0;
