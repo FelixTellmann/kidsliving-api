@@ -122,7 +122,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
     const vend = simplifyProducts(v_req.value.data?.products, "vend");
     /** STEP 4
      *  Analyse Shopify Data */
-    const shopify_gql = simplifyProducts(s_gql_req.value.data?.data?.product, "shopify_gql");
+    const shopify_gql = simplifyProducts(s_gql_req.value.data?.data?.product, "shopify");
 
     /** Step 5
      * Compare Vend & Shopify Data */
