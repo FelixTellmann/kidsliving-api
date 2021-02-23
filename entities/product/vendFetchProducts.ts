@@ -92,3 +92,11 @@ type IFetchVendProductBySku = (sku: string) => Promise<vendFetchProducts>;
 export const fetchVendProductBySku: IFetchVendProductBySku = (sku) => {
   return fetchVend(`products?sku=${sku}`);
 };
+
+export const fetchVendAllProductsBySku = (line_items) => {
+  const getSaleProducts = [];
+  line_items.forEach(({ sku }) => {
+    getSaleProducts.push(fetchVendProductBySku(sku));
+  });
+  return Promise.allSettled(getSaleProducts);
+};

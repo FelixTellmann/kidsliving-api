@@ -567,10 +567,6 @@ export const getDifferences = (
           }
         }
 
-        if (override.v_unpublished) {
-
-        }
-
         if (override.v_has_needs_variant_image_tag && !override.s_needs_variant_image && !needs_new_variant_image) {
           override.tags = removeTag(override.tags, "FX_needs_variant_image");
           vendProductUpdate = true;
