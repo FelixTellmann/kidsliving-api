@@ -27,7 +27,9 @@ export type productModel = {
   inventory_JHB_level_id?: string
   inventory_quantity?: number
   inventory_policy?: "continue" | "deny",
-  image_id?: number
+  image_id?: number | null,
+  featuredImage_id?: number | null,
+  featuredImage_id_gql?: string | null,
   s_status?: "active" | "draft" | "archived"
   v_all_inactive?: boolean
   v_unpublished?: boolean
@@ -431,6 +433,8 @@ export const simplifyProducts = ((products: any, source: "vend" | "shopify"): pr
         image_id: +image?.id?.replace("gid://shopify/ProductImage/", "") || null,
         s_status: status.toLowerCase(),
         s_needs_variant_image,
+        featuredImage_id: +featuredImage?.id?.replace("gid://shopify/ProductImage/", "") || null,
+        featuredImage_id_gql: featuredImage.id,
         s_has_jhb_inventory,
         s_variant_metafield_active: s_variant_metafield?.value,
         s_variant_metafield_id: s_variant_metafield?.id,
@@ -497,7 +501,6 @@ export const getDifferences = (
 
   /* Check if new Variants need to be created on Shopify & set it as default for variant image tag */
   const needs_new_variant_image = vend.some((s) => !shopify.some((t) => s.variant_id === t.variant_id));
-
   /**
    *TODO: Active / Unpublished Statusses */
 
@@ -532,6 +535,8 @@ export const getDifferences = (
           === vend_variant.sku);
         const override = { ...shopify_variant, ...vend_variant };
         let shopifyProductUpdate = false;
+        let shopifyRemoveProductMetafield = false;
+        let shopifyProductUpdateFeaturedImage = false;
         let shopifyVariantUpdate = false;
         let shopifyInventoryLevelConnect = false;
         let shopifyInventoryLevelDisconnect = false;
@@ -544,11 +549,6 @@ export const getDifferences = (
         }
 
         /* 2021-02-22 */
-        if (override.v_all_inactive) {
-          /* TODO: Continue FROM HERE! NB Check if active & set metafields on shopify if not available yet!! NB
-          *   TODOTODO */
-        }
-
         if (override.v_active && override?.s_variant_metafield_active === "false") {
           shopifyRemoveVariantMetafield = true;
         }
@@ -556,10 +556,15 @@ export const getDifferences = (
         if (!override.v_active) {
           override.inventory_JHB = 0;
           override.inventory_CPT = 0;
+
           if (!(override?.s_variant_metafield_active === "false")) {
             shopifyVariantSetInactive = true;
           }
-          /* TODO Continue Here! */
+
+          if (override.featuredImage_id === override.image_id) {
+            shopifyProductUpdateFeaturedImage = true;
+            /* TODO Change featured Image to an available product - not urgent! */
+          }
         }
 
         if (override.v_unpublished) {
@@ -658,6 +663,25 @@ export const getDifferences = (
           });
         }
 
+        if ((override.v_all_inactive || override.v_all_unpublished) && !override.s_product_metafield_published) {
+          if (override.s_status === "active") {
+            override.s_status = "draft";
+            override.set_product_metafield = [{
+              key: "shopify",
+              value: "unpublished",
+              value_type: "string",
+              namespace: "vend",
+            }];
+            shopifyProductUpdate = true;
+          }
+        }
+
+        if (!override.v_all_inactive && !override.v_all_unpublished && override.s_product_metafield_published === "unpublished") {
+          override.s_status = "active";
+          shopifyProductUpdate = true;
+          shopifyRemoveProductMetafield = true;
+        }
+
         if (shopifyProductUpdate && acc.shopifyProduct.length === 0) {
           acc.shopifyProduct.push({
             api: `/products/${override.product_id}.json`,
@@ -668,62 +692,70 @@ export const getDifferences = (
                 tags: override.tags,
                 body_html: override.description,
                 product_type: override.product_type,
+                status: override.s_status,
+                metafields: override.set_product_metafield || undefined,
               },
             },
           });
+          if (shopifyRemoveProductMetafield) {
+            acc.shopifyVariants.push({ body: createGqlDeleteMetafieldMutation(override.s_product_metafield_id) });
+          }
         }
 
         if (shopifyRemoveVariantMetafield) {
           acc.shopifyVariants.push({ body: createGqlDeleteMetafieldMutation(override.s_variant_metafield_id) });
         }
 
-        if (shopifyVariantUpdate || shopifyInventoryLevelConnect || shopifyInventoryLevelDisconnect || shopifyVariantSetInactive) {
-          if (shopifyVariantSetInactive) {
-            override.inventory_CPT = 0;
-            override.inventory_JHB = 0;
-            override.inventory_policy = "deny";
-          }
+        if (!override.v_all_inactive && !override.v_all_unpublished) {
+          if (shopifyVariantUpdate || shopifyInventoryLevelConnect || shopifyInventoryLevelDisconnect
+            || shopifyVariantSetInactive) {
+            if (shopifyVariantSetInactive) {
+              override.inventory_CPT = 0;
+              override.inventory_JHB = 0;
+              override.inventory_policy = "deny";
+            }
 
-          const shopifyConnectInventoryMutation = createGqlConnectInvLocationMutation(
-            override.inventory_JHB,
-            override.inventory_item_id,
-            override.v_has_sell_jhb_tag,
-            override.inventory_JHB_level_id,
-          );
-          console.log(override.v_has_sell_jhb_tag, shopifyInventoryLevelDisconnect, override.inventory_JHB_level_id);
-          const shopifyDisonnectInventoryMutation = createGqlDisconnectInvLocationMutation(
-            override.v_has_sell_jhb_tag,
-            override.inventory_JHB_level_id,
-          );
+            const shopifyConnectInventoryMutation = createGqlConnectInvLocationMutation(
+              override.inventory_JHB,
+              override.inventory_item_id,
+              override.v_has_sell_jhb_tag,
+              override.inventory_JHB_level_id,
+            );
+            console.log(override.v_has_sell_jhb_tag, shopifyInventoryLevelDisconnect, override.inventory_JHB_level_id);
+            const shopifyDisonnectInventoryMutation = createGqlDisconnectInvLocationMutation(
+              override.v_has_sell_jhb_tag,
+              override.inventory_JHB_level_id,
+            );
 
-          const shopifyVariantMutation = createGqlUpdateVariantMutation(
-            override.variant_id,
-            override.sku,
-            override.price,
-            override.inventory_CPT,
-            override.inventory_CPT_level_id,
-            override.s_inventory_CPT,
-            override.option1,
-            override.option2,
-            override.option3,
-            override.inventory_policy,
-            shopifyVariantSetInactive,
-          );
+            const shopifyVariantMutation = createGqlUpdateVariantMutation(
+              override.variant_id,
+              override.sku,
+              override.price,
+              override.inventory_CPT,
+              override.inventory_CPT_level_id,
+              override.s_inventory_CPT,
+              override.option1,
+              override.option2,
+              override.option3,
+              override.inventory_policy,
+              shopifyVariantSetInactive,
+            );
 
-          if (override.v_has_sell_jhb_tag && override.inventory_JHB_level_id) {
+            if (override.v_has_sell_jhb_tag && override.inventory_JHB_level_id) {
+              acc.shopifyVariants.push({
+                body: createGqlAdjustJHBInventoryQuantity(override.inventory_JHB,
+                  override.inventory_JHB_level_id, override.s_inventory_JHB),
+              });
+            }
+
             acc.shopifyVariants.push({
-              body: createGqlAdjustJHBInventoryQuantity(override.inventory_JHB,
-                override.inventory_JHB_level_id, override.s_inventory_JHB),
-            });
-          }
-
-          acc.shopifyVariants.push({
-            body: `mutation {
+              body: `mutation {
               ${shopifyDisonnectInventoryMutation}
               ${shopifyConnectInventoryMutation}
               ${shopifyVariantMutation}
             }`,
-          });
+            });
+          }
         }
       } else {
         /** OPTION 2
