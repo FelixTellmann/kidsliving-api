@@ -115,6 +115,7 @@ export const ProductUpdateShopifyCounter = async (req: NextApiRequest, res: Next
       created_at_ISO: new Date(Date.now()).toISOString().split(".")[0].split("T").join(" ").replace(/-/gi, "/"),
       body: JSON.stringify(body),
       body2: JSON.stringify(shopifyFulfillmentPromise.value.data.fulfillment_orders),
+      body3: JSON.stringify(orderResult?.data),
     });
 
   res.status(200).json({ name: "John Doe" });
