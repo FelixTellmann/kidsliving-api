@@ -13,7 +13,7 @@ export const loadFirebase = () => {
     measurementId: process.env.FIREBASE_MEASUREMENTID,
   };
 
-  if (!firebase.apps.length) {
+  if (!firebase?.apps?.length) {
     firebase.initializeApp(config);
   } else {
     firebase.app(); // if already initialized, use that one

@@ -39,7 +39,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
   const db = firebase.firestore();
   let duplicate = false;
 
-  if (/* source !== "SHOPIFY" */ source_id.length < 2) {
+  if (/* source !== "SHOPIFY" */ source_id?.length < 2) {
     console.log(`source !== "SHOPIFY"`);
     res.status(200).json("not on shopify");
     return;
@@ -144,7 +144,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
 
     const to_process_count = Object.values(to_process).reduce((acc, itm) => {
       return [...acc, ...itm];
-    }, []).length;
+    }, [])?.length;
 
     if (to_process_count === 0) {
       console.log(`No Changes`);

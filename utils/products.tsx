@@ -294,7 +294,7 @@ export const simplifyProducts = ((products: any, source: "vend" | "shopify"): pr
     const v_inconsistent_tags = !products.every(({ tags }) => isSameTags(tags, v_tags));
     const v_has_sell_jhb_tag = v_tags.toLowerCase().includes("sell jhb");
     const v_has_needs_variant_image_tag = v_tags.toLowerCase().includes("fx_needs_variant_image");
-    const v_single_product = products.length === 1;
+    const v_single_product = products?.length === 1;
 
     return products.reduce((acc: productModel[], variant: productModel): productModel[] => {
       const {
@@ -363,8 +363,8 @@ export const simplifyProducts = ((products: any, source: "vend" | "shopify"): pr
       metafield: s_product_metafield,
     } = products;
 
-    const s_needs_variant_image = (variants.length > 1 && !variants.every(hasVariantImage))
-      || (variants.length === 1 && !featuredImage);
+    const s_needs_variant_image = (variants?.length > 1 && !variants.every(hasVariantImage))
+      || (variants?.length === 1 && !featuredImage);
     const tags = s_gql_tags.join(",");
 
     return variants.reduce((acc: productModel[], { node: variant }: productModel): productModel[] => {
@@ -406,7 +406,7 @@ export const simplifyProducts = ((products: any, source: "vend" | "shopify"): pr
       const s_has_jhb_inventory = inventoryLevels?.filter(({ node: { location: { id } } }) => id.replace(
         "gid://shopify/Location/",
         "",
-      ) === SHOPIFY_JHB_OUTLET_ID).length > 0;
+      ) === SHOPIFY_JHB_OUTLET_ID)?.length > 0;
 
       acc.push({
         vend_id: undefined,
@@ -642,7 +642,7 @@ export const getDifferences = (
           reason.push(`incorrect Inventory JHB- ${vend_variant.inventory_JHB} !== ${shopify_variant.inventory_JHB}`);
         }
 
-        reason.length > 0 && console.log(reason);
+        reason?.length > 0 && console.log(reason);
 
         if (vendProductUpdate) {
           acc.vendProducts.push({
@@ -678,7 +678,7 @@ export const getDifferences = (
           shopifyRemoveProductMetafield = true;
         }
 
-        if (shopifyProductUpdate && acc.shopifyProduct.length === 0) {
+        if (shopifyProductUpdate && acc.shopifyProduct?.length === 0) {
           acc.shopifyProduct.push({
             api: `/products/${override.product_id}.json`,
             method: "PUT",
