@@ -1,0 +1,2149 @@
+# This file was generated based on ".graphqlconfig". Do not edit manually.
+
+schema {
+  query: Query
+  mutation: Mutation
+  subscription: Subscription
+}
+
+interface CustomFieldValue {
+  name: String!
+  title: String!
+}
+
+interface GiftCard {
+  "balance is the value of the Gift Card currently."
+  balance: Money!
+  "code is the Gift Card's unique identifier used for external representations."
+  code: String!
+  "createdAt is the time at which the Gift Card was purchased."
+  createdAt: Timestamp!
+  "expiresAt is the optional time at which the Gift Card expires."
+  expiresAt: Timestamp
+  "id is the Gift Card's unique identifier used for internal representations."
+  id: ID!
+  "initialAmount is the value of the Gift Card when purchased."
+  initialAmount: Money!
+  "status is the Gift Card's current status."
+  status: GiftCardStatus!
+}
+
+union SaleChangeEntity = Payment
+
+"An Adjustment represents an amount of money that contributes to the total of the sale."
+type Adjustment {
+  "adjustmentType is the type of the adjustment."
+  adjustmentType: String!
+  "name is the name of the adjustment."
+  name: String!
+  "total is the calculated amount the adjustment contributes to the sale total."
+  total: Money!
+}
+
+type Application {
+  id: ID!
+  name: String!
+}
+
+type AutofillInventory {
+  "onHand is the stock on hand."
+  onHand: Decimal!
+  "outletID is the id of the outlet."
+  outletID: ID!
+  "product is the product to be reordered."
+  product: Product
+  "reorderAmount is the amount to reorder."
+  reorderAmount: Decimal!
+  "supplyPrice is the supply price."
+  supplyPrice: Decimal!
+  "target is the target quantity."
+  target: Decimal!
+  "threshold is the reorder threshold."
+  threshold: Decimal!
+}
+
+type AutofillInventoryConnection {
+  "autofillInventory is an array of AutofillInventory results."
+  autofillInventory: [AutofillInventory]!
+  "totalCount is the number of results."
+  totalCount: Int
+}
+
+type AvailablePaymentType {
+  badge: String
+  category: String!
+  configurationURL: String
+  description: String
+  header: String
+  id: Int!
+  internal: Boolean!
+  logo: String
+  name: String!
+  onlineOnly: Boolean!
+  platforms: [String]
+  referredInactive: Boolean!
+  subcategory: String!
+  subtext: String
+}
+
+type BooleanCustomFieldValue implements CustomFieldValue {
+  booleanValue: Boolean!
+  name: String!
+  title: String!
+}
+
+type Brand {
+  "deletedAt, if non-null, indicates the time at which this Brand was deleted."
+  deletedAt: Timestamp
+  "id is the Brand's unique identifier."
+  id: ID!
+  "name is the name of the Brand."
+  name: String!
+  "version is the version at which this Brand was last modified."
+  version: Uint64!
+}
+
+type BrandsConnection {
+  brands: [Brand!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+"Channel represent an integration channel"
+type Channel {
+  "channelType is the type of channel, eg. bigcommerce, magento2, shopify, woocommerce, etc."
+  channelType: String!
+  "createdAt is when the channel was created in integrations"
+  createdAt: Timestamp!
+  "deletedAt is when the channel was deleted"
+  deletedAt: Timestamp
+  "egressState is egress state for channel, either healthy, retrying or broken"
+  egressState: String!
+  "id is the Channel's unique ID in the integrations data store"
+  id: String!
+  "inventoryOutletIDs is an array of UUIDs of Vend outlets syncing with the channel"
+  inventoryOutletIDs: [String!]
+  "name is the name given to the channel"
+  name: String!
+  "productsLastImportedAt is when products were last imported for the channel"
+  productsLastImportedAt: Timestamp
+  "registerID is the UUID of the Vend register syncing with the channel"
+  registerID: String!
+  "retailerID is the UUID for the retailer"
+  retailerID: String!
+  "salesLastImportedAt is when sales were last imported for the channel"
+  salesLastImportedAt: Timestamp
+  "storeURL is the URL of the online store for this channel and retailer"
+  storeURL: String!
+  "syncOrders determines whether or not order should be synced"
+  syncOrders: Boolean!
+  "updatedAt is when the channel was last updated"
+  updatedAt: Timestamp!
+}
+
+type ChannelGiftCard implements GiftCard {
+  balance: Money!
+  code: String!
+  createdAt: Timestamp!
+  expiresAt: Timestamp
+  id: ID!
+  initialAmount: Money!
+  status: GiftCardStatus!
+}
+
+"ChannelProduct defines the channel product integration"
+type ChannelProduct {
+  "channel is the Channel for the channel-product integtration"
+  channel: Channel
+  "channelID is the ID of the channel that the product is associated with"
+  channelID: ID! @deprecated(reason : "Use `channel` instead of `channelID`")
+  "channelProductID is the integration ID of the product"
+  channelProductID: ID!
+  "createdAt is when the product was integrated with the channel"
+  createdAt: Timestamp!
+  "product is the Product for the channel-product integtration"
+  product: Product
+  "productID is the UUID of the Vend product"
+  productID: ID! @deprecated(reason : "Use `product` instead of `productID`")
+  "published determines whether or not a product is currently being published to the channel"
+  published: Boolean!
+  "syncFailureReason is the last reason for failing sync"
+  syncFailureReason: String
+  "syncFailures is the number of times a sync has failed"
+  syncFailures: Int!
+  "syncState is the current state of syncing product to channel, eg. pending, healthy, retrying or broken"
+  syncState: String!
+  "syncStateLastUpdatedAt is when last the sync state was updated at"
+  syncStateLastUpdatedAt: Timestamp!
+  "updatedAt is when last the channel product was updated"
+  updatedAt: Timestamp!
+}
+
+"ChannelSale is the channel information for a sale that was made in a connected eCommerce integration."
+type ChannelSale {
+  channel: Channel
+  channelSaleID: ID!
+  channelSaleURL: String
+}
+
+"CompositeComponent represents a product and quantity that forms part of a composite product"
+type CompositeComponent {
+  "The component product"
+  product: Product!
+  "The quantity of the product for the composite"
+  quantity: Decimal!
+}
+
+"CompositeLineItem represents the component product that forms part of the composite product, aka component product"
+type CompositeLineItem {
+  "The component product in the composite product"
+  product: Product!
+  "The quantity of the composite ordered"
+  quantity: Decimal!
+  "The supply price of one unit"
+  supplyPrice: Money!
+}
+
+type Contact {
+  email: String
+  fax: String
+  fullPhysicalAddress: String
+  fullPostalAddress: String
+  mobile: String
+  phone: String
+  physicalAddress1: String
+  physicalAddress2: String
+  physicalCity: String
+  physicalCountryID: String
+  physicalLocation: String
+  physicalPostcode: String
+  physicalState: String
+  physicalStreetAddress: String
+  physicalSuburb: String
+  postalAddress1: String
+  postalAddress2: String
+  postalCity: String
+  postalCountryID: String
+  postalLocation: String
+  postalPostcode: String
+  postalState: String
+  postalStreetAddress: String
+  postalSuburb: String
+}
+
+type Currency {
+  "code is a three-letter, ISO-4217 currency code."
+  code: String!
+  "Symbol is the currency symbol used when referring to amounts of money in the currency."
+  symbol: String!
+}
+
+type CustomField {
+  application: Application
+  entity: CustomFieldEntity!
+  id: ID!
+  name: String!
+  title: String!
+  type: CustomFieldType!
+  visibleInUI: Boolean!
+}
+
+type Customer {
+  account: CustomerAccount
+  balance: Money!
+  code: String!
+  companyName: String
+  contact: Contact!
+  createdAt: Timestamp!
+  customField1: String
+  customField2: String
+  customField3: String
+  customField4: String
+  customFields: [CustomFieldValue!]!
+  customerGroup: CustomerGroup!
+  dateOfBirth: String
+  "deletedAt, if non-null, indicates the time at which this Customer was deleted."
+  deletedAt: Timestamp
+  doNotEmail: Boolean
+  enableLoyalty: Boolean
+  firstName: String
+  gender: String
+  genderDescription: String
+  "id is the Customer's unique identifier."
+  id: ID!
+  lastName: String
+  loyalty: CustomerLoyalty
+  loyaltyBalance: Money!
+  note: String
+  "sourceUniqueID is the Xero Customer unique identifier"
+  sourceUniqueID: String
+  storeCredit: CustomerStoreCredit
+  twitter: String
+  updatedAt: Timestamp!
+  "version is the version at which this Customer was last modified."
+  version: Uint64!
+  website: String
+  yearToDate: Money!
+}
+
+type CustomerAccount {
+  accountSpent: Money!
+}
+
+"CustomerCreateOrUpdateResponse contains the response of the CustomerCreateOrUpdate mutation"
+type CustomerCreateOrUpdateResponse {
+  "data contains the newly created / updated customer"
+  data: Customer
+}
+
+type CustomerGroup {
+  createdAt: Timestamp!
+  "deletedAt, if non-null, indicates the time at which this CustomerGroup was deleted."
+  deletedAt: Timestamp
+  groupId: String!
+  "id is the CustomerGroup's unique identifier."
+  id: ID!
+  name: String!
+  updatedAt: Timestamp!
+  "version is the version at which this CustomerGroup was last modified."
+  version: Uint64!
+}
+
+type CustomerGroupsConnection {
+  customerGroups: [CustomerGroup!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type CustomerLoyalty {
+  loyaltyEarned: Money!
+  loyaltySpent: Money!
+}
+
+"""
+
+CustomerMarkForDeletion contains the customer id and whether that customer was marked
+for deletion successfully, and if not the error.
+"""
+type CustomerMarkForDeletion {
+  "error returns an CustomerMarkForDeletionError if the given customer could not be deleted"
+  error: CustomerMarkForDeletionError
+  "id is the customer id that was marked for deletion"
+  id: ID!
+}
+
+"CustomerMarkForDeletionBulkResponse contains the response info of the mutation"
+type CustomerMarkForDeletionBulkResponse {
+  "data contains an arry of type CustomerMarkForDeletion"
+  data: [CustomerMarkForDeletion!]
+  "error that occurs in bulk mark for deletion (status other than 200)"
+  error: String
+}
+
+"CustomerMarkForDeletionError contains the error information for the customer"
+type CustomerMarkForDeletionError {
+  "message contains an explanation for why the customer could not be marked for deletion"
+  message: String
+  "type contains an enum CustomerMarkForDeletionErrorType"
+  type: CustomerMarkForDeletionErrorType
+}
+
+type CustomerStoreCredit {
+  balance: Money!
+  customer: Customer!
+  id: ID!
+  totalCreditIssued: Money!
+  totalCreditRedeemed: Money!
+  transactions: [StoreCreditTransaction!]!
+}
+
+type CustomersConnection {
+  customers: [Customer!]!
+  pageInfo: PageInfo!
+}
+
+type DateCustomFieldValue implements CustomFieldValue {
+  dateValue: Date!
+  name: String!
+  title: String!
+}
+
+"EnabledIntegration represents the third party integrations not using channels like Shopify and Xero."
+type EnabledIntegration {
+  "domain is the domain (if applicable) of the integration, such as a Shopify domain."
+  domain: String
+  "id is the ID of the integration."
+  id: ID!
+  "name is the name of the integration."
+  name: String!
+}
+
+type ExternalApplication {
+  "Third party integrated application identifier."
+  applicationID: String!
+  createdAt: Timestamp!
+  "Invoice identifier in third party integrated application."
+  externalID: String!
+  updatedAt: Timestamp!
+  version: String!
+}
+
+type Features {
+  feature(name: String!): Boolean
+}
+
+"Fulfillment is the packaging of a sale. Either for delivery or pick up."
+type Fulfillment {
+  createdAt: Timestamp!
+  id: ID!
+  lineItems: [FulfillmentLineItem!]!
+  "The outlet responsible for this fulfillment."
+  outlet: Outlet
+  status: FulfillmentStatus!
+  updatedAt: Timestamp!
+  "The user responsible for this fulfillment."
+  user: User
+}
+
+type FulfillmentLineItem {
+  id: ID!
+  product: Product
+  quantity: Decimal!
+}
+
+"Unique generated purchase order number"
+type GeneratedOrderNumber {
+  "A unique purchase order number"
+  orderNumber: String
+}
+
+"ImageSizes contains a range of URLs for each respective image size"
+type ImageSizes {
+  "original: URL for the original image size"
+  original: String!
+  "sl: URL for the square large image size"
+  sl: String!
+  "sm: URL for the square medium image size"
+  sm: String!
+  "ss: URL for the square small image size"
+  ss: String!
+  "st: URL for the square thumb image size"
+  st: String!
+  "standard: URL for the standard image size"
+  standard: String!
+  "thumb: URL for the thumb image size"
+  thumb: String!
+}
+
+type InboundInventory {
+  "When the products are due to arrive at the destination outlet"
+  dueAt: Timestamp
+  "The unique order id"
+  orderID: String!
+  "The unique order number"
+  orderNumber: String
+  "The quantity of the product ordered"
+  quantity: Decimal!
+}
+
+type InboundLevels {
+  "shows whether there are any orders that have inbound stock."
+  hasInboundOrders: Boolean
+  "supplier gives the levels of stock inbound from the supplier."
+  supplier: Decimal
+}
+
+type IntegerCustomFieldValue implements CustomFieldValue {
+  integerValue: Int64!
+  name: String!
+  title: String!
+}
+
+type InventoryLevels {
+  "averageCost is the average cost for the product."
+  averageCost: Decimal
+  "inboundLevels gives the levels of inbound stock."
+  inboundLevels: InboundLevels
+  "levels gives the breakdown of onHand and producable quantities"
+  levels: InventoryLevelsQuantity
+  "locationID is the id of the outlet."
+  locationID: ID!
+  "name is the name of the product."
+  name: String
+  "productID is the id of the product."
+  productID: ID!
+  "quantity is the levels available for the product."
+  quantity: Decimal!
+  "reorderAmount is the amount to reorder once the threshold is reached."
+  reorderAmount: Decimal
+  "reorderTarget is the amount to reorder to reach target inventory."
+  reorderTarget: Decimal
+  "reorderThreshold is the point at when a reorder is made."
+  reorderThreshold: Decimal
+  "totalCost is the total cost for the product."
+  totalCost: Decimal
+}
+
+type InventoryLevelsConnection {
+  "inventoryLevels are the inventory levels per outlet for a retailer."
+  inventoryLevels: [InventoryLevels]!
+  "pageInfo is the page info for the inventory levels."
+  pageInfo: PageInfo!
+}
+
+type InventoryLevelsQuantity {
+  "onHand - product stock(onHand) levels"
+  onHand: Decimal
+  """
+
+  producible is the composite product levels, meaning how much we can produce
+  based on the composite onHand unit stocks
+  """
+  producible: Decimal
+}
+
+type LineItem {
+  costTotal: Money!
+  costUnit: Money!
+  customFields: [CustomFieldValue!]!
+  "discountPercentageTaxInclusive contains the discount of the item (tax excluded) as a percentage."
+  discountPercentageTaxExclusive: Decimal!
+  "discountPercentageTaxInclusive contains the discount of the item (tax included) as a percentage."
+  discountPercentageTaxInclusive: Decimal!
+  "discountTotal contains the discount for all the items in the line."
+  discountTotal: Money!
+  "discountUnit contains the discount for one item in the line."
+  discountUnit: Money!
+  "id is the LineItem's unique identifier."
+  id: ID!
+  isReturn: Boolean!
+  note: String
+  priceSet: Boolean!
+  "priceTaxInclusive contains the price of one item in the line tax included."
+  priceTaxInclusive: Money!
+  "priceTotal contains the price of all the items in the line tax excluded."
+  priceTotal: Money!
+  "priceTotalTaxInclusive contains the price of all the items in the line tax included."
+  priceTotalTaxInclusive: Money!
+  "priceUnit contains the price of one item in the line tax excluded."
+  priceUnit: Money!
+  product: Product
+  "promotions contains promotions applied to a line item."
+  promotions: [PromotionLineItem!]!
+  quantity: Decimal!
+  sequence: Int!
+  taxComponents: [TaxComponent!]!
+  "taxTotal contains the tax of all the items in the line."
+  taxTotal: Money!
+  "taxUnit contains the tax of one item in the line."
+  taxUnit: Money!
+}
+
+"Money is a monetary amount."
+type Money {
+  """
+
+  amount is the entire amount as a Decimal.
+  It should be accurate to at least five decimal places.
+  """
+  amount: Decimal!
+  """
+
+  amountRounded is the amount rounded to two decimal places.
+  It may be used for display purposes.
+  """
+  amountRounded: Decimal!
+  """
+
+  nanos are is the number of nano (10^-9) units of the amount.
+  The value must be between -999,999,999 and +999,999,999 inclusive.
+  If `units` is positive, `nanos` must be positive or zero.
+  If `units` is zero, `nanos` can be positive, zero, or negative.
+  If `units` is negative, `nanos` must be negative or zero.
+  For example $-1.75 is represented as `units`=-1 and `nanos`=-750,000,000.
+  """
+  nanos: Int!
+  """
+
+  units are the whole units of the amount.
+  For example if the currency is USD, then 1 unit is one US dollar.
+  """
+  units: Int64!
+}
+
+type Mutation {
+  createCustomField(entity: CustomFieldEntity!, name: String!, title: String!, type: CustomFieldType!, visibleInUI: Boolean!): CustomField
+  "Create a retailer payment type"
+  createPaymentType(input: PaymentTypeCreateInput!): PaymentType!
+  "CustomerCreateOrUpdate allows the creation / update of a customer"
+  customerCreateOrUpdate(customer: CustomerCreateOrUpdateInput!): CustomerCreateOrUpdateResponse
+  "customerMarkForDeletionBulk marks the given collection of customers for deletion."
+  customerMarkForDeletionBulk(customerIDs: [ID!]!): CustomerMarkForDeletionBulkResponse!
+  fulfilPicklist(fulfilmentType: FulfilmentType!, picklistID: ID!): Sale
+  fulfilSale(fulfilmentType: FulfilmentType!, saleID: ID!): Sale
+  generatePurchaseOrderNumber(outletID: ID!): GeneratedOrderNumber
+  "productActionBulk performs a given action on the given collection of products."
+  productActionBulk(action: ProductActionInput!, productIDs: [ID!]!): [Product!]
+  "productActionBulkAsync performs a given action on the collection of products that match the given product filter."
+  productActionBulkAsync(action: ProductActionInput!, filter: ProductFilter!): ProductActionBulkAsyncResponse!
+  "Create a new PurchaseOrder"
+  purchaseOrderCreate(input: PurchaseOrderCreateInput!): PurchaseOrder
+  purchaseOrderCreateAndReceive(input: PurchaseOrderCreateInput!): PurchaseOrder
+  purchaseOrderLineItemAdd(input: PurchaseOrderLineItemAddInput, purchaseOrderID: ID!): PurchaseOrderLineItem
+  purchaseOrderLineItemRemove(productID: ID!, purchaseOrderID: ID!): PurchaseOrderLineItemRemoveResponse
+  purchaseOrderLineItemUpdate(input: PurchaseOrderLineItemUpdateInput, productID: ID!, purchaseOrderID: ID!): PurchaseOrderLineItem
+  purchaseOrderPatch(input: PurchaseOrderPatchInput!, purchaseOrderID: ID!): PurchaseOrder
+  """
+
+  redeemGiftCard attempts to redeem the supplied gift card by the supplied amount.
+  The response is a transaction id that can be used in giftCardByTransactionID.
+  """
+  redeemGiftCard(amount: Float!, channelID: ID!, giftCardID: ID!): RedeemGiftCardResponse
+  "saleUpdateActions performs a given update action on a sale."
+  saleUpdateActions(input: SaleUpdateActionInput!): SaleUpdateResponse!
+  setCustomFieldValues(entity: CustomFieldEntity!, entityId: ID!, values: [CustomFieldValueInput!]!): [CustomFieldValue!]!
+  updatePicklist(input: UpdatePicklistInput!): Picklist
+  """
+
+  updateSettings updates the retailer's QBO integration settings.
+  It will return the saved settings, or null in case of an error.
+  """
+  updateSettings(settingsBody: QBOSettingsBodyInput!): QBOSettingsBody
+}
+
+type Nav {
+  left: [NavItem!]!
+  top: [NavItem!]!
+}
+
+type NavItem {
+  action: String!
+  attributes: NavItemAttributes!
+  id: String!
+  items: [NavItem!]!
+  name: String!
+}
+
+type NavItemAttributes {
+  active: NavItemAttributes
+  additionalURLs: [String!]
+  color: String
+  exactMatch: Boolean
+  excludeURLs: [String!]
+  icon: String
+  new: Boolean
+  offline: Boolean
+  training: Boolean
+}
+
+type Notification {
+  actionURL: String!
+  actionURLLabel: String!
+  createdAt: Timestamp!
+  iconURL: String!
+  id: String!
+  isRead: Boolean!
+  message: String!
+  scope: String!
+  scopeID: String!
+  sourceApplicationID: String!
+  subject: String!
+  type: String!
+  visibleFrom: Timestamp
+}
+
+type Notifications {
+  notifications: [Notification!]!
+  unreadCount: Int!
+}
+
+type OnboardingTask {
+  "completedAt, if non-null, indicates the time of the task been completed."
+  completedAt: Timestamp
+  "createdAt is the time of the task been created."
+  createdAt: Timestamp!
+  "id is the identifier of the onboarding task."
+  id: Int!
+  "taskType is the type of the onboarding task."
+  taskType: String!
+}
+
+type Outlet {
+  currency: String!
+  currencySymbol: String!
+  "deletedAt, if non-null, indicates the time at which this Outlet was deleted."
+  deletedAt: Timestamp
+  "id is the Outlet's unique identifier."
+  id: ID!
+  name: String!
+  timeZone: String!
+  "version is the version at which this Outlet was last modified."
+  version: Uint64!
+}
+
+type OutletInboundInventory {
+  "inboundInventory that is destined to the outlet"
+  inboundInventory: [InboundInventory!]!
+  "outlet the inventory is inbound to"
+  outlet: Outlet!
+}
+
+type OutletsConnection {
+  outlets: [Outlet!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type PageInfo {
+  endCursor: String!
+  hasNextPage: Boolean!
+  startCursor: String!
+}
+
+type Payment {
+  amount: Money!
+  "deletedAt, if non-null, indicates the time at which this Payment was deleted."
+  deletedAt: Timestamp
+  "id is the Payment's unique identifier."
+  id: ID!
+  outlet: Outlet!
+  paymentDate: Timestamp!
+  paymentType: PaymentType!
+  register: Register!
+}
+
+"PaymentType represents a payment method as created by the retailer."
+type PaymentType {
+  "attributes contains any additional information about a payment type."
+  attributes: PaymentTypeAttributes!
+  "If the payment type has been deleted."
+  deletedAt: Timestamp
+  "id is the PaymentType's unique identifier."
+  id: ID!
+  "isEditable is to indicate if a sale with the payment type is editatble or not."
+  isEditable: Boolean
+  "The name of the PaymentType, e.g. \"Cash\"."
+  name: String!
+  "The payment type id"
+  typeID: Int!
+}
+
+type PaymentTypeAttributes {
+  badge: String
+  internal: Boolean
+  name: String
+}
+
+type PaymentTypesConnection {
+  pageInfo: PageInfo!
+  paymentTypes: [PaymentType!]!
+}
+
+type Picklist {
+  createdAt: Timestamp!
+  id: ID!
+  lineItems: [PicklistLineItem!]!
+  note: String
+  outlet: Outlet
+  pickable: Boolean
+  sale: Sale
+  state: PicklistState!
+  type: PicklistType!
+  updatedAt: Timestamp!
+  user: User
+}
+
+type PicklistLineItem {
+  id: ID!
+  note: String
+  pickedQuantity: Decimal!
+  quantity: Decimal!
+  saleLineItem: LineItem
+}
+
+type Product {
+  attributes: [ProductAttribute!]!
+  brand: Brand
+  "channels are the channels the products are sold on"
+  channels: [ChannelProduct!]
+  compositeComponents: [CompositeComponent!]!
+  createdAt: Timestamp!
+  customFields: [CustomFieldValue!]!
+  "deletedAt, if non-null, indicates the time at which this Product was deleted."
+  deletedAt: Timestamp
+  description: String
+  handle: String!
+  hasInventory: Boolean!
+  hasVariants: Boolean!
+  "id is the Product's unique identifier."
+  id: ID!
+  imageThumbnailURL: String
+  images: [ProductImage!]!
+  "inventoryLevels are the inventory levels per outlet for this product."
+  inventoryLevels: [InventoryLevels]!
+  isActive: Boolean!
+  isComposite: Boolean!
+  name: String!
+  priceExcludingTax: Money
+  priceIncludingTax: Money
+  "productCodes is a set of structured product codes associated with the product."
+  productCodes: [ProductCode!]!
+  productType: ProductType
+  sku: String!
+  source: String
+  sourceID: String
+  sourceVariantID: String
+  supplier: Supplier
+  "supplierCode is the code used by the supplier."
+  supplierCode: String
+  supplyPrice: Money
+  tags: [Tag!]!
+  "variantCount is the number of variants for the product."
+  variantCount: Uint64
+  "variantName is the name of the variant."
+  variantName: String
+  "variantParentID is the id of the parent variant."
+  variantParentID: ID
+  "version is the version at which this Product was last modified."
+  version: Uint64!
+}
+
+"ProductActionBulkAsyncResponse contains the Job ID for the async bulk action."
+type ProductActionBulkAsyncResponse {
+  jobID: ID!
+}
+
+"ProductAttribute contains a product attribute (eg: gift card)"
+type ProductAttribute {
+  "name: name of the attribute"
+  name: String!
+  "value: value of the attribute"
+  value: String!
+}
+
+type ProductChannelsConnection {
+  productChannels: [ChannelProduct!]!
+  totalCount: Int!
+}
+
+"ProductCode contains a single structured product code"
+type ProductCode {
+  "code is the value assocated with the above type. e.g. \"1234895905\""
+  code: String!
+  "type represents the type of code. e.g. \"upc\""
+  type: String!
+}
+
+type ProductCustomFieldValue implements CustomFieldValue {
+  name: String!
+  product: Product
+  title: String!
+}
+
+type ProductExport {
+  "downloadUrl: A URL link to the final CSV file."
+  downloadUrl: String
+  "id: ID of the export job."
+  id: String
+  "numProductsProcessed: The number of successfully processed rows."
+  numProductsProcessed: Decimal
+  "numProductsTotal: The number of rows in total to be processed."
+  numProductsTotal: Decimal
+  "status: Status of the current running job."
+  status: String
+}
+
+"ProductImage contains a product image"
+type ProductImage {
+  "sizes: Sizes for the image, this is the main image, more can be retrieved from imageSizes"
+  sizes: ImageSizes!
+  "url: URL for the image, this is the main image, more can be retrieved from imageSizes"
+  url: String!
+}
+
+type ProductType {
+  "deletedAt, if non-null, indicates the time at which this ProductType was deleted."
+  deletedAt: Timestamp
+  "id is the ProductType's unique identifier."
+  id: ID!
+  name: String!
+  "version is the version at which this ProductType was last modified."
+  version: Uint64!
+}
+
+type ProductTypesConnection {
+  pageInfo: PageInfo!
+  productTypes: [ProductType!]!
+  totalCount: Int!
+}
+
+type ProductsConnection {
+  pageInfo: PageInfo!
+  products: [Product!]!
+  totalCount: Int!
+}
+
+"Promotion represents a promotion for discounts on products."
+type Promotion {
+  "id is the identifier of the promotion."
+  id: ID!
+  "name is the promotion name."
+  name: String!
+  "promoCode is the code that can be used to get the promotion."
+  promoCode: String
+  "promoCodeID is the ID of the promotion code."
+  promoCodeID: String
+}
+
+"PromotionLineItem represents a promotion applied to a line item."
+type PromotionLineItem {
+  "amount is the value of the discount done for one product."
+  amount: Money!
+  "promotion is the promotion applied."
+  promotion: Promotion!
+}
+
+"PurchaseOrder represent a stock order"
+type PurchaseOrder {
+  "createdAt is when the order record was created in Vend"
+  createdAt: Timestamp!
+  "deletedAt is when the order record was deleted from Vend"
+  deletedAt: Timestamp
+  "When the products are due to arrive at the destination outlet"
+  dueAt: Timestamp
+  "UUID of purchase order"
+  id: ID!
+  "line items in the order"
+  lineItems(limit: Int, offset: Int): [PurchaseOrderLineItem!]
+  "Additional information about the purchase order"
+  notes: String!
+  "The unique purchase order number"
+  orderNumber: String
+  "The destination outlet to receive the products"
+  outlet: Outlet!
+  "When the products was received at the outlet"
+  receivedAt: Timestamp
+  "The state of the purchase order"
+  status: PurchaseOrderStatus!
+  "The supplier of the products in this order"
+  supplier: Supplier
+  "The purchase order invoice number"
+  supplierInvoice: String
+  "updatedAt is when the order record was updated in Vend"
+  updatedAt: Timestamp!
+}
+
+"PurchaseOrderLineItem represent the product information for an order, aka line item"
+type PurchaseOrderLineItem {
+  "Composite components for the product being ordered"
+  compositeComponents: [CompositeLineItem!]
+  "createdAt is when the order product record was created in Vend"
+  createdAt: Timestamp!
+  "deletedAt is when the order product record was deleted from Vend"
+  deletedAt: Timestamp
+  "The unique id of the line in the order"
+  id: ID!
+  "The product item in order"
+  product: Product!
+  "The quantity of the product ordered"
+  quantity: Decimal!
+  "The received quantity of the product ordered"
+  received: Decimal
+  "The state of the product in the order"
+  status: PurchaseOrderLineItemStatus!
+  "The supply price of one unit"
+  supplyPrice: Money!
+  "updatedAt is when the order product record was updated in Vend"
+  updatedAt: Timestamp!
+}
+
+type PurchaseOrderLineItemRemoveResponse {
+  productID: ID!
+  purchaseOrderID: ID!
+}
+
+type QBO {
+  "accounts returns the accounts from QBO."
+  accounts(accountType: String!): [QBOAccount!]!
+  """
+
+  companyInfo returns the company info from QBO.
+  It returns null if they're not connected.
+  """
+  companyInfo: QBOCompanyInfo!
+  "items returns the QBO items from QBO."
+  items: [QBOItem!]!
+  "paymentMethods returns the QBO payment methods from QBO."
+  paymentMethods: [QBOPaymentMethod!]!
+  "settings returns the retailer's QBO integration settings."
+  settings: QBOSettingsBody!
+  "taxCodes returns the QBO tax codes from QBO."
+  taxCodes: [QBOTaxCode!]!
+}
+
+type QBOAccount {
+  "accountType is the QBO account's type."
+  accountType: String!
+  "classification is the QBO account's classification."
+  classification: String!
+  "id is the QBO account's id"
+  id: String!
+  "name is the QBO account's name."
+  name: String!
+}
+
+type QBOCompanyInfo {
+  "country is the QBO company's operating country."
+  country: String!
+  "id is the QBO company's ID."
+  id: String!
+  "name is the QBO company's name"
+  name: String!
+}
+
+type QBOItem {
+  "description is the QBO item's description."
+  description: String!
+  "id is the QBO item's ID."
+  id: String!
+  "name is the QBO item's name."
+  name: String!
+  "type is the QBO item's type."
+  type: String!
+}
+
+type QBOMappings {
+  paymentTypes: [QBOPaymentTypeMapping!]!
+  productTypes: [QBOProductTypeMapping!]!
+  taxes: [QBOTaxMapping!]!
+}
+
+type QBOPaymentMethod {
+  "id is the QBO payment method's ID."
+  id: String!
+  "name is the QBO payment method's name."
+  name: String!
+  "type is the QBO payment method's type."
+  type: String!
+}
+
+type QBOPaymentTypeMapping {
+  qboBankAccountID: String!
+  qboPaymentMethodID: String!
+  vendRetailerPaymentTypeID: ID!
+}
+
+type QBOProductTypeMapping {
+  qboItemID: String!
+  vendProductTypeID: ID!
+}
+
+type QBOSettings {
+  "cashDiscrepancyItem is the ID of the QBO item to be used for cash discrepancies."
+  cashDiscrepancyItem: String!
+  """
+
+  cogsAccount is the ID of the QBO account associated with COGS.
+  It should be non-null if cogsEnabled is true.
+  """
+  cogsAccount: String
+  "cogsEnabled indicates the COGS should be accounted for in QBO."
+  cogsEnabled: Boolean!
+  "defaultItem is the ID of the QBO item that'll be used as a default."
+  defaultItem: String!
+  "inventoryAccount is the ID of the QBO account associated with Inventory."
+  inventoryAccount: String!
+}
+
+type QBOSettingsBody {
+  mappings: QBOMappings!
+  settings: QBOSettings!
+}
+
+type QBOTaxCode {
+  "description is the QBO tax code's description."
+  description: String!
+  "id is the QBO tax code's ID."
+  id: String!
+  "name is the QBO tax code's name."
+  name: String!
+}
+
+type QBOTaxMapping {
+  qboTaxID: String!
+  vendTaxGroupID: ID!
+}
+
+type Query {
+  "autofillInventory retrieves the autofill information for an outlet by outletID."
+  autofillInventory(options: AutofillOptions, outletID: ID!): AutofillInventoryConnection
+  availablePaymentTypes: [AvailablePaymentType!]!
+  """
+
+  brand returns a brand by id.
+  It returns null if a brand with the given id cannot be found.
+  """
+  brand(id: ID!): Brand
+  "brands returns a list of brands."
+  brands(after: String, first: Int, includeDeleted: Boolean! = false): BrandsConnection
+  "channels provides the channels for a retailer."
+  channels: [Channel!]!
+  customFields(entity: CustomFieldEntity!, onlyVisibleInUI: Boolean! = false): [CustomField!]!
+  """
+
+  customer returns a customer group by id.
+  It returns null if a customer with the given id cannot be found.
+  """
+  customer(id: ID!): Customer
+  """
+
+  customerGroup returns a customer group by id.
+  It returns null if a customer group with the given id cannot be found.
+  """
+  customerGroup(id: ID!): CustomerGroup
+  "customerGroups returns a list of customer groups."
+  customerGroups(after: String, first: Int, includeDeleted: Boolean! = false): CustomerGroupsConnection
+  "customer returns a list of customers."
+  customers(after: String, filter: CustomerFilter, first: Int, orderBy: CustomerOrder! = {direction : ASC, field : DEFAULT}): CustomersConnection
+  "enabledIntegrations returns the enabled integrations for the current retailer."
+  enabledIntegrations: [EnabledIntegration!]
+  "features provides access to feature flags."
+  features: Features!
+  """
+
+  giftCardByCode returns a gift card by code.
+  It returns null if a gift card with the given code cannot be found.
+  """
+  giftCardByCode(channelID: ID!, code: String!): GiftCard
+  """
+
+  giftCardByTransactionId returns a gift card by transaction id.
+  It returns null if a gift card with the given transaction id cannot be found.
+  """
+  giftCardByTransactionId(channelID: ID!, transactionID: ID!): GiftCard
+  "inventoryLevels provides the inventory levels for a retailer."
+  inventoryLevels(after: String, first: Int, options: InventoryLevelsOptions): InventoryLevelsConnection
+  "nav provides items for the navigation menu."
+  nav: Nav!
+  "notifications provides a list of unread notifications."
+  notifications: Notifications!
+  "tasks returns a list of tasks for specific retailer."
+  onboardingTasks: [OnboardingTask!]
+  """
+
+  outlet returns a outlet by id.
+  It returns null if a outlet with the given id cannot be found.
+  """
+  outlet(id: ID!): Outlet
+  "outletInboundInventory returns inbound inventory for a specific product"
+  outletInboundInventory(options: InboundInventoryOptions, productID: ID!): [OutletInboundInventory!]
+  """
+
+  outlets returns a list of outlets.
+  includeDeleted, include outlets that has been soft deleted
+  userAccessibleOnly, includes only outlets user has access to
+  """
+  outlets(after: String, first: Int, includeDeleted: Boolean! = false, userAccessibleOnly: Boolean = false): OutletsConnection
+  """
+
+  payment type returns a payment type by id.
+  It returns null if a payment type with the given id cannot be found.
+  """
+  paymentType(id: ID!): PaymentType
+  "payment types returns a list of paymentTypes."
+  paymentTypes(after: String, filter: PaymentTypeFilter! = {}, first: Int): PaymentTypesConnection
+  picklist(id: ID!): Picklist
+  picklists(direction: PicklistsOrderDirection, limit: Int, offset: Int, orderBy: String, outletID: ID, outletIDs: [ID!], pickable: Boolean, states: [PicklistState!], types: [PicklistType!]): [Picklist!]
+  "pollProductExport gets the progress information of the product export process."
+  pollProductExport(id: ID): ProductExport
+  """
+
+  product returns a product by id.
+  It returns null if a product with the given id cannot be found.
+  """
+  product(id: ID!): Product
+  "productChannels provides product channels integration data"
+  productChannels(filter: ProductChannelsFilter, productIDs: [String!]!): ProductChannelsConnection
+  """
+
+  productType returns a product type by id.
+  It returns null if a product type with the given id cannot be found.
+  """
+  productType(id: ID!): ProductType
+  "productTypes returns a list of productTypes."
+  productTypes(after: String, first: Int, includeDeleted: Boolean! = false): ProductTypesConnection
+  "product returns a list of products."
+  products(after: String, filter: ProductFilter, first: Int, orderBy: ProductOrder! = {direction : ASC, field : VERSION}): ProductsConnection
+  "productsSimple returns products with no filtering."
+  productsSimple(after: String, first: Int, includeDeleted: Boolean! = false): ProductsConnection
+  "purchaseOrder returns purchase order by ID"
+  purchaseOrder(id: ID!): PurchaseOrder
+  """
+
+  Returns information about the QuickBooks Online (QBO) integration
+  and the retailer's QBO account.
+  """
+  qbo: QBO
+  "receipts returns receipt information for the retailer"
+  receipts: [ReceiptTemplate!]
+  """
+
+  register returns a register by id.
+  It returns null if a register with the given id cannot be found.
+  """
+  register(id: ID!): Register
+  "registers returns a list of registers."
+  registers(after: String, first: Int, includeDeleted: Boolean! = false): RegistersConnection
+  "retailer returns the Retailer object for the current retailer."
+  retailer: Retailer!
+  """
+
+  sale returns a sale by id.
+  It returns null if a sale with the given id cannot be found.
+  """
+  sale(id: ID!): Sale
+  "sales returns a list of sales."
+  sales(after: String, filter: SaleFilter, first: Int, orderBy: SaleOrder! = {direction : ASC, field : VERSION}): SalesConnection
+  "skuImages returns images of the skus"
+  skuImages(parentId: ID!): [SKUImage]
+  """
+
+  supplier returns a supplier by id.
+  It returns null if a supplier with the given id cannot be found.
+  """
+  supplier(id: ID!): Supplier
+  "suppliers returns a list of suppliers."
+  suppliers(after: String, first: Int, includeDeleted: Boolean! = false): SuppliersConnection
+  """
+
+  tag returns a tag by id.
+  It returns null if a tag with the given id cannot be found.
+  """
+  tag(id: ID!): Tag
+  "tags returns a list of tags."
+  tags(after: String, first: Int, includeDeleted: Boolean! = false): TagsConnection
+  """
+
+  taxGroup returns a TaxGroup by its ID.
+  It returns null if no tax group with that ID is found.
+  """
+  taxGroup(id: ID!): TaxGroup
+  "taxGroups returns a list of TaxGroups."
+  taxGroups(after: String, first: Int, includeDeleted: Boolean! = false): TaxGroupsConnection
+  """
+
+  user returns a user by id.
+  If id is null, it returns the user making the query.
+  It returns null if a user with the given id cannot be found.
+  """
+  user(id: ID): User
+  "tags returns a list of tags."
+  users(after: String, first: Int, includeDeleted: Boolean! = false): UsersConnection
+}
+
+"ReceiptTemplate represents a receipt"
+type ReceiptTemplate {
+  "The id of the receipt"
+  id: ID!
+  "Whether the receipt is an A4 template"
+  isA4: Boolean!
+  "The name of the receipt"
+  name: String!
+}
+
+"""
+
+RedeemGiftCardResponse represents the response from redeemGiftCard.
+It's essentially a wrapper around the transaction id, but allows
+for future fields if required.
+"""
+type RedeemGiftCardResponse {
+  transactionID: ID!
+}
+
+type Register {
+  askForNoteOnSave: Boolean!
+  askForUserOnSale: Boolean!
+  closeTime: Timestamp
+  "deletedAt, if non-null, indicates the time at which this Register was deleted."
+  deletedAt: Timestamp
+  emailReceipt: Boolean!
+  "id is the Register's unique identifier."
+  id: ID!
+  invoicePrefix: String!
+  invoiceSequence: Int!
+  invoiceSuffix: String!
+  name: String!
+  openSequenceID: String
+  openTime: Timestamp
+  outlet: Outlet!
+  printNoteOnReceipt: Boolean!
+  printReceipt: Boolean!
+  receiptTemplate: ReceiptTemplate!
+  showDiscountsOnReceipts: Boolean!
+  "version is the version at which this Register was last modified."
+  version: Uint64!
+}
+
+type RegistersConnection {
+  pageInfo: PageInfo!
+  registers: [Register!]!
+  totalCount: Int!
+}
+
+type Retailer {
+  "accountStatus is the status of the retailer's account."
+  accountStatus: AccountStatus!
+  "country is the retailer's country."
+  country: String!
+  "culture is the retailer's culture e.g. en-NZ."
+  culture: String!
+  "currency is the currency of the retailer's store."
+  currency: Currency!
+  "domainPrefix is the retailer's domain prefix."
+  domainPrefix: String!
+  "id is the Retailer's unique identifier."
+  id: ID!
+  "isTaxExclusive determines whether or not the retailer is tax exclusive."
+  isTaxExclusive: Boolean!
+  "loyaltyEnabled determines whether or not the retailer has loyalty enabled."
+  loyaltyEnabled: Boolean!
+  "qboEnabled contains true if the retailer integrates with qbo."
+  qboEnabled: Boolean!
+  "storeCreditEnabled determines whether or not the retailer has store credit enabled."
+  storeCreditEnabled: Boolean!
+}
+
+type SKUImage {
+  "id: of the sku"
+  id: String!
+  "images: representing the sku"
+  images: [ImageSizes]!
+}
+
+type Sale {
+  accountsTransactionID: String
+  "adjustments is a list of the adjustments that apply to the sale."
+  adjustments: [Adjustment!]!
+  "balanceTaxExclusive is the difference between the total price tax exclusive and the payments sum."
+  balanceTaxExclusive: Money!
+  "balanceTaxInclusive is the difference between the total price tax inclusive and the payments sum."
+  balanceTaxInclusive: Money!
+  "cashDiscount is the total \"non cash fee\" negative adjustments for the sale."
+  cashDiscount: Money!
+  "changes is a list of the saleChange that made to the sale."
+  changes: [SaleChange!]!
+  channelSale: ChannelSale
+  customFields: [CustomFieldValue!]!
+  customer: Customer
+  "deletedAt, if non-null, indicates the time at which this Sale was deleted."
+  deletedAt: Timestamp
+  """
+
+  externalApplications is a list of third party application where a sale has been synced to (e.g QBO or Xero).
+  Each application in this list holds the reference of the invoice in that app.
+  """
+  externalApplications: [ExternalApplication!]!
+  "fulfillments is the list of fulfillments on this sale."
+  fulfillments: [Fulfillment!]
+  "id is the Sale's unique identifier."
+  id: ID!
+  invoiceNumber: String!
+  lineItems: [LineItem!]!
+  note: String
+  outlet: Outlet!
+  payments: [Payment!]!
+  picklists: [Picklist!]
+  "priceTotalTaxInclusive is sum of the total price and the total tax."
+  priceTotalTaxInclusive: Money!
+  register: Register!
+  returnFor: Sale
+  returns: [Sale!]!
+  saleDate: Timestamp!
+  "serviceFee is the total \"non cash fee\" positive adjustments for the sale."
+  serviceFee: Money!
+  shortCode: String!
+  source: String
+  sourceID: String
+  status: SaleStatus
+  """
+
+  taxComponents is a list of the different taxes that apply to the sale.
+  These are equivalent to adding up the tax components on the individual line items.
+  """
+  taxComponents: [TaxComponent!]!
+  "tipAmount is the total amount of tips for the sale."
+  tipAmount: Money!
+  totalLoyalty: Money
+  totalPrice: Money!
+  totalTax: Money!
+  updatedAt: Timestamp!
+  """
+
+  user is the Vend user who created the sale.
+  It should only be null for older sales that did not record the user who made them.
+  """
+  user: User
+  "version is the version at which this Sale was last modified."
+  version: Uint64!
+}
+
+type SaleChange {
+  action: Action!
+  createdAt: Timestamp!
+  id: ID!
+  newEntity: SaleChangeEntity
+  note: String
+  oldEntity: SaleChangeEntity
+  readableAction: String!
+  user: User!
+}
+
+"SaleUpdateErrorMsg is the error message per action."
+type SaleUpdateErrorMsg {
+  field: SaleUpdateErrorMsgField
+  message: String
+}
+
+"SaleUpdateResponse contains the response info of the mutation."
+type SaleUpdateResponse {
+  "errors that occurs per actions."
+  errors: [SaleUpdateErrorMsg]
+  "success indicates if the update was done successfully."
+  success: Boolean!
+}
+
+type SalesConnection {
+  pageInfo: PageInfo!
+  sales: [Sale!]!
+}
+
+type StoreCreditTransaction {
+  amount: Money!
+  createdAt: Timestamp!
+  id: ID!
+  notes: String
+  sale: Sale
+  type: StoreCreditTransactionType!
+  user: User!
+}
+
+type StringCustomFieldValue implements CustomFieldValue {
+  name: String!
+  stringValue: String!
+  title: String!
+}
+
+type Subscription {
+  picklistCreated: Picklist
+}
+
+type Supplier {
+  "deletedAt, if non-null, indicates the time at which this Supplier was deleted."
+  deletedAt: Timestamp
+  description: String
+  "id is the Supplier's unique identifier."
+  id: ID!
+  name: String!
+  source: String
+  "version is the version at which this Supplier was last modified."
+  version: Uint64!
+}
+
+type SuppliersConnection {
+  pageInfo: PageInfo!
+  suppliers: [Supplier!]!
+  totalCount: Int!
+}
+
+type Tag {
+  "deletedAt, if non-null, indicates the time at which this Tag was deleted."
+  deletedAt: Timestamp
+  "id is the Tag's unique identifier."
+  id: ID!
+  name: String!
+  "version is the version at which this Tag was last modified."
+  version: Uint64!
+}
+
+type TagsConnection {
+  pageInfo: PageInfo!
+  tags: [Tag!]!
+  totalCount: Int!
+}
+
+"""
+
+A TaxComponent represents an amount of money that is charged for a particular tax rate
+and contributes to the total of the sale or line item it is associated with.
+"""
+type TaxComponent {
+  "taxRate is the TaxRate associated with this tax component."
+  taxRate: TaxRate!
+  "totalTax is the amount of tax that this tax component contributed to the sale or line item total."
+  totalTax: Money!
+}
+
+"TaxGroup is a TaxGroup comprised of a one or more TaxRates."
+type TaxGroup {
+  "deletedAt, if non-null, is the time at which this TaxGroup was deleted."
+  deletedAt: Timestamp
+  "displayName is the TaxGroup's display name."
+  displayName: String!
+  "id is the TaxGroup's unique identifier."
+  id: ID!
+  "isDefault indicates whether this TaxGroup is the retailer's default TaxGroup."
+  isDefault: Boolean!
+  "name is the TaxGroup's name."
+  name: String!
+  "rates is the collection of TaxRates that make up this TaxGroup."
+  rates: [TaxRate!]!
+  "version is the version at which this TaxGroup was last modified."
+  version: Uint64!
+}
+
+type TaxGroupsConnection {
+  pageInfo: PageInfo!
+  taxGroups: [TaxGroup!]!
+}
+
+"""
+
+A TaxRate is an individual sales tax.
+There may be multiple TaxRates that affect the tax total of a sale or line item.
+"""
+type TaxRate {
+  "id is the TaxRate's unique identifier."
+  id: ID!
+  "name is the name of the TaxRate."
+  name: String!
+  "rate is the tax rate percentage. For example, 0.10 is a 10% tax."
+  rate: Decimal!
+}
+
+type User {
+  accountType: UserAccountType!
+  createdAt: Timestamp!
+  "deletedAt, if non-null, indicates the time at which this User was deleted."
+  deletedAt: Timestamp
+  displayName: String!
+  email: String
+  "id is the User's unique identifier."
+  id: ID!
+  imageSource: String
+  images: ImageSizes
+  isEnabled: Boolean!
+  isPrimary: Boolean!
+  restrictedOutlets: [Outlet!]!
+  seenAt: Timestamp
+  switchID: String!
+  updatedAt: Timestamp!
+  username: String!
+  "version is the version at which this User was last modified."
+  version: Uint64!
+}
+
+type UsersConnection {
+  pageInfo: PageInfo!
+  totalCount: Int!
+  users: [User!]!
+}
+
+enum AccountStatus {
+  ACTIVE
+  CANCELED
+  DEMO
+  EXPIRED
+  ON_ICE
+  PAST_DUE
+  TRIALING
+}
+
+enum Action {
+  CHANGE_PAYMENT
+  CLOSE_LAYBY
+  VOID_SALE
+}
+
+enum CustomFieldEntity {
+  CUSTOMER
+  LINE_ITEM
+  PRODUCT
+  SALE
+}
+
+enum CustomFieldType {
+  BOOLEAN
+  DATE
+  INTEGER
+  PRODUCT
+  STRING
+}
+
+"CustomerMarkForDeletionErrorType defines the type of error when marking a customer for deletion"
+enum CustomerMarkForDeletionErrorType {
+  IN_USE
+  NOT_FOUND
+  WALKIN
+}
+
+enum CustomerOrderField {
+  BALANCE
+  COMPANY_NAME
+  CUSTOMER_CODE
+  DEFAULT
+  EMAIL
+  FIRST_NAME
+  LAST_NAME
+}
+
+enum EditableFieldType {
+  DUE_AT
+  NOTES
+  ORDER_NUMBER
+  OUTLET_ID
+  SUPPLIER_ID
+  SUPPLIER_INVOICE
+}
+
+enum FulfillmentStatus {
+  "The fulfillment was shipped."
+  DISPATCHED
+  "The fulfillment was picked up."
+  PICKED_UP
+}
+
+enum FulfilmentType {
+  DISPATCH
+  PICK_UP
+}
+
+enum GiftCardStatus {
+  ACTIVE
+  EXPIRED
+  REDEEMED
+}
+
+"Possible directions in which to order a list of items when provided an orderBy argument."
+enum OrderDirection {
+  "Specifies an ascending order for a given orderBy argument."
+  ASC
+  "Specifies a descending order for a given orderBy argument."
+  DESC
+}
+
+enum PicklistState {
+  COMPLETE
+  IN_PROGRESS
+  NEW
+}
+
+enum PicklistType {
+  DISPATCH
+  PICK_UP
+}
+
+enum PicklistsOrderDirection {
+  ASC
+  DESC
+}
+
+enum ProductOrderField {
+  BRAND_NAME
+  CREATED_AT
+  HANDLE
+  NAME
+  PRICE_EXCLUDING_TAX
+  PRICE_INCLUDING_TAX
+  SKU
+  SUPPLIER_CODE
+  SUPPLIER_NAME
+  VERSION
+}
+
+enum ProductsCustomSearchMode {
+  RETURN_ROOT_ONLY
+}
+
+enum PurchaseOrderLineItemStatus {
+  PENDING
+  RECEIVE_FAIL
+  RECEIVE_SUCCESS
+  SENT_FAIL
+  SENT_SUCCESS
+}
+
+enum PurchaseOrderStatus {
+  CANCELLED
+  OPEN
+  RECEIVED
+  SENT
+}
+
+enum SaleOrderField {
+  SALE_DATE
+  VERSION
+}
+
+enum SaleStatus {
+  AWAITING_DISPATCH
+  AWAITING_PICKUP
+  CLOSED
+  DISPATCHED_CLOSED
+  LAYBY
+  LAYBY_CLOSED
+  ONACCOUNT
+  ONACCOUNT_CLOSED
+  PICKED_UP_CLOSED
+  SAVED
+  VOIDED
+}
+
+"SaleUpdateErrorMsgField defines the action type."
+enum SaleUpdateErrorMsgField {
+  CUSTOMER
+  DATE
+  NOTE
+}
+
+enum StoreCreditTransactionType {
+  HOLD
+  HOLD_REVERSE
+  IMPORT
+  ISSUE
+  REDEMPTION
+  REVERSE
+}
+
+enum UserAccountType {
+  ADMIN
+  CASHIER
+  MANAGER
+}
+
+input AutofillOptions {
+  "limit is the maximum number of results to return."
+  limit: Int
+  "supplierID is the supplier id to filter products."
+  supplierID: ID
+}
+
+input CustomFieldValueInput {
+  booleanValue: Boolean
+  integerValue: Int64
+  name: String!
+  stringValue: String
+}
+
+input CustomerCreateOrUpdateInput {
+  companyName: String
+  customField1: String
+  customField2: String
+  customField3: String
+  customField4: String
+  customerCode: String
+  customerGroupID: ID
+  dateOfBirth: String
+  doNotEmail: Boolean
+  email: String
+  enableLoyalty: Boolean
+  fax: String
+  firstName: String
+  gender: String
+  id: ID
+  lastName: String
+  mobile: String
+  note: String
+  phone: String
+  physicalAddress1: String
+  physicalAddress2: String
+  physicalCity: String
+  physicalCountryID: String
+  physicalPostcode: String
+  physicalState: String
+  physicalSuburb: String
+  postalAddress1: String
+  postalAddress2: String
+  postalCity: String
+  postalCountryID: String
+  postalPostcode: String
+  postalState: String
+  postalSuburb: String
+  twitter: String
+  website: String
+}
+
+"CustomerFilter applies filters to the product list to only allow certain products."
+input CustomerFilter {
+  "dateFrom, filter customers by with a \"created_at\" greater than or equal to the provided value"
+  dateFrom: DateTime
+  "dateTo, filter customers by with a \"created_at\" less than or equal to the provided value"
+  dateTo: DateTime
+  include: CustomerFilterFields
+  "includeDeleted, include customers that have deleted"
+  includeDeleted: Boolean
+}
+
+input CustomerFilterFields {
+  "city, filter customers by \"physical_city\" and \"postal_city fields\""
+  city: String
+  "country, filter customers by \"physical_country_id\" and \"postal_country_id fields\""
+  country: String
+  "groupID, filter customers by \"customer_group_id\""
+  groupID: String
+  "ids, filter customers by customer IDs"
+  ids: [String!]
+  "searchTerm, multi match query search against \"first_name\", \"last_name\", \"customer_code\", \"company_name\", \"mobile\", \"phone\" and \"email\""
+  searchTerm: String
+}
+
+"CustomerOrder specifies the ordering of the returned customers."
+input CustomerOrder {
+  direction: OrderDirection!
+  field: CustomerOrderField!
+}
+
+input InboundInventoryOptions {
+  "outletID is the outlet id to filter inbound inventory."
+  outletID: ID
+}
+
+"InventoryLevelsOptions determines which data is queried when fetching inventory levels."
+input InventoryLevelsOptions {
+  "groupVariants, group variant products"
+  groupVariants: Boolean
+  "includeComposites, include composite products"
+  includeComposites: Boolean
+  "includeInactive, include inactive products"
+  includeInactive: Boolean
+  "locationIDs, ids of locations (outlets) to fetch inventory levels"
+  locationIDs: [String!]
+  "productIDs, ids of products to fetch inventory levels"
+  productIDs: [String!]
+}
+
+input PaymentTypeCreateInput {
+  "name: what the new retailer payment type should be called"
+  name: String
+  "paymentTypeID: The id of the available payment type"
+  paymentTypeID: Int
+}
+
+input PaymentTypeFilter {
+  includeDeleted: Boolean! = false
+  "includeInternal specifies whether to include internal payment types, such as loyalty and store credit, in the list."
+  includeInternal: Boolean! = false
+}
+
+"ProductActionInput contains the action(s) to perform on product(s)."
+input ProductActionInput {
+  "familyActiveSet updates the active state of a simple product or a family of product variants (represented by the variant parent product)."
+  familyActiveSet: ProductFamilyActiveSetAction
+  "familyPublishedOnChannelsSet updates the published status of a simple product or a family of product variants (represented by the variant parent product) for the specified Ecommerce Channel(s)."
+  familyPublishedOnChannelsSet: ProductFamilyPublishedOnChannelsSetAction
+}
+
+input ProductChannelsFilter {
+  "channelIDs, a set of channel ids to fileter the products channels data"
+  channelIDs: [String!]
+}
+
+"ProductFamilyActiveSetAction updates the active state of a simple product or a family of product variants (represented by the variant parent product)."
+input ProductFamilyActiveSetAction {
+  "isActive whether to set the product family as active or inactive"
+  isActive: Boolean!
+}
+
+"ProductFamilyPublishedOnChannelsSetAction updates the published status of a simple product or a family of product variants (represented by the variant parent product) for the specified Ecommerce Channel(s)."
+input ProductFamilyPublishedOnChannelsSetAction {
+  "channelIDs the IDs of the Channels to publish/unpublish the specified product(s) on"
+  channelIDs: [ID!]!
+  "isPublished whether to set the product family as published or unpublished on the specified Channel(s)"
+  isPublished: Boolean!
+}
+
+"ProductFilter applies filters to the product list to only allow certain products."
+input ProductFilter {
+  "active, filters products based on their active status"
+  active: Boolean
+  "customMode: specify custom search behaviour"
+  customMode: ProductsCustomSearchMode
+  "exclude products that match or are part of one of the ProductFilterFields"
+  exclude: ProductFilterFields
+  "excludeChildren, filter products if product is a variant child"
+  excludeChildren: Boolean
+  "include, return products that match or are part of one of the ProductFilterFields"
+  include: ProductFilterFields
+  "includeDeleted, include products that has been soft deleted"
+  includeDeleted: Boolean
+  "includeGiftCard, include gift card products"
+  includeGiftCard: Boolean
+  "name, filter products based on the name"
+  name: String
+  "searchTerm, multi match query search against \"name\", \"sku\", \"handle\" or \"supplier_code\" fields"
+  searchTerm: String
+}
+
+input ProductFilterFields {
+  "brandIDs, filter products based on the `brand_id` attribute that matches one or more of the provided brandIDs"
+  brandIDs: [String!]
+  "ids, filter based on product ids"
+  ids: [String!]
+  "productTypeIDs, filter products based on the `product_type_id` attribute that matches one or more of the provided productTypeIDs"
+  productTypeIDs: [String!]
+  "skus, filter products based on the `sku` attribute that matches one or more of the provided skus"
+  skus: [String!]
+  "supplierIDs, filter products based on the `supplier_id` attribute that matches one or more of the provided supplierIDs"
+  supplierIDs: [String!]
+  "tagIDs, filter products based on the `tags` attribute that matches one or more of the provided tagIDs"
+  tagIDs: [String!]
+  "variantParentIDs, filter products based on the `variant_parent_id` attribute that matches one or more of the provided variantParentIDs"
+  variantParentIDs: [String!]
+}
+
+"ProductOrder specifies the ordering of the returned products."
+input ProductOrder {
+  direction: OrderDirection!
+  field: ProductOrderField!
+}
+
+input PurchaseOrderCompositeAddInput {
+  "The product item for the composite component"
+  productID: ID!
+  "The supply price for the composite component"
+  supplyPrice: Decimal!
+}
+
+input PurchaseOrderCreateInput {
+  "When the products are due to arrive at the destination outlet"
+  dueAt: Timestamp
+  "order product items"
+  lineItems: [PurchaseOrderLineItemAddInput!]
+  "Additional information about the purchase order"
+  notes: String
+  "The unique purchase order number"
+  orderNumber: String
+  "The destination outlet to receive the products"
+  outletID: ID!
+  "The supplier of the products in this order"
+  supplierID: ID
+  "The purchase order invoice number"
+  supplierInvoice: String
+}
+
+input PurchaseOrderLineItemAddInput {
+  "Composite components for the product"
+  compositeComponents: [PurchaseOrderCompositeAddInput!]
+  "The product item in order"
+  productID: ID!
+  "The quantity of the product ordered"
+  quantity: Decimal!
+  "The supply price of one unit"
+  supplyPrice: Decimal!
+}
+
+input PurchaseOrderLineItemDeleteInput {
+  "The unique id of the line in the order"
+  id: ID!
+}
+
+input PurchaseOrderLineItemUpdateInput {
+  "Composite components for the product"
+  compositeComponents: [PurchaseOrderCompositeAddInput!]
+  "The unique id of the line in the order"
+  id: ID!
+  "The quantity of the product ordered"
+  quantity: Decimal
+  "The supply price of one unit"
+  supplyPrice: Decimal
+}
+
+input PurchaseOrderPatchInput {
+  "When the products are due to arrive at the destination outlet"
+  dueAt: Timestamp
+  "Fields to patch, lists fields that require change"
+  fields: [EditableFieldType!]
+  "Products to add to the order"
+  lineItemCreate: [PurchaseOrderLineItemAddInput!]
+  "Products to remove from the order"
+  lineItemDelete: [PurchaseOrderLineItemDeleteInput!]
+  "Products to update on the order"
+  lineItemUpdate: [PurchaseOrderLineItemUpdateInput!]
+  "Additional information about the purchase order"
+  notes: String
+  "The unique purchase order number"
+  orderNumber: String
+  "The destination outlet to receive the products"
+  outletID: ID
+  "The supplier of the products in this order"
+  supplierID: ID
+  "The purchase order invoice number"
+  supplierInvoice: String
+}
+
+input QBOMappingsInput {
+  paymentTypes: [QBOPaymentTypeMappingInput!]!
+  productTypes: [QBOProductTypeMappingInput!]!
+  taxes: [QBOTaxMappingInput!]!
+}
+
+input QBOPaymentTypeMappingInput {
+  qboBankAccountID: String!
+  qboPaymentMethodID: String!
+  vendRetailerPaymentTypeID: ID!
+}
+
+input QBOProductTypeMappingInput {
+  qboItemID: String!
+  vendProductTypeID: ID!
+}
+
+input QBOSettingsBodyInput {
+  mappings: QBOMappingsInput!
+  settings: QBOSettingsInput!
+}
+
+input QBOSettingsInput {
+  "cashDiscrepancyItem is the ID of the QBO item to be used for cash discrepancies."
+  cashDiscrepancyItem: String!
+  """
+
+  cogsAccount is the ID of the QBO account associated with COGS.
+  It should be non-null if cogsEnabled is true.
+  """
+  cogsAccount: String
+  "cogsEnabled indicates the COGS should be accounted for in QBO."
+  cogsEnabled: Boolean!
+  "defaultItem is the ID of the QBO item that'll be used as a default."
+  defaultItem: String!
+  "inventoryAccount is the ID of the QBO account associated with Inventory."
+  inventoryAccount: String!
+}
+
+input QBOTaxMappingInput {
+  qboTaxID: String!
+  vendTaxGroupID: ID!
+}
+
+"SaleFilter applies filters to the sale list to only allow certain sales."
+input SaleFilter {
+  include: SaleFilterFields
+  """
+
+  saleDateFrom is the beginning range of sales to specify.
+  If unspecified, it defaults to the beginning of time.
+  """
+  saleDateFrom: DateTime
+  """
+
+  saleDateTo is the end range of sales to specify.
+  If unspecified, it defaults to the current time.
+  """
+  saleDateTo: DateTime
+}
+
+input SaleFilterFields {
+  customerID: ID
+  ids: [String!]
+  outletID: ID
+  promoCodeID: ID
+  receiptNumber: String
+  statuses: [SaleStatus!]
+  """
+
+  textContent is used to filter by multiple text-based fields,
+  e.g. invoiceNumber, sale note and line item notes.
+  """
+  textContent: String
+  userID: ID
+}
+
+"SaleOrder specifies the ordering of the returned sales."
+input SaleOrder {
+  direction: OrderDirection!
+  field: SaleOrderField!
+}
+
+"SaleUpdateActionInput performs update actions on the given sale id."
+input SaleUpdateActionInput {
+  "saleID is the sale to update."
+  saleID: ID!
+  "saleUpdateCustomer: if given, contains the fields to update the customer."
+  saleUpdateCustomer: SaleUpdateCustomer
+  "saleUpdateDate: if given, contains the fields to update the date."
+  saleUpdateDate: SaleUpdateDate
+  "saleUpdateNote: if given, contains the fields to update the note."
+  saleUpdateNote: SaleUpdateNote
+}
+
+"SaleUpdateCustomer contains the fields to update the sale customer."
+input SaleUpdateCustomer {
+  """
+
+  customerID is the new customer of the sale.
+  Use `null' to remove the customer from the sale.
+  """
+  customerID: ID
+}
+
+"SaleUpdateDate contains the fields to update the sale date."
+input SaleUpdateDate {
+  "date is the new date of the sale."
+  date: Timestamp!
+}
+
+"SaleUpdateNote contains the field to update the sale note."
+input SaleUpdateNote {
+  "note is the new note of the sale"
+  note: String!
+}
+
+input UpdatePicklistInput {
+  id: ID!
+  lineItems: [UpdatePicklistLineItemInput!]!
+  note: String
+  state: PicklistState!
+  userID: ID
+}
+
+input UpdatePicklistLineItemInput {
+  id: ID!
+  note: String
+  pickedQuantity: Decimal
+}
+
+
+"""
+Date is a date.
+It is serialized as a String in RFC3339 date format.
+"""
+scalar Date
+
+"""
+Int64 is a 64-bit, signed integer.
+GraphQL Int is 32-bit, so isn't suitable for some cases.
+"""
+scalar Int64
+
+"""
+Decimal is a number where precision is important, such as a monetary
+amount.
+It is serialized as a String and should not be stored as a float in
+memory for precision reasons.
+"""
+scalar Decimal
+
+"DateTime is an ISO-8601 encoded UTC date string."
+scalar DateTime
+
+"""
+Timestamp is a date and time.
+It is serialized as a String in RFC3339 date and time format.
+"""
+scalar Timestamp
+
+"""
+Uint64 is a 64-bit, unsigned integer.
+GraphQL Int is signed and 32-bit, so isn't suitable for some cases.
+"""
+scalar Uint64
