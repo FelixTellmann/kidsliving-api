@@ -7,6 +7,7 @@ import { fetchShopifyFulfillmentOrdersById } from "../../../entities/order/shopi
 import { OrderWebhookRequestBody } from "../../../entities/order/shopifyOrderCreateWebhook";
 import { fetchVendOrderById } from "../../../entities/order/vendFetchOrder";
 import { postNewVendOrder } from "../../../entities/order/vendPostOrder";
+import { postNewVendOrderReturnConfig } from "../../../entities/order/vendPostOrderReturnConfig";
 import { fetchVendSaleByInvoiceId } from "../../../entities/search/vendFetchSearchSale";
 
 const {
@@ -107,6 +108,12 @@ export const ProductUpdateShopifyCounter = async (req: NextApiRequest, res: Next
     shopifyFulfillmentPromise.value,
     order);
 
+  const config = postNewVendOrderReturnConfig(body,
+    lineItemPromise.value,
+    vendShippingItemPromise.value,
+    customer,
+    shopifyFulfillmentPromise.value,
+    order);
   console.log(orderResult?.data);
 
   await db.collection("testing")
@@ -116,6 +123,7 @@ export const ProductUpdateShopifyCounter = async (req: NextApiRequest, res: Next
       body: JSON.stringify(body),
       body2: JSON.stringify(shopifyFulfillmentPromise.value.data.fulfillment_orders),
       body3: JSON.stringify(orderResult?.data),
+      orderConfig: JSON.stringify(config),
     });
 
   res.status(200).json({ name: "John Doe" });
