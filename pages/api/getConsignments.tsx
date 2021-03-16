@@ -3,10 +3,10 @@ import { NextApiRequest, NextApiResponse } from "next";
 
 type ConsignmentProductsData = {
   [key: string]: {
-    name: string[]
-    count: number
-    consignment_id: string[]
-  }
+    name: string[];
+    count: number;
+    consignment_id: string[];
+  };
 };
 
 export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> => {
@@ -33,7 +33,9 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
 
       const response = await axios({
         method: "get",
-        url: `https://kidsliving.vendhq.com/api/consignment?since=${fiveMonthAgo}${page ? `&page=${page}` : ""}&page_size=200`,
+        url: `https://kidsliving.vendhq.com/api/consignment?since=${fiveMonthAgo}${
+          page ? `&page=${page}` : ""
+        }&page_size=200`,
         headers: {
           Accept: "application/json",
           Authorization: "Bearer 5OtjwgBqfHJZh1Ed36qBb_JUDDKnjwlAJ7l8fBmg",
@@ -57,11 +59,9 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
           acc = [...acc, ...value.data];
           return acc;
         }, []);
-
       }
 
       return [...consignments, ...additional_consignments];
-
     } catch (err) {
       console.log(err);
     }
@@ -78,7 +78,6 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
     const promises = consignments.map(({ id, name }) => getConsignmentProducts(id, name));
     consignment_products = await Promise.all(promises);
     consignment_products = consignment_products.reduce((acc: ConsignmentProductsData, value) => {
-
       value?.data?.forEach(({ id, count, name, consignment_id }) => {
         if (id in acc) {
           acc[id].count = +acc[id].count + +count;

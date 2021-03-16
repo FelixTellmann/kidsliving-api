@@ -7,23 +7,22 @@ import { vendFetchProducts } from "./vendFetchProducts";
 const { VEND_CPT_OUTLET_ID, VEND_JHB_OUTLET_ID, SHOPIFY_CPT_OUTLET_ID, SHOPIFY_JHB_OUTLET_ID } = process.env;
 
 export interface IProduct {
-  product_id: number
-  name?: string
-  description: string
-  type?: string
-  tags: string | null
-  has_variants: boolean
-  variants: IVariant[]
-  s_featured_image_gql_id?: number
-  s_status?: "active" | "draft" | "archived"
-  vend_parent_id?: string
-  v_all_active?: boolean /**/
-  v_all_inactive?: boolean /**/
-  v_all_published?: boolean /**/
-  v_all_unpublished?: boolean /**/
-  v_all_has_sell_jhb_tag?: boolean
-  v_all_needs_variant_image_tag?:boolean
-
+  product_id: number;
+  name?: string;
+  description: string;
+  type?: string;
+  tags: string | null;
+  has_variants: boolean;
+  variants: IVariant[];
+  s_featured_image_gql_id?: number;
+  s_status?: "active" | "draft" | "archived";
+  vend_parent_id?: string;
+  v_all_active?: boolean /**/;
+  v_all_inactive?: boolean /**/;
+  v_all_published?: boolean /**/;
+  v_all_unpublished?: boolean /**/;
+  v_all_has_sell_jhb_tag?: boolean;
+  v_all_needs_variant_image_tag?: boolean;
 }
 
 type IMakeProduct = (products: vendFetchProducts | shopifyFetchProducts | IProduct) => Readonly<IProduct>;

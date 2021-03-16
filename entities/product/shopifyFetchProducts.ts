@@ -4,65 +4,65 @@ export type shopifyFetchProducts = {
   data: {
     data?: {
       product: {
-        id: string,
-        status: "ACTIVE" | "ARCHIVED" | "DRAFT",
-        productType: string,
-        descriptionHtml: string,
-        tags: string[],
-        featuredImage: { id: string } | null,
-        metafield: { id: string, key: string, value: string } | null
+        id: string;
+        status: "ACTIVE" | "ARCHIVED" | "DRAFT";
+        productType: string;
+        descriptionHtml: string;
+        tags: string[];
+        featuredImage: { id: string } | null;
+        metafield: { id: string; key: string; value: string } | null;
         variants: {
           edges: {
             node: {
-              id: string,
-              image: { id: string } | null,
-              inventoryQuantity: number,
-              price: string,
-              sku: string,
-              selectedOptions: { value: string }[]
-              metafield: { id: string, key: string, value: string } | null
+              id: string;
+              image: { id: string } | null;
+              inventoryQuantity: number;
+              price: string;
+              sku: string;
+              selectedOptions: { value: string }[];
+              metafield: { id: string; key: string; value: string } | null;
               inventoryItem: {
-                id: string,
+                id: string;
                 inventoryLevels: {
                   edges: {
                     node: {
-                      id: string,
-                      available: number,
-                      location: { id: string }
-                    }
-                  }[]
-                }
-              }
-            }
-          }[]
-        }
-      } | null
-    }
+                      id: string;
+                      available: number;
+                      location: { id: string };
+                    };
+                  }[];
+                };
+              };
+            };
+          }[];
+        };
+      } | null;
+    };
     extensions?: {
       cost: {
-        requestedQueryCost: number,
-        actualQueryCost: number,
+        requestedQueryCost: number;
+        actualQueryCost: number;
         throttleStatus: {
-          maximumAvailable: number,
-          currentlyAvailable: number,
-          restoreRate: number
-        }
-      }
-    }
+          maximumAvailable: number;
+          currentlyAvailable: number;
+          restoreRate: number;
+        };
+      };
+    };
     errors?: {
-      message: string,
-      locations: { line: number, column: number }[],
-      path: string[],
+      message: string;
+      locations: { line: number; column: number }[];
+      path: string[];
       extensions: {
-        [key: string]: string
-      }
-    }[]
-  }
+        [key: string]: string;
+      };
+    }[];
+  };
 };
 
 type IFetchShopifyProductByProductId = (product_id: string | number) => Promise<shopifyFetchProducts>;
 
-export const fetchShopifyProductByProductId: IFetchShopifyProductByProductId = (product_id) => {
+export const fetchShopifyProductByProductId: IFetchShopifyProductByProductId = product_id => {
   return fetchShopifyGQL(`query {
   product(id: "gid://shopify/Product/${product_id}") {
     id

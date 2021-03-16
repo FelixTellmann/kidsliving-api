@@ -3,51 +3,51 @@ import { OrderWebhookRequestBody } from "../order/shopifyOrderCreateWebhook";
 import { Customer } from "./vendFetchCustomer";
 
 interface IPostCustomer {
-  first_name: string,
-  last_name: string,
-  customer_code?: string,
-  customer_group_id?: string,
-  enable_loyalty?: boolean,
-  email: string,
-  note?: string,
-  gender?: string,
-  date_of_birth?: string,
-  company_name?: string,
-  do_not_email?: boolean,
-  phone?: string,
-  mobile?: string,
-  fax?: string,
-  twitter?: string,
-  website?: string,
-  physical_address1?: string,
-  physical_address2?: string,
-  physical_suburb?: string,
-  physical_city?: string,
-  physical_postcode?: string,
-  physical_state?: string,
-  physical_country_id?: string,
-  postal_address1?: string,
-  postal_address2?: string,
-  postal_suburb?: string,
-  postal_city?: string,
-  postal_postcode?: string,
-  postal_state?: string,
-  postal_country_id?: string,
-  custom_field_1?: string,
-  custom_field_2?: string,
-  custom_field_3?: string,
-  custom_field_4?: string
+  first_name: string;
+  last_name: string;
+  customer_code?: string;
+  customer_group_id?: string;
+  enable_loyalty?: boolean;
+  email: string;
+  note?: string;
+  gender?: string;
+  date_of_birth?: string;
+  company_name?: string;
+  do_not_email?: boolean;
+  phone?: string;
+  mobile?: string;
+  fax?: string;
+  twitter?: string;
+  website?: string;
+  physical_address1?: string;
+  physical_address2?: string;
+  physical_suburb?: string;
+  physical_city?: string;
+  physical_postcode?: string;
+  physical_state?: string;
+  physical_country_id?: string;
+  postal_address1?: string;
+  postal_address2?: string;
+  postal_suburb?: string;
+  postal_city?: string;
+  postal_postcode?: string;
+  postal_state?: string;
+  postal_country_id?: string;
+  custom_field_1?: string;
+  custom_field_2?: string;
+  custom_field_3?: string;
+  custom_field_4?: string;
 }
 
 export type vendPostCustomer = {
   data: {
-    customer: Customer
-  }
+    customer: Customer;
+  };
 };
 
 type IPostNewVendCustomerWithBody = (body: OrderWebhookRequestBody) => Promise<vendPostCustomer>;
 
-export const postNewVendCustomer: IPostNewVendCustomerWithBody = (body) => {
+export const postNewVendCustomer: IPostNewVendCustomerWithBody = body => {
   const customerConfig: IPostCustomer = {
     first_name: body?.customer?.first_name ?? "",
     last_name: body?.customer?.last_name ?? "",

@@ -6,7 +6,10 @@ export const ProductUpdateShopifyCounter = async (req: NextApiRequest, res: Next
    * Validate incoming webhook - get handle && source_id   * */
   const { VEND_RETAILER_ID, SHOPIFY_DOMAIN } = process.env;
 
-  const { body: { payload, retailer_id, ...body }, headers } = req;
+  const {
+    body: { payload, retailer_id, ...body },
+    headers,
+  } = req;
   const vhook = retailer_id === VEND_RETAILER_ID;
   const shook = headers[`x-shopify-shop-domain`] === SHOPIFY_DOMAIN;
 
@@ -34,21 +37,26 @@ export const ProductUpdateShopifyCounter = async (req: NextApiRequest, res: Next
 
   try {
     const prevTimer = Date.now();
-    await new Promise((resolve) => setTimeout(resolve, delay));
+    await new Promise(resolve => setTimeout(resolve, delay));
     console.log(Date.now() - prevTimer);
     /* Rather Block return request - should be identical in anyways - so very limited requests will be used... */
-    await db.collection("product.update.shopify.count").doc("count").get().then((doc) => {
-      console.log(Date.now() - prevTimer);
-      if (doc.exists) { // 1 request per 10 seconds
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        db_data = doc.data();
-        const { updated_at } = db_data;
-        /* if (updated_at > Date.now() - 10 * 1000) {
+    await db
+      .collection("product.update.shopify.count")
+      .doc("count")
+      .get()
+      .then(doc => {
+        console.log(Date.now() - prevTimer);
+        if (doc.exists) {
+          // 1 request per 10 seconds
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          db_data = doc.data();
+          const { updated_at } = db_data;
+          /* if (updated_at > Date.now() - 10 * 1000) {
           duplicate = true;
         } */
-      }
-    });
+        }
+      });
 
     if (duplicate) {
       console.log(Date.now() - prevTimer);
@@ -60,7 +68,7 @@ export const ProductUpdateShopifyCounter = async (req: NextApiRequest, res: Next
     db_data = {
       updated_at: prevTimer,
       count: +db_data.count + 1,
-      duplicate_counts: { },
+      duplicate_counts: {},
       product_ids: {
         ...db_data.product_ids,
         [source_id]: db_data.product_ids[source_id] ? +db_data.product_ids[source_id] + 1 : 1,
@@ -76,7 +84,8 @@ export const ProductUpdateShopifyCounter = async (req: NextApiRequest, res: Next
       return acc;
     }, {});
 
-    await db.collection("product.update.shopify.count")
+    await db
+      .collection("product.update.shopify.count")
       .doc("count")
       .set({ ...db_data });
   } catch (err) {

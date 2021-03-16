@@ -26,7 +26,7 @@ export const ProductUpdateShopifyCounter = async (req: NextApiRequest, res: Next
   /** STEP 1
    * Validate incoming webhook - get handle && source_id   * */
 
-  const { body, headers }: { body: OrderWebhookRequestBody, headers: any } = req;
+  const { body, headers }: { body: OrderWebhookRequestBody; headers: any } = req;
   const shook = headers[`x-shopify-shop-domain`] === SHOPIFY_DOMAIN;
 
   if (!shook) {
@@ -44,22 +44,29 @@ export const ProductUpdateShopifyCounter = async (req: NextApiRequest, res: Next
 
   const duplicate = false;
 
-  const [shopifyFulfillmentPromise, customerPromise, vendSalePromise, vendShippingItemPromise, lineItemPromise] = await Promise.allSettled(
-    [
-      fetchShopifyFulfillmentOrdersById(body.id),
-      fetchVendCustomerByEmail(body.email),
-      fetchVendSaleByInvoiceId(body.order_number),
-      fetchVendProductByHandle(body.shipping_lines[0]?.code.replace(/\s/gi, "")
-        || "courier-door-to-door-delivery-economy"),
-      fetchVendAllProductsBySku(body),
-    ],
-  );
+  const [
+    shopifyFulfillmentPromise,
+    customerPromise,
+    vendSalePromise,
+    vendShippingItemPromise,
+    lineItemPromise,
+  ] = await Promise.allSettled([
+    fetchShopifyFulfillmentOrdersById(body.id),
+    fetchVendCustomerByEmail(body.email),
+    fetchVendSaleByInvoiceId(body.order_number),
+    fetchVendProductByHandle(
+      body.shipping_lines[0]?.code.replace(/\s/gi, "") || "courier-door-to-door-delivery-economy"
+    ),
+    fetchVendAllProductsBySku(body),
+  ]);
 
-  if (shopifyFulfillmentPromise.status === "rejected"
-    || customerPromise.status === "rejected"
-    || vendShippingItemPromise.status === "rejected"
-    || lineItemPromise.status === "rejected"
-    || vendSalePromise.status === "rejected") {
+  if (
+    shopifyFulfillmentPromise.status === "rejected" ||
+    customerPromise.status === "rejected" ||
+    vendShippingItemPromise.status === "rejected" ||
+    lineItemPromise.status === "rejected" ||
+    vendSalePromise.status === "rejected"
+  ) {
     console.log(shopifyFulfillmentPromise.status, "shopifyOrderDetails.status");
     console.log(customerPromise.status, "customer.status");
     console.log(lineItemPromise.status, "sales.status");
@@ -101,22 +108,27 @@ export const ProductUpdateShopifyCounter = async (req: NextApiRequest, res: Next
   }
   const customer = oldCustomer ?? newCustomer;
 
-  const orderResult = await postNewVendOrder(body,
+  const orderResult = await postNewVendOrder(
+    body,
     lineItemPromise.value,
     vendShippingItemPromise.value,
     customer,
     shopifyFulfillmentPromise.value,
-    order);
+    order
+  );
 
-  const config = postNewVendOrderReturnConfig(body,
+  const config = postNewVendOrderReturnConfig(
+    body,
     lineItemPromise.value,
     vendShippingItemPromise.value,
     customer,
     shopifyFulfillmentPromise.value,
-    order);
+    order
+  );
   console.log(orderResult?.data);
 
-  await db.collection("testing")
+  await db
+    .collection("testing")
     .doc()
     .set({
       created_at_ISO: new Date(Date.now()).toISOString().split(".")[0].split("T").join(" ").replace(/-/gi, "/"),

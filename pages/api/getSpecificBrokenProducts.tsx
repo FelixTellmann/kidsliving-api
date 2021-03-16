@@ -1,7 +1,7 @@
 import axios from "axios";
 import { NextApiRequest, NextApiResponse } from "next";
 
-type ProductData = unknown[]
+type ProductData = unknown[];
 
 const productIds = [
   "02dcd191-ae62-11e6-edd8-e17944c70e9b",
@@ -42,7 +42,7 @@ const {
   SHOPIFY_API_VERSION,
   VEND_RETAILER_ID,
   VEND_CPT_OUTLET_ID,
-  SHOPIFY_CPT_OUTLET_ID
+  SHOPIFY_CPT_OUTLET_ID,
 } = process.env;
 
 const getShopifyProductVariants = async (id: string): Promise<any> => {
@@ -51,40 +51,44 @@ const getShopifyProductVariants = async (id: string): Promise<any> => {
       method: "get",
       url: `https://${SHOPIFY_API_KEY}:${SHOPIFY_API_PASSWORD}@${SHOPIFY_API_STORE}.myshopify.com/admin/api/${SHOPIFY_API_VERSION}/products/${id}/variants.json?fields=id,sku,option1,option2,option3`,
       headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/json"
-      }
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
     });
-    
+
     return response.data.variants;
-    
   } catch ({ response }) {
     const { config } = response;
     return config;
   }
 };
 
-const addShopifyProductVariant = async (productId: string, price: number, option1: string, option2?: string, option3?: string): Promise<any> => {
+const addShopifyProductVariant = async (
+  productId: string,
+  price: number,
+  option1: string,
+  option2?: string,
+  option3?: string
+): Promise<any> => {
   try {
     const response = await axios({
       method: "POST",
       url: `https://${SHOPIFY_API_KEY}:${SHOPIFY_API_PASSWORD}@${SHOPIFY_API_STORE}.myshopify.com/admin/api/${SHOPIFY_API_VERSION}/products/${productId}/variants.json`,
       headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/json"
+        Accept: "application/json",
+        "Content-Type": "application/json",
       },
       data: JSON.stringify({
         variant: {
           price: price.toFixed(2),
           option1,
           option2,
-          option3
-        }
-      })
+          option3,
+        },
+      }),
     });
-    
+
     return response.data.variant;
-    
   } catch (err) {
     const { response } = err;
     const { config } = response;
@@ -93,26 +97,35 @@ const addShopifyProductVariant = async (productId: string, price: number, option
   }
 };
 
-const updateShopifyInventoryLevel = async (inventory_item_id: number, available_adjustment: number, location_id: number = +SHOPIFY_CPT_OUTLET_ID): Promise<any> => {
-  
-  console.log(inventory_item_id, typeof inventory_item_id, available_adjustment, typeof available_adjustment, location_id, typeof location_id);
+const updateShopifyInventoryLevel = async (
+  inventory_item_id: number,
+  available_adjustment: number,
+  location_id: number = +SHOPIFY_CPT_OUTLET_ID
+): Promise<any> => {
+  console.log(
+    inventory_item_id,
+    typeof inventory_item_id,
+    available_adjustment,
+    typeof available_adjustment,
+    location_id,
+    typeof location_id
+  );
   try {
     const response = await axios({
       method: "POST",
       url: `https://${SHOPIFY_API_KEY}:${SHOPIFY_API_PASSWORD}@${SHOPIFY_API_STORE}.myshopify.com/admin/api/${SHOPIFY_API_VERSION}/inventory_levels/adjust.json`,
       headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/json"
+        Accept: "application/json",
+        "Content-Type": "application/json",
       },
       data: JSON.stringify({
         inventory_item_id: +inventory_item_id,
         location_id: +location_id,
-        available_adjustment: +available_adjustment
-      })
+        available_adjustment: +available_adjustment,
+      }),
     });
-    
+
     return response.data.variant;
-    
   } catch (err) {
     const { response } = err;
     const { config } = response;
@@ -127,15 +140,14 @@ const getVendSingleProduct = async (id: string): Promise<any> => {
       method: "get",
       url: `https://kidsliving.vendhq.com/api/2.0/products/${id}`,
       headers: {
-        "Accept": "application/json",
-        "Authorization": `Bearer ${process.env.VEND_API}`,
+        Accept: "application/json",
+        Authorization: `Bearer ${process.env.VEND_API}`,
         "Content-Type": "application/json",
-        "Cookie": "rguserid=b2b95383-16dd-4132-a3d2-f53bdec946bb; rguuid=true; rgisanonymous=true"
-      }
+        Cookie: "rguserid=b2b95383-16dd-4132-a3d2-f53bdec946bb; rguuid=true; rgisanonymous=true",
+      },
     });
-    
+
     return response.data.data;
-    
   } catch ({ response }) {
     const { config } = response;
     return config;
@@ -148,19 +160,18 @@ const getVendSingleVariantInventory = async (variantId: string): Promise<any> =>
       method: "get",
       url: `https://kidsliving.vendhq.com/api/2.0/products/${variantId}/inventory`,
       headers: {
-        "Accept": "application/json",
-        "Authorization": `Bearer ${process.env.VEND_API}`,
+        Accept: "application/json",
+        Authorization: `Bearer ${process.env.VEND_API}`,
         "Content-Type": "application/json",
-        "Cookie": "rguserid=b2b95383-16dd-4132-a3d2-f53bdec946bb; rguuid=true; rgisanonymous=true"
-      }
+        Cookie: "rguserid=b2b95383-16dd-4132-a3d2-f53bdec946bb; rguuid=true; rgisanonymous=true",
+      },
     });
-    
+
     const inventory_level = response.data.data.reduce((acc, { outlet_id, inventory_level }) => {
       return acc + (outlet_id === VEND_CPT_OUTLET_ID ? +inventory_level : 0);
     }, 0);
-    
+
     return inventory_level;
-    
   } catch ({ response }) {
     const { config } = response;
     return config;
@@ -173,20 +184,19 @@ const updateVendVariantSourceId = async (id: string, source_variant_id): Promise
       method: "post",
       url: `https://kidsliving.vendhq.com/api/products`,
       headers: {
-        "Accept": "application/json",
-        "Authorization": `Bearer ${process.env.VEND_API}`,
+        Accept: "application/json",
+        Authorization: `Bearer ${process.env.VEND_API}`,
         "Content-Type": "application/json",
-        "Cookie": "rguserid=b2b95383-16dd-4132-a3d2-f53bdec946bb; rguuid=true; rgisanonymous=true"
+        Cookie: "rguserid=b2b95383-16dd-4132-a3d2-f53bdec946bb; rguuid=true; rgisanonymous=true",
       },
       data: JSON.stringify({
         id,
         source_variant_id,
-        "source": "SHOPIFY"
-      })
+        source: "SHOPIFY",
+      }),
     });
-    
+
     return response.data.data;
-    
   } catch ({ response }) {
     const { config } = response;
     return config;
@@ -195,27 +205,29 @@ const updateVendVariantSourceId = async (id: string, source_variant_id): Promise
 
 export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> => {
   const products: ProductData = [];
-  
+
   try {
-        
     let shopifyVariants = [];
-    
+
     for (let i = 0; i < productIds.length; i++) {
       // eslint-disable-next-line no-await-in-loop
       const vendProduct = await getVendSingleProduct(productIds[i]);
       const { source_id, source_variant_id, sku, variant_options, price_including_tax } = vendProduct;
-      
+
       if (shopifyVariants.length === 0) {
         shopifyVariants = await getShopifyProductVariants(source_id);
       }
-      
-      products.push({ shopify: shopifyVariants.filter((v) => v.sku === sku).length > 0 ? "onShopify" : "", ...vendProduct });
-      
+
+      products.push({
+        shopify: shopifyVariants.filter(v => v.sku === sku).length > 0 ? "onShopify" : "",
+        ...vendProduct,
+      });
+
       console.log(i);
     }
   } catch (err) {
-    console.log(err.response.data)
+    console.log(err.response.data);
   }
-  
+
   res.status(200).json(products);
-}
+};
