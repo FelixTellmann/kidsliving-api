@@ -10,31 +10,31 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
         method: "get",
         url: `${url}${version}`,
         headers: {
-          "Accept": "application/json",
-          "Authorization": `Bearer ${process.env.VEND_API}`,
+          Accept: "application/json",
+          Authorization: `Bearer ${process.env.VEND_API}`,
           "Content-Type": "application/json",
-          "Cookie": "rguserid=b2b95383-16dd-4132-a3d2-f53bdec946bb; rguuid=true; rgisanonymous=true"
-        }
+          Cookie: "rguserid=b2b95383-16dd-4132-a3d2-f53bdec946bb; rguuid=true; rgisanonymous=true",
+        },
       });
-      
+
       let { data } = response.data;
-      
+
       if (keys) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         data = data.map(x => {
           const returnObj = {};
-          keys.forEach((k) => {
+          keys.forEach(k => {
             returnObj[k] = x[k];
           });
           return { ...returnObj };
         });
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       }
-      
+
       if (version < response.data.version.max) {
-        data = [...data, ...await getData(url, String(+response.data.version.max + 1), keys)];
+        data = [...data, ...(await getData(url, String(+response.data.version.max + 1), keys))];
       }
-      
+
       // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       return data;
     } catch (err) {
@@ -42,13 +42,19 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
     }
     return [];
   };
-  
-  const sales = (await getData(`https://kidsliving.vendhq.com/api/2.0/sales?page_size=30000&after=`, "0", [
-    "id",
-    "status",
-    "updated_at"
-  ])).filter(({ updated_at }) => new Date(updated_at) > date);
-  
+
+  const sales = (
+    await getData(`https://kidsliving.vendhq.com/api/2.0/sales?page_size=30000&after=`, "0", [
+      "id",
+      "status",
+      "updated_at",
+    ])
+  ).filter(({ updated_at }) => new Date(updated_at) > date);
+
   console.log(sales.length);
-  res.status(200).send(/* JSON.stringify(data, null, 4) */[/* products.length, tags.length, */ /* consignments.length, */  sales.length]);
-}
+  res
+    .status(200)
+    .send(
+      /* JSON.stringify(data, null, 4) */ [/* products.length, tags.length, */ /* consignments.length, */ sales.length]
+    );
+};
