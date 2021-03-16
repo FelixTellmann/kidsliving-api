@@ -2,11 +2,7 @@ import axios, { AxiosPromise } from "axios";
 
 const { VEND_API, SHOPIFY_API_KEY, SHOPIFY_API_PASSWORD, SHOPIFY_API_STORE, SHOPIFY_API_VERSION } = process.env;
 
-type fetchProps = (
-  api: string,
-  method?: "GET" | "POST" | "PUT" | "DELETE",
-  body?: unknown | string
-) => AxiosPromise;
+type fetchProps = (api: string, method?: "GET" | "POST" | "PUT" | "DELETE", body?: unknown | string) => AxiosPromise;
 
 export const fetchVend: fetchProps = (api, method = "GET", body = {}) => {
   const config = {
@@ -16,7 +12,7 @@ export const fetchVend: fetchProps = (api, method = "GET", body = {}) => {
       Authorization: `Bearer ${VEND_API}`,
       "Content-Type": "application/json",
     },
-    data: method !== "GET" ? typeof body === "string" ? body : JSON.stringify(body) : undefined,
+    data: method !== "GET" ? (typeof body === "string" ? body : JSON.stringify(body)) : undefined,
   };
 
   return axios(config);
@@ -25,12 +21,15 @@ export const fetchVend: fetchProps = (api, method = "GET", body = {}) => {
 export const fetchShopify: fetchProps = (api, method = "GET", body = {}) => {
   const config = {
     method,
-    url: `https://${SHOPIFY_API_KEY}:${SHOPIFY_API_PASSWORD}@${SHOPIFY_API_STORE}.myshopify.com/admin/api/${SHOPIFY_API_VERSION}/${api.replace(/^\//, "")}`,
+    url: `https://${SHOPIFY_API_KEY}:${SHOPIFY_API_PASSWORD}@${SHOPIFY_API_STORE}.myshopify.com/admin/api/${SHOPIFY_API_VERSION}/${api.replace(
+      /^\//,
+      ""
+    )}`,
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
     },
-    data: method !== "GET" ? typeof body === "string" ? body : JSON.stringify(body) : undefined,
+    data: method !== "GET" ? (typeof body === "string" ? body : JSON.stringify(body)) : undefined,
   };
 
   return axios(config);
@@ -44,6 +43,20 @@ export const fetchShopifyGQL = (gql: string): AxiosPromise => {
       Accept: "application/graphql",
       "Content-Type": "application/graphql",
       "X-Shopify-Access-Token": SHOPIFY_API_PASSWORD,
+    },
+    data: gql,
+  });
+};
+
+export const fetchVendGQL = (gql: string): AxiosPromise => {
+  return axios({
+    method: "POST",
+    url: `https://kidsliving.vendhq.com/api/graphql`,
+    headers: {
+      Accept: "application/graphql",
+      "Content-Type": "application/graphql",
+      Authorization: `Bearer ${VEND_API}`,
+      Cookie: "rgisanonymous=true; rguserid=0d55f3e8-9baf-48ec-86ed-db6debd98841; rguuid=true",
     },
     data: gql,
   });

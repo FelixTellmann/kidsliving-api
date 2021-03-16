@@ -5,7 +5,7 @@ Accept: application/json
 
 {
   "retailer_id": "02dcd191-ae2b-11e6-f485-4cb686805cbf",
-  "payload": "{\"handle\":\"ldcotblanketpuresoft\",\"source_id\":null,\"source\":\"SHOPIFY\"}"
+  "payload": "{\"handle\":\"BabyMultiTowel\",\"source_id\":\"4549108727868\",\"source\":\"SHOPIFY\"}"
 }
 
 ###
