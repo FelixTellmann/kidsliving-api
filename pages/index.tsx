@@ -1,13 +1,9 @@
 import { FC } from "react";
 
-type IndexProps = {
+type IndexProps = {};
 
+export const Index: FC<IndexProps> = ({}) => {
+  return <>Hi</>;
 };
 
-export const Index: FC<IndexProps> = ({  }) => {
-  return <>
-    Hi
-  </>;
-};
-
-export default Index
+export default Index;

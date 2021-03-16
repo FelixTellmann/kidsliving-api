@@ -1,5 +1,5 @@
 # VEND
-POST http://localhost:3000/api/2021-02/fulfillment.update
+POST https://346b306335ab.ngrok.io/api/2021-02/fulfillment.update
 Content-Type: application/json
 Accept: application/json
 x-shopify-shop-domain: kids-living.myshopify.com
@@ -139,4 +139,19 @@ x-shopify-shop-domain: kids-living.myshopify.com
   "receipt": { },
   "name": "#12749.2",
   "admin_graphql_api_id": "gid://shopify/Fulfillment/3252561838255"
+}
+
+
+###
+POST /api/graphql HTTP/1.1
+Host: kidsliving.vendhq.com
+Authorization: Bearer 5OtjwgBqfHJZh1Ed36qBb_JUDDKnjwlAJ7l8fBmg
+Content-Type: application/json
+
+{
+  "operationName": "Sale",
+  "query": "query Sale($id: ID!) {\n      sale(id: $id) {\n        id\n        picklists {\n          id\n          outlet {\n            id\n            name\n          }\n          lineItems {\n            id\n            note\n            pickedQuantity\n            saleLineItem {\n              id\n              product {\n\n             id\n                sku\n                onlineStoreUrl\n              }\n            }\n          }\n        }\n        fulfillments {\n          id\n          status\n          outlet {\n            name\n          }\n\n          lineItems {\n            quantity\n            product {\n              id\n              sku\n              sourceID\n              sourceVariantID\n            }\n          }\n        }\n      }\n    }",
+  "variables": {
+    "id": "0a6f6e36-8b62-11eb-f3d6-824c43a79491"
+  }
 }

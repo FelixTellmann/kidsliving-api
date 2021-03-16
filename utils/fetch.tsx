@@ -48,16 +48,15 @@ export const fetchShopifyGQL = (gql: string): AxiosPromise => {
   });
 };
 
-export const fetchVendGQL = (gql: string): AxiosPromise => {
+export const fetchVendGQL = (gql: { operationName: string; query: string; variables: any }): AxiosPromise => {
   return axios({
     method: "POST",
     url: `https://kidsliving.vendhq.com/api/graphql`,
     headers: {
-      Accept: "application/graphql",
-      "Content-Type": "application/graphql",
+      Accept: "*/*",
+      "Content-Type": "application/JSON",
       Authorization: `Bearer ${VEND_API}`,
-      Cookie: "rgisanonymous=true; rguserid=0d55f3e8-9baf-48ec-86ed-db6debd98841; rguuid=true",
     },
-    data: gql,
+    data: JSON.stringify(gql),
   });
 };

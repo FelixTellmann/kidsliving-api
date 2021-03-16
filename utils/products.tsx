@@ -4,49 +4,49 @@ import { addTag, isSameDescription, isSameTags, mergeDescriptions, mergeTags, qu
 const { VEND_CPT_OUTLET_ID, VEND_JHB_OUTLET_ID, SHOPIFY_CPT_OUTLET_ID, SHOPIFY_JHB_OUTLET_ID } = process.env;
 
 export type productModel = {
-  [key: string]: any
-  vend_id?: string,
-  vend_unpublished?: boolean
-  product_id: number
-  variant_id: number
-  tags: string | null
-  has_variants?: boolean
-  name?: string
-  title?: string
-  description: string
-  price: string
-  sku: string
-  product_type?: string
-  option1?: string
-  option2?: string
-  option3?: string
-  inventory_item_id?: number
-  inventory_CPT?: number
-  inventory_CPT_level_id?: string
-  inventory_JHB?: number
-  inventory_JHB_level_id?: string
-  inventory_quantity?: number
-  inventory_policy?: "continue" | "deny",
-  image_id?: number | null,
-  featuredImage_id?: number | null,
-  featuredImage_id_gql?: string | null,
-  s_status?: "active" | "draft" | "archived"
-  v_all_inactive?: boolean
-  v_unpublished?: boolean
-  v_all_unpublished?: boolean
-  v_incorrectly_unpublished?: boolean
-  v_description?: string
-  v_inconsistent_description?: boolean
-  v_tags?: string
-  v_inconsistent_tags?: boolean
-  v_has_sell_jhb_tag?: boolean
-  v_has_needs_variant_image_tag?: boolean
-  v_single_product?: boolean
-  s_has_jhb_inventory?: boolean
-  s_product_metafield_published?: "published" | "unpublished" | null
-  s_product_metafield_id?: string
-  s_variant_metafield_active?: "true" | "false" | null
-  s_variant_metafield_id?: string
+  [key: string]: any;
+  vend_id?: string;
+  vend_unpublished?: boolean;
+  product_id: number;
+  variant_id: number;
+  tags: string | null;
+  has_variants?: boolean;
+  name?: string;
+  title?: string;
+  description: string;
+  price: string;
+  sku: string;
+  product_type?: string;
+  option1?: string;
+  option2?: string;
+  option3?: string;
+  inventory_item_id?: number;
+  inventory_CPT?: number;
+  inventory_CPT_level_id?: string;
+  inventory_JHB?: number;
+  inventory_JHB_level_id?: string;
+  inventory_quantity?: number;
+  inventory_policy?: "continue" | "deny";
+  image_id?: number | null;
+  featuredImage_id?: number | null;
+  featuredImage_id_gql?: string | null;
+  s_status?: "active" | "draft" | "archived";
+  v_all_inactive?: boolean;
+  v_unpublished?: boolean;
+  v_all_unpublished?: boolean;
+  v_incorrectly_unpublished?: boolean;
+  v_description?: string;
+  v_inconsistent_description?: boolean;
+  v_tags?: string;
+  v_inconsistent_tags?: boolean;
+  v_has_sell_jhb_tag?: boolean;
+  v_has_needs_variant_image_tag?: boolean;
+  v_single_product?: boolean;
+  s_has_jhb_inventory?: boolean;
+  s_product_metafield_published?: "published" | "unpublished" | null;
+  s_product_metafield_id?: string;
+  s_variant_metafield_active?: "true" | "false" | null;
+  s_variant_metafield_id?: string;
 };
 
 export const createGqlQueryProduct = (product_id: number): string => {
@@ -112,11 +112,11 @@ export const createGqlNewVariantMutation = (
   inventory_JHB?: number,
   option1?: string,
   option2?: string,
-  option3?: string,
+  option3?: string
 ): string => {
   const inventoryQuantities = [{ availableQuantity: inventory_CPT, locationId: "gid://shopify/Location/22530642" }];
-  inventory_JHB
-  && inventoryQuantities.push({ availableQuantity: inventory_JHB, locationId: "gid://shopify/Location/36654383164" });
+  inventory_JHB &&
+    inventoryQuantities.push({ availableQuantity: inventory_JHB, locationId: "gid://shopify/Location/36654383164" });
 
   const config = {
     productId: `gid://shopify/Product/${product_id}`,
@@ -153,7 +153,7 @@ export const createGqlUpdateVariantMutation = (
   option2?: string,
   option3?: string,
   inventory_policy?: "continue" | "deny",
-  setInactiveMetafield?: boolean,
+  setInactiveMetafield?: boolean
 ): string => {
   const inventory_CPT_config = `
   inventoryAdjustQuantity(input: ${queryfy({
@@ -203,13 +203,13 @@ export const createGqlUpdateVariantMutation = (
 export const createGqlAdjustJHBInventoryQuantity = (
   inventory_JHB: number,
   inventory_JHB_level_id: string,
-  s_inventory_JHB: number,
+  s_inventory_JHB: number
 ): string => {
   return `mutation {
     inventoryAdjustQuantity(input: ${queryfy({
-    inventoryLevelId: inventory_JHB_level_id,
-    availableDelta: inventory_JHB - s_inventory_JHB,
-  })}) {
+      inventoryLevelId: inventory_JHB_level_id,
+      availableDelta: inventory_JHB - s_inventory_JHB,
+    })}) {
       inventoryLevel { 
         id
       }
@@ -225,7 +225,7 @@ export const createGqlConnectInvLocationMutation = (
   inventory_JHB: number,
   inventory_item_id: number,
   v_has_sell_jhb_tag?: boolean,
-  inventory_JHB_level_id?: string,
+  inventory_JHB_level_id?: string
 ): string => {
   if (v_has_sell_jhb_tag && !inventory_JHB_level_id) {
     return `inventoryActivate(
@@ -246,7 +246,7 @@ export const createGqlConnectInvLocationMutation = (
 
 export const createGqlDisconnectInvLocationMutation = (
   v_has_sell_jhb_tag?: boolean,
-  inventory_JHB_level_id?: string,
+  inventory_JHB_level_id?: string
 ): string => {
   if (!v_has_sell_jhb_tag && inventory_JHB_level_id) {
     return `inventoryDeactivate(inventoryLevelId: "${inventory_JHB_level_id}") {
@@ -271,26 +271,30 @@ export const createGqlDeleteMetafieldMutation = (s_variant_metafield_id?: string
   }`;
 };
 
-type IisUnpublished = (input: { source_id: string, variant_source_id: string }) => boolean;
-type IisPublished = (input: { source_id: string, variant_source_id: string }) => boolean;
+type IisUnpublished = (input: { source_id: string; variant_source_id: string }) => boolean;
+type IisPublished = (input: { source_id: string; variant_source_id: string }) => boolean;
 
-export const isUnpublished: IisUnpublished = (({ source_id, variant_source_id }) => source_id.includes("unpub")
-  || variant_source_id.includes("unpub"));
-export const isPublished: IisPublished = (({ source_id, variant_source_id }) => !source_id.includes("unpub")
-  && !variant_source_id.includes("unpub"));
+export const isUnpublished: IisUnpublished = ({ source_id, variant_source_id }) =>
+  source_id.includes("unpub") || variant_source_id.includes("unpub");
+export const isPublished: IisPublished = ({ source_id, variant_source_id }) =>
+  !source_id.includes("unpub") && !variant_source_id.includes("unpub");
 
-export const isInactive = (({ active }: vendProduct): boolean => !active);
-export const isActive = (({ active }: vendProduct): boolean => active);
+export const isInactive = ({ active }: vendProduct): boolean => !active;
+export const isActive = ({ active }: vendProduct): boolean => active;
 
-export const hasVariantImage = (({ image_id, node }: productModel): boolean => !!image_id || !!node?.image);
+export const hasVariantImage = ({ image_id, node }: productModel): boolean => !!image_id || !!node?.image;
 
-export const simplifyProducts = ((products: any, source: "vend" | "shopify"): productModel[] => {
+export const simplifyProducts = (products: any, source: "vend" | "shopify"): productModel[] => {
   if (source === "vend") {
     const v_all_inactive = products.every(isInactive);
     const v_all_unpublished = products.every(isUnpublished);
     const v_incorrectly_unpublished = !v_all_unpublished && products.some(isUnpublished);
-    const v_description = products.reduce((acc, { description: d }) => { return mergeDescriptions(acc, d); }, "");
-    const v_tags = products.reduce((acc, { tags }) => { return mergeTags(acc, tags); }, "");
+    const v_description = products.reduce((acc, { description: d }) => {
+      return mergeDescriptions(acc, d);
+    }, "");
+    const v_tags = products.reduce((acc, { tags }) => {
+      return mergeTags(acc, tags);
+    }, "");
     const v_inconsistent_tags = !products.every(({ tags }) => isSameTags(tags, v_tags));
     const v_has_sell_jhb_tag = v_tags.toLowerCase().includes("sell jhb");
     const v_has_needs_variant_image_tag = v_tags.toLowerCase().includes("fx_needs_variant_image");
@@ -363,8 +367,8 @@ export const simplifyProducts = ((products: any, source: "vend" | "shopify"): pr
       metafield: s_product_metafield,
     } = products;
 
-    const s_needs_variant_image = (variants?.length > 1 && !variants.every(hasVariantImage))
-      || (variants?.length === 1 && !featuredImage);
+    const s_needs_variant_image =
+      (variants?.length > 1 && !variants.every(hasVariantImage)) || (variants?.length === 1 && !featuredImage);
     const tags = s_gql_tags.join(",");
 
     return variants.reduce((acc: productModel[], { node: variant }: productModel): productModel[] => {
@@ -383,30 +387,46 @@ export const simplifyProducts = ((products: any, source: "vend" | "shopify"): pr
         metafield: s_variant_metafield,
       } = variant;
 
-      const inventory_CPT = inventoryLevels?.filter(({ node: { location: { id } } }) => id.replace(
-        "gid://shopify/Location/",
-        "",
-      ) === SHOPIFY_CPT_OUTLET_ID)[0]?.node?.available;
+      const inventory_CPT = inventoryLevels?.filter(
+        ({
+          node: {
+            location: { id },
+          },
+        }) => id.replace("gid://shopify/Location/", "") === SHOPIFY_CPT_OUTLET_ID
+      )[0]?.node?.available;
 
-      const inventory_CPT_level_id = inventoryLevels?.filter(({ node: { location: { id } } }) => id.replace(
-        "gid://shopify/Location/",
-        "",
-      ) === SHOPIFY_CPT_OUTLET_ID)[0]?.node?.id;
+      const inventory_CPT_level_id = inventoryLevels?.filter(
+        ({
+          node: {
+            location: { id },
+          },
+        }) => id.replace("gid://shopify/Location/", "") === SHOPIFY_CPT_OUTLET_ID
+      )[0]?.node?.id;
 
-      const inventory_JHB = inventoryLevels?.filter(({ node: { location: { id } } }) => id.replace(
-        "gid://shopify/Location/",
-        "",
-      ) === SHOPIFY_JHB_OUTLET_ID)[0]?.node?.available;
+      const inventory_JHB = inventoryLevels?.filter(
+        ({
+          node: {
+            location: { id },
+          },
+        }) => id.replace("gid://shopify/Location/", "") === SHOPIFY_JHB_OUTLET_ID
+      )[0]?.node?.available;
 
-      const inventory_JHB_level_id = inventoryLevels?.filter(({ node: { location: { id } } }) => id.replace(
-        "gid://shopify/Location/",
-        "",
-      ) === SHOPIFY_JHB_OUTLET_ID)[0]?.node?.id;
+      const inventory_JHB_level_id = inventoryLevels?.filter(
+        ({
+          node: {
+            location: { id },
+          },
+        }) => id.replace("gid://shopify/Location/", "") === SHOPIFY_JHB_OUTLET_ID
+      )[0]?.node?.id;
 
-      const s_has_jhb_inventory = inventoryLevels?.filter(({ node: { location: { id } } }) => id.replace(
-        "gid://shopify/Location/",
-        "",
-      ) === SHOPIFY_JHB_OUTLET_ID)?.length > 0;
+      const s_has_jhb_inventory =
+        inventoryLevels?.filter(
+          ({
+            node: {
+              location: { id },
+            },
+          }) => id.replace("gid://shopify/Location/", "") === SHOPIFY_JHB_OUTLET_ID
+        )?.length > 0;
 
       acc.push({
         vend_id: undefined,
@@ -445,18 +465,18 @@ export const simplifyProducts = ((products: any, source: "vend" | "shopify"): pr
       return acc;
     }, []);
   }
-});
+};
 
-type requestConfig = { api: string, method: "GET" | "POST" | "PUT" | "DELETE", body?: any } | undefined;
+type requestConfig = { api: string; method: "GET" | "POST" | "PUT" | "DELETE"; body?: any } | undefined;
 type gqlConfig = { body: string } | undefined;
 
 type getDifferenceReturn = {
-  vendProducts: requestConfig[]
-  shopifyProduct: requestConfig[]
-  shopifyVariants: requestConfig[]
-  shopifyNewVariants: gqlConfig[]
-  shopifyConnectInventory: gqlConfig[]
-  shopifyDisconnectInventory: requestConfig[]
+  vendProducts: requestConfig[];
+  shopifyProduct: requestConfig[];
+  shopifyVariants: requestConfig[];
+  shopifyNewVariants: gqlConfig[];
+  shopifyConnectInventory: gqlConfig[];
+  shopifyDisconnectInventory: requestConfig[];
 };
 
 type finalReturn = getDifferenceReturn & { shopifyDeleteVariants: requestConfig[] };
@@ -481,11 +501,11 @@ export const getDifferences = (
   vend: productModel[],
   shopify: productModel[],
   shopify_update = false,
-  vend_udpate = !shopify_update,
+  vend_udpate = !shopify_update
 ): finalReturn => {
   console.log(vend);
   /* if there is an error with the product_id matching - return empty */
-  if (!vend.every(({ product_id }) => shopify.every((s) => s.product_id === product_id))) {
+  if (!vend.every(({ product_id }) => shopify.every(s => s.product_id === product_id))) {
     return {
       shopifyDeleteVariants: [],
       vendProducts: [],
@@ -501,295 +521,321 @@ export const getDifferences = (
   const shopifyDeleteVariants = createShopifyDeleteVariants(vend, shopify);
 
   /* Check if new Variants need to be created on Shopify & set it as default for variant image tag */
-  const needs_new_variant_image = vend.some((s) => !shopify.some((t) => s.variant_id === t.variant_id));
+  const needs_new_variant_image = vend.some(s => !shopify.some(t => s.variant_id === t.variant_id));
   /**
    *TODO: Active / Unpublished Statusses */
 
   return {
     shopifyDeleteVariants,
-    ...vend.reduce((acc, vend_variant): getDifferenceReturn => {
-      /** OPTION Deal with Vend only things
-       * Found variant via id */
-      const reason = [];
-      let vendProductUpdate = false;
+    ...vend.reduce(
+      (acc, vend_variant): getDifferenceReturn => {
+        /** OPTION Deal with Vend only things
+         * Found variant via id */
+        const reason = [];
+        let vendProductUpdate = false;
 
-      if (vend_variant.v_inconsistent_description) {
-        vendProductUpdate = true;
-        reason.push("inconsistent description on Vend");
-      }
-
-      if (vend_variant.v_inconsistent_tags) {
-        vendProductUpdate = true;
-        reason.push("inconsistent tags on Vend");
-      }
-
-      if (vend_variant.v_incorrectly_unpublished) {
-        vendProductUpdate = true;
-        reason.push("inconsistent unpublished on Vend");
-      }
-
-      /** OPTION 2
-       * Found variant via id */
-      if (shopify.some(({ variant_id, sku }) => variant_id === vend_variant.variant_id || sku === vend_variant.sku)) {
-        const sku_match = !shopify.some(({ variant_id }) => variant_id === vend_variant.variant_id);
-        const shopify_variant = shopify.find(({ variant_id, sku }) => variant_id === vend_variant.variant_id || sku
-          === vend_variant.sku);
-        const override = { ...shopify_variant, ...vend_variant };
-        let shopifyProductUpdate = false;
-        let shopifyRemoveProductMetafield = false;
-        let shopifyProductUpdateFeaturedImage = false;
-        let shopifyVariantUpdate = false;
-        let shopifyInventoryLevelConnect = false;
-        let shopifyInventoryLevelDisconnect = false;
-        let shopifyRemoveVariantMetafield = false;
-        let shopifyVariantSetInactive = false;
-
-        if (sku_match) {
-          override.variant_id = shopify_variant.variant_id;
+        if (vend_variant.v_inconsistent_description) {
           vendProductUpdate = true;
+          reason.push("inconsistent description on Vend");
         }
 
-        /* 2021-02-22 */
-        if (override.v_active && override?.s_variant_metafield_active === "false") {
-          shopifyRemoveVariantMetafield = true;
+        if (vend_variant.v_inconsistent_tags) {
+          vendProductUpdate = true;
+          reason.push("inconsistent tags on Vend");
         }
 
-        if (!override.v_active) {
-          override.inventory_JHB = 0;
-          override.inventory_CPT = 0;
+        if (vend_variant.v_incorrectly_unpublished) {
+          vendProductUpdate = true;
+          reason.push("inconsistent unpublished on Vend");
+        }
 
-          if (!(override?.s_variant_metafield_active === "false")) {
-            shopifyVariantSetInactive = true;
+        /** OPTION 2
+         * Found variant via id */
+        if (shopify.some(({ variant_id, sku }) => variant_id === vend_variant.variant_id || sku === vend_variant.sku)) {
+          const sku_match = !shopify.some(({ variant_id }) => variant_id === vend_variant.variant_id);
+          const shopify_variant = shopify.find(
+            ({ variant_id, sku }) => variant_id === vend_variant.variant_id || sku === vend_variant.sku
+          );
+          const override = { ...shopify_variant, ...vend_variant };
+          let shopifyProductUpdate = false;
+          let shopifyRemoveProductMetafield = false;
+          let shopifyProductUpdateFeaturedImage = false;
+          let shopifyVariantUpdate = false;
+          let shopifyInventoryLevelConnect = false;
+          let shopifyInventoryLevelDisconnect = false;
+          let shopifyRemoveVariantMetafield = false;
+          let shopifyVariantSetInactive = false;
+
+          if (sku_match) {
+            override.variant_id = shopify_variant.variant_id;
+            vendProductUpdate = true;
           }
 
-          if (override.featuredImage_id === override.image_id) {
-            shopifyProductUpdateFeaturedImage = true;
-            /* TODO Change featured Image to an available product - not urgent! */
+          /* 2021-02-22 */
+          if (override.v_active && override?.s_variant_metafield_active === "false") {
+            shopifyRemoveVariantMetafield = true;
           }
-        }
 
-        if (override.v_has_needs_variant_image_tag && !override.s_needs_variant_image && !needs_new_variant_image) {
-          override.tags = removeTag(override.tags, "FX_needs_variant_image");
-          vendProductUpdate = true;
-          shopifyProductUpdate = true;
-          reason.push("remove FX_needs_variant_image");
-        }
+          if (!override.v_active) {
+            override.inventory_JHB = 0;
+            override.inventory_CPT = 0;
 
-        if (!override.v_has_needs_variant_image_tag && (override.s_needs_variant_image || needs_new_variant_image)) {
-          override.tags = addTag(override.tags, "FX_needs_variant_image");
-          vendProductUpdate = true;
-          shopifyProductUpdate = true;
-          reason.push("add FX_needs_variant_image");
-        }
+            if (!(override?.s_variant_metafield_active === "false")) {
+              shopifyVariantSetInactive = true;
+            }
 
-        if (override.s_has_jhb_inventory && !override.v_has_sell_jhb_tag) {
-          shopifyInventoryLevelDisconnect = true;
-          reason.push("Disconnect inventory");
-        }
-
-        if (!override.s_has_jhb_inventory && override.v_has_sell_jhb_tag) {
-          shopifyInventoryLevelConnect = true;
-          reason.push("connect inventory");
-        }
-
-        if (!sku_match && vend_variant.sku !== shopify_variant.sku) {
-          vendProductUpdate = true;
-          shopifyVariantUpdate = true;
-          reason.push("sku");
-        }
-
-        if (vend_variant.price !== shopify_variant.price) {
-          vendProductUpdate = true;
-          shopifyVariantUpdate = true;
-          reason.push("price");
-        }
-
-        if (!isSameTags(vend_variant.tags, shopify_variant.tags)) {
-          vendProductUpdate = shopify_update;
-          shopifyProductUpdate = vend_udpate;
-          if (shopify_update) {
-            override.tags = shopify_variant.tags;
+            if (override.featuredImage_id === override.image_id) {
+              shopifyProductUpdateFeaturedImage = true;
+              /* TODO Change featured Image to an available product - not urgent! */
+            }
           }
-          reason.push("tags");
-        }
 
-        if (!isSameDescription(vend_variant.description, shopify_variant.description)) {
-          vendProductUpdate = shopify_update;
-          shopifyProductUpdate = vend_udpate;
-          if (shopify_update) {
-            override.description = shopify_variant.description;
-          }
-          reason.push("description");
-        }
-
-        if (vend_variant.product_type !== shopify_variant.product_type
-          && vend_variant.product_type !== "General"
-          && shopify_variant.product_type !== "General") {
-          vendProductUpdate = shopify_update;
-          shopifyProductUpdate = vend_udpate;
-          if (shopify_update) {
-            override.product_type = shopify_variant.product_type;
-          }
-          reason.push(`product_type - ${vend_variant.product_type} !== ${shopify_variant.product_type}`);
-        }
-
-        if (override.inventory_CPT !== shopify_variant.inventory_CPT) {
-          shopifyVariantUpdate = true;
-          reason.push(`incorrect Inventory CPT- ${vend_variant.inventory_CPT} !== ${shopify_variant.inventory_CPT}`);
-        }
-
-        if (override.inventory_JHB !== shopify_variant.inventory_JHB && vend_variant.v_has_sell_jhb_tag) {
-          shopifyVariantUpdate = true;
-          reason.push(`incorrect Inventory JHB- ${vend_variant.inventory_JHB} !== ${shopify_variant.inventory_JHB}`);
-        }
-
-        reason?.length > 0 && console.log(reason);
-
-        if (vendProductUpdate) {
-          acc.vendProducts.push({
-            api: `/products`,
-            method: `POST`,
-            body: {
-              id: override.vend_id,
-              source_id: override.product_id,
-              source_variant_id: override.variant_id,
-              description: override.description,
-              tags: override.tags,
-              source: "SHOPIFY",
-            },
-          });
-        }
-
-        if ((override.v_all_inactive || override.v_all_unpublished) && !override.s_product_metafield_published) {
-          if (override.s_status === "active") {
-            override.s_status = "draft";
-            override.set_product_metafield = [{
-              key: "shopify",
-              value: "unpublished",
-              value_type: "string",
-              namespace: "vend",
-            }];
+          if (override.v_has_needs_variant_image_tag && !override.s_needs_variant_image && !needs_new_variant_image) {
+            override.tags = removeTag(override.tags, "FX_needs_variant_image");
+            vendProductUpdate = true;
             shopifyProductUpdate = true;
+            reason.push("remove FX_needs_variant_image");
           }
-        }
 
-        if (!override.v_all_inactive && !override.v_all_unpublished && override.s_product_metafield_published === "unpublished") {
-          override.s_status = "active";
-          shopifyProductUpdate = true;
-          shopifyRemoveProductMetafield = true;
-        }
+          if (!override.v_has_needs_variant_image_tag && (override.s_needs_variant_image || needs_new_variant_image)) {
+            override.tags = addTag(override.tags, "FX_needs_variant_image");
+            vendProductUpdate = true;
+            shopifyProductUpdate = true;
+            reason.push("add FX_needs_variant_image");
+          }
 
-        if (shopifyProductUpdate && acc.shopifyProduct?.length === 0) {
-          acc.shopifyProduct.push({
-            api: `/products/${override.product_id}.json`,
-            method: "PUT",
-            body: {
-              product: {
-                id: override.product_id,
+          if (override.s_has_jhb_inventory && !override.v_has_sell_jhb_tag) {
+            shopifyInventoryLevelDisconnect = true;
+            reason.push("Disconnect inventory");
+          }
+
+          if (!override.s_has_jhb_inventory && override.v_has_sell_jhb_tag) {
+            shopifyInventoryLevelConnect = true;
+            reason.push("connect inventory");
+          }
+
+          if (!sku_match && vend_variant.sku !== shopify_variant.sku) {
+            vendProductUpdate = true;
+            shopifyVariantUpdate = true;
+            reason.push("sku");
+          }
+
+          if (vend_variant.price !== shopify_variant.price) {
+            vendProductUpdate = true;
+            shopifyVariantUpdate = true;
+            reason.push("price");
+          }
+
+          if (!isSameTags(vend_variant.tags, shopify_variant.tags)) {
+            vendProductUpdate = shopify_update;
+            shopifyProductUpdate = vend_udpate;
+            if (shopify_update) {
+              override.tags = shopify_variant.tags;
+            }
+            reason.push("tags");
+          }
+
+          if (!isSameDescription(vend_variant.description, shopify_variant.description)) {
+            vendProductUpdate = shopify_update;
+            shopifyProductUpdate = vend_udpate;
+            if (shopify_update) {
+              override.description = shopify_variant.description;
+            }
+            reason.push("description");
+          }
+
+          if (
+            vend_variant.product_type !== shopify_variant.product_type &&
+            vend_variant.product_type !== "General" &&
+            shopify_variant.product_type !== "General"
+          ) {
+            vendProductUpdate = shopify_update;
+            shopifyProductUpdate = vend_udpate;
+            if (shopify_update) {
+              override.product_type = shopify_variant.product_type;
+            }
+            reason.push(`product_type - ${vend_variant.product_type} !== ${shopify_variant.product_type}`);
+          }
+
+          if (override.inventory_CPT !== shopify_variant.inventory_CPT) {
+            shopifyVariantUpdate = true;
+            reason.push(`incorrect Inventory CPT- ${vend_variant.inventory_CPT} !== ${shopify_variant.inventory_CPT}`);
+          }
+
+          if (override.inventory_JHB !== shopify_variant.inventory_JHB && vend_variant.v_has_sell_jhb_tag) {
+            shopifyVariantUpdate = true;
+            reason.push(`incorrect Inventory JHB- ${vend_variant.inventory_JHB} !== ${shopify_variant.inventory_JHB}`);
+          }
+
+          reason?.length > 0 && console.log(reason);
+
+          if (vendProductUpdate) {
+            acc.vendProducts.push({
+              api: `/products`,
+              method: `POST`,
+              body: {
+                id: override.vend_id,
+                source_id: override.product_id,
+                source_variant_id: override.variant_id,
+                description: override.description,
                 tags: override.tags,
-                body_html: override.description,
-                product_type: override.product_type,
-                status: override.s_status,
-                metafields: override.set_product_metafield || undefined,
+                source: "SHOPIFY",
               },
-            },
-          });
-          if (shopifyRemoveProductMetafield) {
-            acc.shopifyVariants.push({ body: createGqlDeleteMetafieldMutation(override.s_product_metafield_id) });
+            });
           }
-        }
 
-        if (shopifyRemoveVariantMetafield) {
-          acc.shopifyVariants.push({ body: createGqlDeleteMetafieldMutation(override.s_variant_metafield_id) });
-        }
-
-        if (!override.v_all_inactive && !override.v_all_unpublished) {
-          if (shopifyVariantUpdate || shopifyInventoryLevelConnect || shopifyInventoryLevelDisconnect
-            || shopifyVariantSetInactive) {
-            if (shopifyVariantSetInactive) {
-              override.inventory_CPT = 0;
-              override.inventory_JHB = 0;
-              override.inventory_policy = "deny";
+          if ((override.v_all_inactive || override.v_all_unpublished) && !override.s_product_metafield_published) {
+            if (override.s_status === "active") {
+              override.s_status = "draft";
+              override.set_product_metafield = [
+                {
+                  key: "shopify",
+                  value: "unpublished",
+                  value_type: "string",
+                  namespace: "vend",
+                },
+              ];
+              shopifyProductUpdate = true;
             }
+          }
 
-            const shopifyConnectInventoryMutation = createGqlConnectInvLocationMutation(
-              override.inventory_JHB,
-              override.inventory_item_id,
-              override.v_has_sell_jhb_tag,
-              override.inventory_JHB_level_id,
-            );
-            console.log(override.v_has_sell_jhb_tag, shopifyInventoryLevelDisconnect, override.inventory_JHB_level_id);
-            const shopifyDisonnectInventoryMutation = createGqlDisconnectInvLocationMutation(
-              override.v_has_sell_jhb_tag,
-              override.inventory_JHB_level_id,
-            );
+          if (
+            !override.v_all_inactive &&
+            !override.v_all_unpublished &&
+            override.s_product_metafield_published === "unpublished"
+          ) {
+            override.s_status = "active";
+            shopifyProductUpdate = true;
+            shopifyRemoveProductMetafield = true;
+          }
 
-            const shopifyVariantMutation = createGqlUpdateVariantMutation(
-              override.variant_id,
-              override.sku,
-              override.price,
-              override.inventory_CPT,
-              override.inventory_CPT_level_id,
-              override.s_inventory_CPT,
-              override.option1,
-              override.option2,
-              override.option3,
-              override.inventory_policy,
-              shopifyVariantSetInactive,
-            );
+          if (shopifyProductUpdate && acc.shopifyProduct?.length === 0) {
+            acc.shopifyProduct.push({
+              api: `/products/${override.product_id}.json`,
+              method: "PUT",
+              body: {
+                product: {
+                  id: override.product_id,
+                  tags: override.tags,
+                  body_html: override.description,
+                  product_type: override.product_type,
+                  status: override.s_status,
+                  metafields: override.set_product_metafield || undefined,
+                },
+              },
+            });
+            if (shopifyRemoveProductMetafield) {
+              acc.shopifyVariants.push({ body: createGqlDeleteMetafieldMutation(override.s_product_metafield_id) });
+            }
+          }
 
-            if (override.v_has_sell_jhb_tag && override.inventory_JHB_level_id) {
+          if (shopifyRemoveVariantMetafield) {
+            acc.shopifyVariants.push({ body: createGqlDeleteMetafieldMutation(override.s_variant_metafield_id) });
+          }
+
+          if (!override.v_all_inactive && !override.v_all_unpublished) {
+            if (
+              shopifyVariantUpdate ||
+              shopifyInventoryLevelConnect ||
+              shopifyInventoryLevelDisconnect ||
+              shopifyVariantSetInactive
+            ) {
+              if (shopifyVariantSetInactive) {
+                override.inventory_CPT = 0;
+                override.inventory_JHB = 0;
+                override.inventory_policy = "deny";
+              }
+
+              const shopifyConnectInventoryMutation = createGqlConnectInvLocationMutation(
+                override.inventory_JHB,
+                override.inventory_item_id,
+                override.v_has_sell_jhb_tag,
+                override.inventory_JHB_level_id
+              );
+              console.log(
+                override.v_has_sell_jhb_tag,
+                shopifyInventoryLevelDisconnect,
+                override.inventory_JHB_level_id
+              );
+              const shopifyDisonnectInventoryMutation = createGqlDisconnectInvLocationMutation(
+                override.v_has_sell_jhb_tag,
+                override.inventory_JHB_level_id
+              );
+
+              const shopifyVariantMutation = createGqlUpdateVariantMutation(
+                override.variant_id,
+                override.sku,
+                override.price,
+                override.inventory_CPT,
+                override.inventory_CPT_level_id,
+                override.s_inventory_CPT,
+                override.option1,
+                override.option2,
+                override.option3,
+                override.inventory_policy,
+                shopifyVariantSetInactive
+              );
+
+              if (override.v_has_sell_jhb_tag && override.inventory_JHB_level_id) {
+                acc.shopifyVariants.push({
+                  body: createGqlAdjustJHBInventoryQuantity(
+                    override.inventory_JHB,
+                    override.inventory_JHB_level_id,
+                    override.s_inventory_JHB
+                  ),
+                });
+              }
+
               acc.shopifyVariants.push({
-                body: createGqlAdjustJHBInventoryQuantity(override.inventory_JHB,
-                  override.inventory_JHB_level_id, override.s_inventory_JHB),
-              });
-            }
-
-            acc.shopifyVariants.push({
-              body: `mutation {
+                body: `mutation {
               ${shopifyDisonnectInventoryMutation}
               ${shopifyConnectInventoryMutation}
               ${shopifyVariantMutation}
             }`,
-            });
+              });
+            }
           }
-        }
-      } else {
-        /** OPTION 2
-         * NO Variant found */
-        acc.vendProducts.push({
-          api: `/products`,
-          method: `POST`,
-          body: {
-            id: vend_variant.vend_id,
-            source_id: vend_variant.product_id,
-            source_variant_id: vend_variant.variant_id,
-            description: vend_variant.description,
-            tags: vend_variant.v_has_needs_variant_image_tag ? vend_variant.tags : addTag(vend_variant.tags,
-              "FX_needs_variant_image"),
-            source: "SHOPIFY",
-          },
-        });
+        } else {
+          /** OPTION 2
+           * NO Variant found */
+          acc.vendProducts.push({
+            api: `/products`,
+            method: `POST`,
+            body: {
+              id: vend_variant.vend_id,
+              source_id: vend_variant.product_id,
+              source_variant_id: vend_variant.variant_id,
+              description: vend_variant.description,
+              tags: vend_variant.v_has_needs_variant_image_tag
+                ? vend_variant.tags
+                : addTag(vend_variant.tags, "FX_needs_variant_image"),
+              source: "SHOPIFY",
+            },
+          });
 
-        acc.shopifyNewVariants.push({
-          body: createGqlNewVariantMutation(vend_variant.product_id,
-            vend_variant.sku,
-            vend_variant.price,
-            vend_variant.inventory_CPT,
-            vend_variant.v_has_sell_jhb_tag ? vend_variant.inventory_JHB : undefined,
-            vend_variant.option1,
-            vend_variant.option2,
-            vend_variant.option3),
-        });
+          acc.shopifyNewVariants.push({
+            body: createGqlNewVariantMutation(
+              vend_variant.product_id,
+              vend_variant.sku,
+              vend_variant.price,
+              vend_variant.inventory_CPT,
+              vend_variant.v_has_sell_jhb_tag ? vend_variant.inventory_JHB : undefined,
+              vend_variant.option1,
+              vend_variant.option2,
+              vend_variant.option3
+            ),
+          });
+        }
+        return acc;
+      },
+      {
+        vendProducts: [],
+        shopifyProduct: [],
+        shopifyVariants: [],
+        shopifyNewVariants: [],
+        shopifyConnectInventory: [],
+        shopifyDisconnectInventory: [],
       }
-      return acc;
-    }, {
-      vendProducts: [],
-      shopifyProduct: [],
-      shopifyVariants: [],
-      shopifyNewVariants: [],
-      shopifyConnectInventory: [],
-      shopifyDisconnectInventory: [],
-    }),
+    ),
   };
 };

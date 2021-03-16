@@ -23293,7 +23293,7 @@ type Retailer {
   storeCreditEnabled: Boolean!
 }
 
-type SKUImage {
+extend type SKUImage {
   "id: of the sku"
   id: String!
   "images: representing the sku"
