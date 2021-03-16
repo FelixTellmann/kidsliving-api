@@ -434,20 +434,20 @@
   resolved "https://registry.yarnpkg.com/@hapi/hoek/-/hoek-9.1.1.tgz#9daf5745156fd84b8e9889a2dc721f0c58e894aa"
   integrity sha512-CAEbWH7OIur6jEOzaai83jq3FmKmv4PmX1JYfs9IrYcGEVI/lyL1EXJGCj7eFVJ0bg5QR8LMxBlEtA+xKiLpFw==
 
-"@next/env@10.0.9":
-  version "10.0.9"
-  resolved "https://registry.yarnpkg.com/@next/env/-/env-10.0.9.tgz#455fd364c8a5ee012b2cd4406d5294164990706d"
-  integrity sha512-MERX3DY5u0Ed29eAsXeFBCZlFAGBtmjf7+Nht0hfgB25MPKKkIbC/0MRPcX/PQcAgLHsAHO6ay1u9xKzR4Vzjw==
+"@next/env@10.0.10-canary.0":
+  version "10.0.10-canary.0"
+  resolved "https://registry.yarnpkg.com/@next/env/-/env-10.0.10-canary.0.tgz#44e6fb0aae8484fa28dbed2ae1fe8d6dc63a993f"
+  integrity sha512-1XpnxQATfAjB9N5oQVTw1AuxiozOmzTTItwy2Ky/oznwLun7mZcMO1ErfMfkkQNk3vVno0nXN6CEb6yHdfJR6A==
 
-"@next/polyfill-module@10.0.9":
-  version "10.0.9"
-  resolved "https://registry.yarnpkg.com/@next/polyfill-module/-/polyfill-module-10.0.9.tgz#0c21442dd73ec31ae30ac560bc5c5fdce068a98f"
-  integrity sha512-kPOP6ku/e8zdrK8hwxOrjUrPLcdDEj12huLHVz+DZU+20q6VlhMOtR8aKHW1460L4LoLE/DAa7YyIuxtArhDRg==
+"@next/polyfill-module@10.0.10-canary.0":
+  version "10.0.10-canary.0"
+  resolved "https://registry.yarnpkg.com/@next/polyfill-module/-/polyfill-module-10.0.10-canary.0.tgz#03e61e44eab4f4420d6a74082bf7c3a86f0607c4"
+  integrity sha512-4aHdMdnqwA2qq1LZyIb9WV0b30hZmmKNJQfLPZtTqcOohKa8DhrZIoEfnqMBPg5zZjae28iqyPbnDFgqybqAjA==
 
-"@next/react-dev-overlay@10.0.9":
-  version "10.0.9"
-  resolved "https://registry.yarnpkg.com/@next/react-dev-overlay/-/react-dev-overlay-10.0.9.tgz#5162d66c05b2a0ca0d155f7e6663e8134d9d4ac9"
-  integrity sha512-JsSh2Y004MEuPYqBD9eTl4PVZIjSzSy2GcD7MrW/gQcExYNpeMIJAbh8/OcyO1t+OnQeIHF5s/xTMsDHBGNcew==
+"@next/react-dev-overlay@10.0.10-canary.0":
+  version "10.0.10-canary.0"
+  resolved "https://registry.yarnpkg.com/@next/react-dev-overlay/-/react-dev-overlay-10.0.10-canary.0.tgz#a45921957c7b4c3178371332a5162dab027cf686"
+  integrity sha512-z0dtErcNUK8JUPW0JSkAVE48COd+1TsODb0TpB1+LlFRy4GHPZpcoNSzIrgNWIMwD3POCYVx+meFVBUqJV6B/g==
   dependencies:
     "@babel/code-frame" "7.12.11"
     anser "1.4.9"
@@ -461,10 +461,10 @@
     stacktrace-parser "0.1.10"
     strip-ansi "6.0.0"
 
-"@next/react-refresh-utils@10.0.9":
-  version "10.0.9"
-  resolved "https://registry.yarnpkg.com/@next/react-refresh-utils/-/react-refresh-utils-10.0.9.tgz#cdf9e41f8854c113397853daf78469b0c8140f14"
-  integrity sha512-LSoKnM+fI9MHHew+mBg1w2e4/gjwPQsI+mDTzmfwdBwje+j9U2Int6XOZftMqBPXSlL04vjC9SRBkp0+3h8cNA==
+"@next/react-refresh-utils@10.0.10-canary.0":
+  version "10.0.10-canary.0"
+  resolved "https://registry.yarnpkg.com/@next/react-refresh-utils/-/react-refresh-utils-10.0.10-canary.0.tgz#957c472d8ede78aeb10fe979614e2a05ed0723ba"
+  integrity sha512-mKHCw9Y1dxtbdC7GPPivyhW6Tn11lXAJjIU6X4GiVf+wvn9P9ye+iTkRq/f35vu1WvRdny9CWpE0+ficXP91Bw==
 
 "@nodelib/fs.scandir@2.1.4":
   version "2.1.4"
@@ -3304,17 +3304,17 @@ ncp@^2.0.0:
   resolved "https://registry.yarnpkg.com/ncp/-/ncp-2.0.0.tgz#195a21d6c46e361d2fb1281ba38b91e9df7bdbb3"
   integrity sha1-GVoh1sRuNh0vsSgbo4uR6d9727M=
 
-next@^10.0.4:
-  version "10.0.9"
-  resolved "https://registry.yarnpkg.com/next/-/next-10.0.9.tgz#ad5d8e0368fee8363cdfd64d22dfbf71f683ae66"
-  integrity sha512-HyoVjYydcM6LaFAUOHSxVQCcKOsIimVO/IKXCuWUu1rr6DDgXbWNg/8ckH084qD46MOYlLzjViiZ3KCmNQL4Cw==
+next@^10.0.10-canary.0:
+  version "10.0.10-canary.0"
+  resolved "https://registry.yarnpkg.com/next/-/next-10.0.10-canary.0.tgz#e0ab4a177f0e6e1998fd1b600923dd5ab839477b"
+  integrity sha512-mwLKp/qV8lGMmXI89TyQMqAZI+UQpwS+zVVHdNtQyGPzLhZXrv0rcHlkAqA7HX0nqyKmvPrMv94Heoa8lGOPcQ==
   dependencies:
     "@babel/runtime" "7.12.5"
     "@hapi/accept" "5.0.1"
-    "@next/env" "10.0.9"
-    "@next/polyfill-module" "10.0.9"
-    "@next/react-dev-overlay" "10.0.9"
-    "@next/react-refresh-utils" "10.0.9"
+    "@next/env" "10.0.10-canary.0"
+    "@next/polyfill-module" "10.0.10-canary.0"
+    "@next/react-dev-overlay" "10.0.10-canary.0"
+    "@next/react-refresh-utils" "10.0.10-canary.0"
     "@opentelemetry/api" "0.14.0"
     ast-types "0.13.2"
     browserslist "4.16.1"

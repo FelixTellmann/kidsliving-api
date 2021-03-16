@@ -101,9 +101,9 @@ export const createProductUpdates = (
             outlet_id,
             count:
               outlet_id === fulfillment_outlet_id
-                ? +count - +quantity
-                : outlet_id === shopify.vend_location_id
                 ? +count + +quantity
+                : outlet_id === shopify.vend_location_id
+                ? +count - +quantity
                 : +count,
           };
         }),

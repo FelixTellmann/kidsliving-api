@@ -1,5 +1,5 @@
 # VEND
-POST https://346b306335ab.ngrok.io/api/2021-02/fulfillment.update
+POST http://localhost:3000/api/2021-02/fulfillment.update
 Content-Type: application/json
 Accept: application/json
 x-shopify-shop-domain: kids-living.myshopify.com

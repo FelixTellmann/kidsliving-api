@@ -64,5 +64,6 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
   // console.log(JSON.stringify(vendFulfillments.value.data.data.sale), " vendFullfillmetn");
   // console.log(JSON.stringify(body), "body");
 
+  console.log(updateProductsArray);
   res.status(200).json("end");
 };

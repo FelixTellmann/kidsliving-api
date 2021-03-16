@@ -22,7 +22,7 @@
     "firebase": "^8.2.4",
     "firebase-admin": "^9.4.2",
     "json2csv": "^5.0.5",
-    "next": "^10.0.4",
+    "next": "^10.0.10-canary.0",
     "ngrok": "^3.4.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
