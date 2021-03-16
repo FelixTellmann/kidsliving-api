@@ -39,7 +39,7 @@ export const createProductUpdates = (
     ...vendFulfillmentList.fulfillments.reduce((acc, fulfillment) => {
       return [
         ...acc,
-        ...fulfillment.lineItems.map(lineItem => {
+        ...fulfillment?.lineItems?.map(lineItem => {
           return {
             id: fulfillment.id,
             product_id: lineItem.product.id,
@@ -57,7 +57,7 @@ export const createProductUpdates = (
     ...vendFulfillmentList.picklists.reduce((acc, picklist) => {
       return [
         ...acc,
-        ...picklist.lineItems.map(lineItem => {
+        ...picklist?.lineItems?.map(lineItem => {
           return {
             id: picklist.id,
             product_id: lineItem.saleLineItem.product.id,
@@ -95,7 +95,7 @@ export const createProductUpdates = (
       console.log(JSON.stringify({ id, inventory }));
       resultArray.push({
         id,
-        inventory: inventory.map(({ outlet_id, count, ...rest }) => {
+        inventory: inventory?.map(({ outlet_id, count, ...rest }) => {
           return {
             ...rest,
             outlet_id,
