@@ -165,6 +165,15 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
     res.status(200).json("end");
   } catch (err) {
     console.log(err.message);
+    await db
+      .collection("fulfillment.error")
+      .doc(`${body.id}`)
+      .set({
+        body: JSON.stringify(body),
+        error: JSON.stringify(err),
+        message: err.message,
+        created_at_ISO: new Date(prevTimer).toISOString().split(".")[0].split("T").join(" ").replace(/-/gi, "/"),
+      });
     res.status(200).json("end");
   }
 };
