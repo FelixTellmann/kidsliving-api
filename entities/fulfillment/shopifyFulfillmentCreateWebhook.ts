@@ -1,4 +1,5 @@
 export type FulfillmentWebhookRequestBody = {
+  vend_location_id?: string;
   id: number | null;
   order_id: number | null;
   status: string | null;

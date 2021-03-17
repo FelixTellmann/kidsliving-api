@@ -2,29 +2,11 @@ import { vendProduct } from "../product/vendFetchProducts";
 import { FulfillmentWebhookRequestBody } from "./shopifyFulfillmentCreateWebhook";
 import { vendFulfillmentSale } from "./vendFetchPickListBySaleId";
 
-const {
-  SHOPIFY_CPT_OUTLET_ID,
-  SHOPIFY_JHB_OUTLET_ID,
-  SHOPIFY_CPTWH_OUTLET_ID,
-  VEND_CPT_OUTLET_ID,
-  VEND_JHB_OUTLET_ID,
-  VEND_CPTWH_OUTLET_ID,
-} = process.env;
-
 export const createProductUpdates = (
-  shopify: FulfillmentWebhookRequestBody & { vend_location_id?: string },
+  shopify: FulfillmentWebhookRequestBody,
   vendFulfillmentList: vendFulfillmentSale,
   vendProducts: vendProduct[]
 ) => {
-  shopify.vend_location_id =
-    shopify.location_id === +SHOPIFY_CPT_OUTLET_ID
-      ? VEND_CPT_OUTLET_ID
-      : shopify.location_id === +SHOPIFY_JHB_OUTLET_ID
-      ? VEND_JHB_OUTLET_ID
-      : shopify.location_id === +SHOPIFY_CPTWH_OUTLET_ID
-      ? VEND_CPTWH_OUTLET_ID
-      : "";
-
   const vend: {
     quantity: number;
     outlet_id: string;
@@ -91,6 +73,8 @@ export const createProductUpdates = (
         return;
       }
 
+      console.log(shopify.vend_location_id);
+
       const { id, inventory } = vendProducts.find(({ id }) => product_id === id);
       console.log(JSON.stringify({ id, inventory }));
       resultArray.push({
@@ -99,20 +83,19 @@ export const createProductUpdates = (
           return {
             ...rest,
             outlet_id,
-            count:
+            count: `${
               outlet_id === fulfillment_outlet_id
                 ? +count + +quantity
                 : outlet_id === shopify.vend_location_id
                 ? +count - +quantity
-                : +count,
+                : +count
+            }`,
           };
         }),
       });
     });
-    console.log(fulfillmentMatch);
-    console.log(JSON.stringify(resultArray));
   });
-  return {};
+  return resultArray;
 };
 
 function findFulfillment(sku, quantity, vend, returnArray = []) {

@@ -1,6 +1,6 @@
 module.exports = {
   webpack(config, { isServer }) {
-    config.resolve.extensions = ['.ts', '.js', '.jsx', '.tsx', '.svg', '.scss'];
+    config.resolve.extensions = [".ts", ".js", ".jsx", ".tsx", ".svg", ".scss"];
     return config;
   },
 };
@@ -35,5 +35,6 @@ module.exports.env = {
   VEND_REGISTER_CPT_TILL2_ID: process.env.VEND_REGISTER_CPT_TILL2_ID,
   VEND_REGISTER_JHB_TILL2_ID: process.env.VEND_REGISTER_JHB_TILL2_ID,
   VEND_NO_TAX_ID: process.env.VEND_NO_TAX_ID,
+  SHOPIFY_CPTWH_OUTLET_ID: process.env.SHOPIFY_CPTWH_OUTLET_ID,
+  VEND_CPTWH_OUTLET_ID: process.env.VEND_CPTWH_OUTLET_ID,
 };
-

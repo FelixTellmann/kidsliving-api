@@ -187,7 +187,7 @@ type shopifyFetchOrderNoDetail = {
   data: {
     data: {
       order: {
-        name: string;
+        fulfillable: boolean;
       };
     };
     extensions: {
@@ -209,7 +209,7 @@ type IFetchShopifyGqlOrderByIdNoDetail = (order_id: string | number) => Promise<
 export const fetchShopifyGqlOrderByIdNoDetail: IFetchShopifyGqlOrderByIdNoDetail = order_id => {
   return fetchShopifyGQL(`query {
   order(id: "gid://shopify/Order/${order_id}") {
-    name
+    fulfillable
   }
 }`);
 };
