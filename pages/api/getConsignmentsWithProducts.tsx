@@ -17,7 +17,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
   }
 
   function getConsignmentProducts(id, name) {
-    return axios(`http://${req.headers.host}/api/getConsignmentProducts?id=${id}&name=${name}`);
+    return axios(`http://${req.headers.host}/api/getConsignmentProductsUpdated?id=${id}&name=${name}`);
   }
 
   const getData = async (hasPageRequest: string | string[] = "1", hasSinceDate?): Promise<unknown[]> => {
@@ -71,8 +71,8 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
 
   if (!page) {
     consignments = consignments.filter(({ status }) => status === `OPEN`);
-    res.status(200).json(consignments);
-    return;
+    /*res.status(200).json(consignments);
+    return;*/
     const promises = consignments.map(({ id, name }) => getConsignmentProducts(id, name));
     consignment_products = await Promise.all(promises);
     consignment_products = consignment_products.reduce((acc: ConsignmentProductsData, value) => {

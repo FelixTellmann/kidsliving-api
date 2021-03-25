@@ -8,6 +8,7 @@ type ProductData = {
   inventory_jhb: number;
   inventory_total: number;
   name: string;
+  supplier_name: string;
   variant_parent_id?: string;
   has_variants: boolean;
   source_id?: string;
@@ -74,7 +75,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
     products = products.reduce(
       (
         acc: ProductData[],
-        { id, handle, inventory, name, variant_parent_id, has_variants, source_id, variant_source_id, tags, price }
+        { id, handle, inventory, name, variant_parent_id, has_variants, source_id, variant_source_id, tags, price, supplier_name }
       ) => {
         let inventory_cpt = 0;
         let inventory_jhb = 0;
@@ -99,6 +100,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
             inventory_total,
             inventory_cpt,
             inventory_jhb,
+            supplier_name,
             name,
             variant_parent_id,
             has_variants,

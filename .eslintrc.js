@@ -12,10 +12,9 @@ module.exports = {
     "no-empty-pattern": 0,
     "node/no-unpublished-import": 0,
     "node/no-extraneous-import": 0,
-    "max-len": [
-      2,
-      { code: 120, ignoreUrls: true, ignoreStrings: true, ignoreTemplateLiterals: true, ignoreComments: true },
-    ],
+    "max-len": [2, { code: 120, ignoreUrls: true, ignoreStrings: true, ignoreTemplateLiterals: true, ignoreComments: true }],
+    "no-unused-vars": ["warn", { varsIgnorePattern: "^_", argsIgnorePattern: "^_" }],
+    "@typescript-eslint/no-unused-vars": ["warn", { varsIgnorePattern: "^_", argsIgnorePattern: "^_" }],
   },
   overrides: [
     {
