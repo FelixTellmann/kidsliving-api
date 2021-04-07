@@ -1,6 +1,5 @@
-import customer from "../../pages/api/customer";
-import { shopifyDateToVendDate } from "../../utils";
-import { fetchVend } from "../../utils/fetch";
+import { shopifyDateToVendDate } from "utils";
+import { fetchVend } from "utils/fetch";
 import { Customer } from "../customer/vendFetchCustomer";
 import { vendFetchProducts, vendProduct } from "../product/vendFetchProducts";
 import { fulfillmentOrder, shopifyFetchFulfillmentOrder } from "./shopifyFetchOrder";
@@ -16,7 +15,6 @@ const {
   VEND_PAYMENT_EFT_ID,
   VEND_PAYMENT_CC_ID,
   SHOPIFY_CPT_OUTLET_ID,
-  SHOPIFY_JHB_OUTLET_ID,
 } = process.env;
 
 interface IPostOrder {

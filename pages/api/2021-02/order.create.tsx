@@ -2,31 +2,21 @@ import { fetchVendCustomerByEmail } from "entities/customer/vendFetchCustomer";
 import { fetchVendAllProductsBySku, fetchVendProductByHandle } from "entities/product/vendFetchProducts";
 import { loadFirebase } from "lib/db";
 import type { NextApiRequest, NextApiResponse } from "next";
-import { postNewVendCustomer } from "../../../entities/customer/vendPostCustomer";
-import { fetchShopifyFulfillmentOrdersById } from "../../../entities/order/shopifyFetchOrder";
-import { OrderWebhookRequestBody } from "../../../entities/order/shopifyOrderCreateWebhook";
-import { fetchVendOrderById } from "../../../entities/order/vendFetchOrder";
-import { postNewVendOrder } from "../../../entities/order/vendPostOrder";
-import { postNewVendOrderReturnConfig } from "../../../entities/order/vendPostOrderReturnConfig";
-import { fetchVendSaleByInvoiceId } from "../../../entities/search/vendFetchSearchSale";
+import { postNewVendCustomer } from "entities/customer/vendPostCustomer";
+import { fetchShopifyFulfillmentOrdersById } from "entities/order/shopifyFetchOrder";
+import { OrderWebhookRequestBody } from "entities/order/shopifyOrderCreateWebhook";
+import { fetchVendOrderById } from "entities/order/vendFetchOrder";
+import { postNewVendOrder } from "entities/order/vendPostOrder";
+import { postNewVendOrderReturnConfig } from "entities/order/vendPostOrderReturnConfig";
+import { fetchVendSaleByInvoiceId } from "entities/search/vendFetchSearchSale";
 
-const {
-  VEND_USER_SALE_ID,
-  VEND_REGISTER_CPT_TILL2_ID,
-  VEND_REGISTER_JHB_TILL2_ID,
-  VEND_TAX_ID,
-  VEND_PAYMENT_EFT_ID,
-  VEND_PAYMENT_CC_ID,
-  SHOPIFY_CPT_OUTLET_ID,
-  SHOPIFY_JHB_OUTLET_ID,
-  SHOPIFY_DOMAIN,
-} = process.env;
+const { SHOPIFY_JHB_OUTLET_ID, SHOPIFY_DOMAIN } = process.env;
 
 export const ProductUpdateShopifyCounter = async (req: NextApiRequest, res: NextApiResponse): Promise<void> => {
   /** STEP 1
    * Validate incoming webhook - get handle && source_id   * */
 
-  const { body, headers }: { body: OrderWebhookRequestBody; headers: any } = req;
+  const { body, headers }: { body: OrderWebhookRequestBody; headers } = req;
   const shook = headers[`x-shopify-shop-domain`] === SHOPIFY_DOMAIN;
 
   if (!shook) {
@@ -41,7 +31,6 @@ export const ProductUpdateShopifyCounter = async (req: NextApiRequest, res: Next
 
   const firebase = loadFirebase();
   const db = firebase.firestore();
-  const duplicate = false;
 
   const [
     shopifyFulfillmentPromise,
@@ -93,7 +82,7 @@ export const ProductUpdateShopifyCounter = async (req: NextApiRequest, res: Next
 
   /**
    *  If Customer already exists - Yay, if not, need to create */
-  const oldCustomer = customerPromise.value.data.customers.find(({ email }) => body.email);
+  const oldCustomer = customerPromise.value.data.customers.find(({ email }) => body.email === email);
   let newCustomer;
   if (!oldCustomer) {
     const [newCustomerPromise] = await Promise.allSettled([postNewVendCustomer(body)]);
