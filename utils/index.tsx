@@ -37,12 +37,7 @@ export const removeTag = (string: string, tag: string): string =>
   ].join(",");
 
 export const mergeTags = (tagList: string, tagListAddon: string): string =>
-  [
-    ...new Set([
-      ...tagList.split(",").map((t: string) => t.trim()),
-      ...tagListAddon.split(",").map((t: string) => t.trim()),
-    ]),
-  ]
+  [...new Set([...tagList.split(",").map((t: string) => t.trim()), ...tagListAddon.split(",").map((t: string) => t.trim())])]
     ?.filter(t => t !== "")
     .join(",");
 
@@ -94,6 +89,7 @@ export const queryfy = (input: unknown): string | number => {
 };
 
 export const shopifyDateToVendDate = (date: string): string => {
+  console.log(date);
   const dateArray = date.split("T");
   return `${dateArray[0]} ${dateArray[1].split("+")[0]}`;
 };
