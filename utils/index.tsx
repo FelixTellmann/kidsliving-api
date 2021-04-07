@@ -90,6 +90,7 @@ export const queryfy = (input: unknown): string | number => {
 
 export const shopifyDateToVendDate = (date: string): string => {
   console.log(date);
-  const dateArray = date.split("T");
-  return `${dateArray[0]} ${dateArray[1].split("+")[0]}`;
+
+  const dateArray = new Date(date).toISOString().split("T");
+  return `${dateArray[0]} ${dateArray[1].split(".")[0]}`;
 };

@@ -123,6 +123,7 @@ export const postNewVendOrder: IPostNewVendOrder = (
     register_id: VEND_REGISTER_CPT_TILL2_ID,
     status: shopifyOrderWebhook.fulfillment_status === "fufilled" ? "DISPATCHED_CLOSED" : "AWAITING_DISPATCH",
     invoice_number: `${shopifyOrderWebhook.order_number}`,
+    sale_date: shopifyDateToVendDate(shopifyOrderWebhook.created_at),
     note: shopifyOrderWebhook.note,
     user_id: VEND_USER_SALE_ID,
     customer_id: vendCustomer.id,
@@ -182,6 +183,7 @@ export const postNewVendOrder: IPostNewVendOrder = (
               retailer_payment_type_id: shopifyOrderWebhook.gateway === "paygate" ? VEND_PAYMENT_CC_ID : VEND_PAYMENT_EFT_ID,
               amount: +shopifyOrderWebhook.total_price,
               register_id: VEND_REGISTER_CPT_TILL2_ID,
+              payment_date: shopifyDateToVendDate(shopifyOrderWebhook.processed_at),
             },
           ]
         : [],
