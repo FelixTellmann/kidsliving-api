@@ -41,7 +41,6 @@ export const ProductUpdateShopifyCounter = async (req: NextApiRequest, res: Next
 
   const firebase = loadFirebase();
   const db = firebase.firestore();
-
   const duplicate = false;
 
   const [
@@ -54,9 +53,7 @@ export const ProductUpdateShopifyCounter = async (req: NextApiRequest, res: Next
     fetchShopifyFulfillmentOrdersById(body.id),
     fetchVendCustomerByEmail(body.email),
     fetchVendSaleByInvoiceId(body.order_number),
-    fetchVendProductByHandle(
-      body.shipping_lines[0]?.code.replace(/\s/gi, "") || "courier-door-to-door-delivery-economy"
-    ),
+    fetchVendProductByHandle(body.shipping_lines[0]?.code.replace(/\s/gi, "") || "courier-door-to-door-delivery-economy"),
     fetchVendAllProductsBySku(body),
   ]);
 

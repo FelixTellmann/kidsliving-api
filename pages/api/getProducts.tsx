@@ -15,6 +15,7 @@ type ProductData = {
   variant_source_id?: string;
   tags?: string;
   price?: number;
+  deleted_at?: string;
 };
 
 export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> => {
@@ -36,7 +37,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
         method: "get",
         url: `https://kidsliving.vendhq.com/api/products?since=${twoYearsAgo}${
           page ? `&page=${page}` : ""
-        }&active=1&order_by=id&page_size=200`,
+        }&order_by=id&page_size=200` /*&active=1*/,
         headers: {
           Accept: "application/json",
           Authorization: `Bearer ${process.env.VEND_API}`,
@@ -75,7 +76,20 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
     products = products.reduce(
       (
         acc: ProductData[],
-        { id, handle, inventory, name, variant_parent_id, has_variants, source_id, variant_source_id, tags, price, supplier_name }
+        {
+          id,
+          handle,
+          inventory,
+          name,
+          variant_parent_id,
+          has_variants,
+          source_id,
+          variant_source_id,
+          tags,
+          price,
+          supplier_name,
+          deleted_at,
+        }
       ) => {
         let inventory_cpt = 0;
         let inventory_jhb = 0;
@@ -108,6 +122,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
             variant_source_id,
             tags,
             price,
+            deleted_at,
           },
         ];
         return acc;

@@ -244,10 +244,7 @@ export const createGqlConnectInvLocationMutation = (
   return "";
 };
 
-export const createGqlDisconnectInvLocationMutation = (
-  v_has_sell_jhb_tag?: boolean,
-  inventory_JHB_level_id?: string
-): string => {
+export const createGqlDisconnectInvLocationMutation = (v_has_sell_jhb_tag?: boolean, inventory_JHB_level_id?: string): string => {
   if (!v_has_sell_jhb_tag && inventory_JHB_level_id) {
     return `inventoryDeactivate(inventoryLevelId: "${inventory_JHB_level_id}") {
     userErrors {
@@ -752,11 +749,7 @@ export const getDifferences = (
                 override.v_has_sell_jhb_tag,
                 override.inventory_JHB_level_id
               );
-              console.log(
-                override.v_has_sell_jhb_tag,
-                shopifyInventoryLevelDisconnect,
-                override.inventory_JHB_level_id
-              );
+              console.log(override.v_has_sell_jhb_tag, shopifyInventoryLevelDisconnect, override.inventory_JHB_level_id);
               const shopifyDisonnectInventoryMutation = createGqlDisconnectInvLocationMutation(
                 override.v_has_sell_jhb_tag,
                 override.inventory_JHB_level_id
