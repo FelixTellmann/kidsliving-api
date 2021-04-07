@@ -182,7 +182,6 @@ export const postNewVendOrder: IPostNewVendOrder = (
               retailer_payment_type_id: shopifyOrderWebhook.gateway === "paygate" ? VEND_PAYMENT_CC_ID : VEND_PAYMENT_EFT_ID,
               amount: +shopifyOrderWebhook.total_price,
               register_id: VEND_REGISTER_CPT_TILL2_ID,
-              payment_date: shopifyDateToVendDate(shopifyOrderWebhook.processed_at),
             },
           ]
         : [],
