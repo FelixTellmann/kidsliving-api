@@ -24,10 +24,10 @@ export const ProductUpdateShopifyCounter = async (req: NextApiRequest, res: Next
     return;
   }
 
-  if (!body?.line_items.some(({ title }) => title.includes("TESTING TESTING"))) {
-    res.status(200).json({ name: "John Doe3" });
-    return;
-  }
+  /*  if (!body?.line_items.some(({ title }) => title.includes("TESTING TESTING"))) {
+      res.status(200).json({ name: "John Doe3" });
+      return;
+  }*/
 
   const firebase = loadFirebase();
   const db = firebase.firestore();
@@ -114,8 +114,8 @@ export const ProductUpdateShopifyCounter = async (req: NextApiRequest, res: Next
   console.log(orderResult?.data);
 
   await db
-    .collection("testing")
-    .doc()
+    .collection("order.create")
+    .doc(`${body.order_number}`)
     .set({
       created_at_ISO: new Date(Date.now()).toISOString().split(".")[0].split("T").join(" ").replace(/-/gi, "/"),
       body: JSON.stringify(body),
