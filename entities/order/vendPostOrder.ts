@@ -121,7 +121,7 @@ export const postNewVendOrder: IPostNewVendOrder = (
     source: "SHOPIFY",
     source_id: `${shopifyOrderWebhook.id}`,
     register_id: VEND_REGISTER_CPT_TILL2_ID,
-    status: shopifyOrderWebhook.fulfillment_status === "fufilled" ? "DISPATCHED_CLOSED" : "AWAITING_DISPATCH",
+    status: shopifyOrderWebhook.fulfillment_status === "fulfilled" ? "DISPATCHED_CLOSED" : "AWAITING_DISPATCH",
     invoice_number: `${shopifyOrderWebhook.order_number}`,
     sale_date: shopifyDateToVendDate(shopifyOrderWebhook.created_at),
     note: shopifyOrderWebhook.note,

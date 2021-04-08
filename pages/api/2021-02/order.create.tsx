@@ -60,23 +60,23 @@ export const ProductUpdateShopifyCounter = async (req: NextApiRequest, res: Next
     return;
   }
 
-  const hasJHBLineItems = shopifyFulfillmentPromise.value.data.fulfillment_orders.some(({ assigned_location_id }) => {
-    return `${assigned_location_id}` === SHOPIFY_JHB_OUTLET_ID;
-  });
-
-  if (!hasJHBLineItems) {
-    res.status(200).json("All Line Items are CPT");
-    return;
-  }
-
   /**
    *  If Order already exists - EXIT (TODO: in future change to edit base don fulfillment changes) */
   const vendOrder = vendSalePromise.value?.data?.data?.find(({ source_id }) => +source_id === body.id);
   let order;
   if (vendOrder) {
     console.log("Order Already exists");
-    order = (await fetchVendOrderById(vendOrder.id))?.data?.register_sales[0];
+    // order = (await fetchVendOrderById(vendOrder.id))?.data?.register_sales[0];
     res.status(200).json("Order Already exists");
+    return;
+  }
+
+  const hasJHBLineItems = shopifyFulfillmentPromise.value.data.fulfillment_orders.some(({ assigned_location_id }) => {
+    return `${assigned_location_id}` === SHOPIFY_JHB_OUTLET_ID;
+  });
+
+  if (!hasJHBLineItems && new Date(body.created_at).getTime() + 48 * 60 * 60 * 1000 > Date.now()) {
+    res.status(200).json("All Line Items are CPT");
     return;
   }
 

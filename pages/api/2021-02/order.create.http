@@ -5,105 +5,170 @@ Accept: application/json
 x-shopify-shop-domain: kids-living.myshopify.com
 
 {
-  "id": 3257938804911,
-  "email": "felix@tellmann.co.za",
-  "closed_at": null,
-  "created_at": "2021-02-20T12:53:08+02:00",
-  "updated_at": "2021-02-20T12:53:10+02:00",
-  "number": 11455,
-  "note": "",
-  "token": "7c8042eea2e25c3a0296d7ec7783fd29",
-  "gateway": null,
-  "test": false,
-  "total_price": "0.00",
-  "subtotal_price": "0.00",
-  "total_weight": 0,
-  "total_tax": "0.00",
-  "taxes_included": true,
-  "currency": "ZAR",
-  "financial_status": "paid",
-  "confirmed": true,
-  "total_discounts": "2.00",
-  "total_line_items_price": "2.00",
-  "cart_token": "847d717eee7be366243ade01d11b0325",
-  "buyer_accepts_marketing": true,
-  "name": "#12455",
-  "referring_site": "",
-  "landing_site": "/",
-  "cancelled_at": null,
-  "cancel_reason": null,
-  "total_price_usd": "0.00",
-  "checkout_token": "7a67acd81ed879b5e4e863dd8c578553",
-  "reference": null,
-  "user_id": null,
-  "location_id": null,
-  "source_identifier": null,
-  "source_url": null,
-  "processed_at": "2021-02-20T12:53:08+02:00",
-  "device_id": null,
-  "phone": null,
-  "customer_locale": "en",
+  "id": 3708484681903,
+  "admin_graphql_api_id": "gid://shopify/Order/3708484681903",
   "app_id": 580111,
-  "browser_ip": "102.132.251.94",
+  "browser_ip": "105.23.232.26",
+  "buyer_accepts_marketing": true,
+  "cancel_reason": null,
+  "cancelled_at": null,
+  "cart_token": null,
+  "checkout_id": 20163152806063,
+  "checkout_token": "86bfc94ebcb60e697fd2a66c0bddc14a",
   "client_details": {
-    "accept_language": "en-GB,en;q=0.9,en-US;q=0.8,en-ZA;q=0.7",
-    "browser_height": 977,
-    "browser_ip": "102.132.251.94",
-    "browser_width": 1903,
+    "accept_language": "en-us",
+    "browser_height": 660,
+    "browser_ip": "105.23.232.26",
+    "browser_width": 1024,
     "session_hash": null,
-    "user_agent": "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4423.0 Safari/537.36"
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.3 Safari/605.1.15"
   },
-  "landing_site_ref": null,
-  "order_number": 12455,
-  "discount_applications": [
-    {
-      "type": "discount_code",
-      "value": "100.0",
-      "value_type": "percentage",
-      "allocation_method": "across",
-      "target_selection": "all",
-      "target_type": "line_item",
-      "code": "TESTTESTTEST"
-    }
-  ],
-  "discount_codes": [
-    {
-      "code": "TESTTESTTEST",
-      "amount": "2.00",
-      "type": "percentage"
-    }
-  ],
-  "note_attributes": [],
-  "payment_gateway_names": [],
-  "processing_method": "free",
-  "checkout_id": 18849419853999,
-  "source_name": "web",
-  "fulfillment_status": null,
-  "tax_lines": [],
-  "tags": "",
-  "contact_email": "felix@tellmann.co.za",
-  "order_status_url": "https://kidsliving.co.za/15673213/orders/7c8042eea2e25c3a0296d7ec7783fd29/authenticate?key=eeba18140a0e73b71ce5a4be3540c625",
-  "presentment_currency": "ZAR",
-  "total_line_items_price_set": {
+  "closed_at": null,
+  "confirmed": true,
+  "contact_email": "melissapage.za@gmail.com",
+  "created_at": "2021-03-27T13:39:20+02:00",
+  "currency": "ZAR",
+  "current_subtotal_price": "5153.00",
+  "current_subtotal_price_set": {
     "shop_money": {
-      "amount": "2.00",
+      "amount": "5153.00",
       "currency_code": "ZAR"
     },
     "presentment_money": {
-      "amount": "2.00",
+      "amount": "5153.00",
       "currency_code": "ZAR"
     }
   },
+  "current_total_discounts": "0.00",
+  "current_total_discounts_set": {
+    "shop_money": {
+      "amount": "0.00",
+      "currency_code": "ZAR"
+    },
+    "presentment_money": {
+      "amount": "0.00",
+      "currency_code": "ZAR"
+    }
+  },
+  "current_total_duties_set": null,
+  "current_total_price": "5153.00",
+  "current_total_price_set": {
+    "shop_money": {
+      "amount": "5153.00",
+      "currency_code": "ZAR"
+    },
+    "presentment_money": {
+      "amount": "5153.00",
+      "currency_code": "ZAR"
+    }
+  },
+  "current_total_tax": "672.13",
+  "current_total_tax_set": {
+    "shop_money": {
+      "amount": "672.13",
+      "currency_code": "ZAR"
+    },
+    "presentment_money": {
+      "amount": "672.13",
+      "currency_code": "ZAR"
+    }
+  },
+  "customer_locale": "en",
+  "device_id": null,
+  "discount_codes": [],
+  "email": "melissapage.za@gmail.com",
+  "financial_status": "paid",
+  "fulfillment_status": "fulfilled",
+  "gateway": "paygate",
+  "landing_site": "/collections/ikea",
+  "landing_site_ref": null,
+  "location_id": null,
+  "name": "#12935",
+  "note": "TCG29548395",
+  "note_attributes": [],
+  "number": 11935,
+  "order_number": 12935,
+  "order_status_url": "https://kidsliving.co.za/15673213/orders/c1cb29111b1deb2ad95f09227fba1e04/authenticate?key=fbfd0de4fd4465e0340c6ccbd0be74be",
+  "original_total_duties_set": null,
+  "payment_gateway_names": [
+    "paygate"
+  ],
+  "phone": "+27723263282",
+  "presentment_currency": "ZAR",
+  "processed_at": "2021-03-27T13:39:19+02:00",
+  "processing_method": "offsite",
+  "reference": null,
+  "referring_site": "https://www.google.co.za/",
+  "source_identifier": null,
+  "source_name": "web",
+  "source_url": null,
+  "subtotal_price": "5153.00",
+  "subtotal_price_set": {
+    "shop_money": {
+      "amount": "5153.00",
+      "currency_code": "ZAR"
+    },
+    "presentment_money": {
+      "amount": "5153.00",
+      "currency_code": "ZAR"
+    }
+  },
+  "tags": "",
+  "tax_lines": [
+    {
+      "price": "672.13",
+      "rate": 0.15,
+      "title": "VAT",
+      "price_set": {
+        "shop_money": {
+          "amount": "672.13",
+          "currency_code": "ZAR"
+        },
+        "presentment_money": {
+          "amount": "672.13",
+          "currency_code": "ZAR"
+        }
+      }
+    }
+  ],
+  "taxes_included": true,
+  "test": false,
+  "token": "c1cb29111b1deb2ad95f09227fba1e04",
+  "total_discounts": "0.00",
   "total_discounts_set": {
     "shop_money": {
-      "amount": "2.00",
+      "amount": "0.00",
       "currency_code": "ZAR"
     },
     "presentment_money": {
-      "amount": "2.00",
+      "amount": "0.00",
       "currency_code": "ZAR"
     }
   },
+  "total_line_items_price": "5153.00",
+  "total_line_items_price_set": {
+    "shop_money": {
+      "amount": "5153.00",
+      "currency_code": "ZAR"
+    },
+    "presentment_money": {
+      "amount": "5153.00",
+      "currency_code": "ZAR"
+    }
+  },
+  "total_outstanding": "0.00",
+  "total_price": "5153.00",
+  "total_price_set": {
+    "shop_money": {
+      "amount": "5153.00",
+      "currency_code": "ZAR"
+    },
+    "presentment_money": {
+      "amount": "5153.00",
+      "currency_code": "ZAR"
+    }
+  },
+  "total_price_usd": "343.84",
   "total_shipping_price_set": {
     "shop_money": {
       "amount": "0.00",
@@ -114,192 +179,218 @@ x-shopify-shop-domain: kids-living.myshopify.com
       "currency_code": "ZAR"
     }
   },
-  "subtotal_price_set": {
-    "shop_money": {
-      "amount": "0.00",
-      "currency_code": "ZAR"
-    },
-    "presentment_money": {
-      "amount": "0.00",
-      "currency_code": "ZAR"
-    }
-  },
-  "total_price_set": {
-    "shop_money": {
-      "amount": "0.00",
-      "currency_code": "ZAR"
-    },
-    "presentment_money": {
-      "amount": "0.00",
-      "currency_code": "ZAR"
-    }
-  },
+  "total_tax": "672.13",
   "total_tax_set": {
     "shop_money": {
-      "amount": "0.00",
+      "amount": "672.13",
       "currency_code": "ZAR"
     },
     "presentment_money": {
-      "amount": "0.00",
+      "amount": "672.13",
       "currency_code": "ZAR"
     }
   },
-  "line_items": [
+  "total_tip_received": "0.00",
+  "total_weight": 50000,
+  "updated_at": "2021-03-30T13:28:24+02:00",
+  "user_id": null,
+  "billing_address": {
+    "first_name": "Melissa",
+    "address1": "52 Glen Grey Drive",
+    "phone": "072 326 3282",
+    "city": "Waterfall",
+    "zip": "3610",
+    "province": "KwaZulu-Natal",
+    "country": "South Africa",
+    "last_name": "Page",
+    "address2": "Unit 5 Waterford Country Estate",
+    "company": "Melissa Page",
+    "latitude": null,
+    "longitude": null,
+    "name": "Melissa Page",
+    "country_code": "ZA",
+    "province_code": "NL"
+  },
+  "customer": {
+    "id": 5098353918127,
+    "email": "melissapage.za@gmail.com",
+    "accepts_marketing": true,
+    "created_at": "2021-03-27T13:09:58+02:00",
+    "updated_at": "2021-03-27T13:39:21+02:00",
+    "first_name": "Melissa",
+    "last_name": "Page",
+    "orders_count": 1,
+    "state": "enabled",
+    "total_spent": "5153.00",
+    "last_order_id": 3708484681903,
+    "note": null,
+    "verified_email": false,
+    "multipass_identifier": null,
+    "tax_exempt": false,
+    "phone": null,
+    "tags": "",
+    "last_order_name": "#12935",
+    "currency": "ZAR",
+    "accepts_marketing_updated_at": "2021-03-27T13:09:58+02:00",
+    "marketing_opt_in_level": "single_opt_in",
+    "tax_exemptions": [],
+    "admin_graphql_api_id": "gid://shopify/Customer/5098353918127",
+    "default_address": {
+      "id": 6265953157295,
+      "customer_id": 5098353918127,
+      "first_name": "Melissa",
+      "last_name": "Page",
+      "company": "Melissa Page",
+      "address1": "52 Glen Grey Drive",
+      "address2": "Unit 5 Waterford Country Estate",
+      "city": "Waterfall",
+      "province": "KwaZulu-Natal",
+      "country": "South Africa",
+      "zip": "3610",
+      "phone": "072 326 3282",
+      "name": "Melissa Page",
+      "province_code": "NL",
+      "country_code": "ZA",
+      "country_name": "South Africa",
+      "default": true
+    }
+  },
+  "discount_applications": [],
+  "fulfillments": [
     {
-      "id": 9228283117743,
-      "variant_id": 38312911372463,
-      "title": "TESTING TESTING - DO NOT FULFILL",
-      "quantity": 1,
-      "sku": "20502",
-      "variant_title": "fancy",
-      "vendor": "Kids Living",
-      "fulfillment_service": "manual",
-      "product_id": 4536570904636,
-      "requires_shipping": true,
-      "taxable": false,
-      "gift_card": false,
-      "name": "TESTING TESTING - DO NOT FULFILL - fancy",
-      "variant_inventory_management": "shopify",
-      "properties": [],
-      "product_exists": true,
-      "fulfillable_quantity": 1,
-      "grams": 0,
-      "price": "1.00",
-      "total_discount": "0.00",
-      "fulfillment_status": null,
-      "price_set": {
-        "shop_money": {
-          "amount": "1.00",
-          "currency_code": "ZAR"
-        },
-        "presentment_money": {
-          "amount": "1.00",
-          "currency_code": "ZAR"
-        }
-      },
-      "total_discount_set": {
-        "shop_money": {
-          "amount": "0.00",
-          "currency_code": "ZAR"
-        },
-        "presentment_money": {
-          "amount": "0.00",
-          "currency_code": "ZAR"
-        }
-      },
-      "discount_allocations": [
-        {
-          "amount": "1.00",
-          "discount_application_index": 0,
-          "amount_set": {
-            "shop_money": {
-              "amount": "1.00",
-              "currency_code": "ZAR"
-            },
-            "presentment_money": {
-              "amount": "1.00",
-              "currency_code": "ZAR"
-            }
-          }
-        }
+      "id": 3280628646063,
+      "admin_graphql_api_id": "gid://shopify/Fulfillment/3280628646063",
+      "created_at": "2021-03-30T13:28:24+02:00",
+      "location_id": 22530642,
+      "name": "#12935.1",
+      "order_id": 3708484681903,
+      "receipt": {},
+      "service": "manual",
+      "shipment_status": null,
+      "status": "success",
+      "tracking_company": "Other",
+      "tracking_number": "TCG29548395",
+      "tracking_numbers": [
+        "TCG29548395"
       ],
-      "duties": [],
-      "admin_graphql_api_id": "gid://shopify/LineItem/9228283117743",
-      "tax_lines": [
+      "tracking_url": null,
+      "tracking_urls": [],
+      "updated_at": "2021-03-30T13:28:24+02:00",
+      "line_items": [
         {
-          "title": "VAT",
-          "price": "0.00",
-          "rate": 0.15,
+          "id": 9706984603823,
+          "admin_graphql_api_id": "gid://shopify/LineItem/9706984603823",
+          "fulfillable_quantity": 0,
+          "fulfillment_service": "manual",
+          "fulfillment_status": "fulfilled",
+          "gift_card": false,
+          "grams": 2000,
+          "name": "Kallax Insert with Door - white",
+          "origin_location": {
+            "id": 2030453063740,
+            "country_code": "ZA",
+            "province_code": "WC",
+            "name": "Kids Living",
+            "address1": "15 Hudson Street",
+            "address2": "Greenpoint",
+            "city": "Cape Town",
+            "zip": "8001"
+          },
+          "price": "339.00",
           "price_set": {
             "shop_money": {
-              "amount": "0.00",
+              "amount": "339.00",
               "currency_code": "ZAR"
             },
             "presentment_money": {
-              "amount": "0.00",
+              "amount": "339.00",
               "currency_code": "ZAR"
             }
-          }
-        }
-      ],
-      "origin_location": {
-        "id": 2030453063740,
-        "country_code": "ZA",
-        "province_code": "WC",
-        "name": "Kids Living",
-        "address1": "15 Hudson Street",
-        "address2": "Greenpoint",
-        "city": "Cape Town",
-        "zip": "8001"
-      }
-    },
-    {
-      "id": 9228283150511,
-      "variant_id": 38312872968367,
-      "title": "TESTING TESTING - DO NOT FULFILL",
-      "quantity": 1,
-      "sku": "TESTINGTESTINGDefaultTitle",
-      "variant_title": "cool",
-      "vendor": "Kids Living",
-      "fulfillment_service": "manual",
-      "product_id": 4536570904636,
-      "requires_shipping": true,
-      "taxable": false,
-      "gift_card": false,
-      "name": "TESTING TESTING - DO NOT FULFILL - cool",
-      "variant_inventory_management": "shopify",
-      "properties": [],
-      "product_exists": true,
-      "fulfillable_quantity": 1,
-      "grams": 0,
-      "price": "1.00",
-      "total_discount": "0.00",
-      "fulfillment_status": null,
-      "price_set": {
-        "shop_money": {
-          "amount": "1.00",
-          "currency_code": "ZAR"
-        },
-        "presentment_money": {
-          "amount": "1.00",
-          "currency_code": "ZAR"
-        }
-      },
-      "total_discount_set": {
-        "shop_money": {
-          "amount": "0.00",
-          "currency_code": "ZAR"
-        },
-        "presentment_money": {
-          "amount": "0.00",
-          "currency_code": "ZAR"
-        }
-      },
-      "discount_allocations": [
-        {
-          "amount": "1.00",
-          "discount_application_index": 0,
-          "amount_set": {
+          },
+          "product_exists": true,
+          "product_id": 136492384274,
+          "properties": [],
+          "quantity": 4,
+          "requires_shipping": true,
+          "sku": "11018",
+          "taxable": true,
+          "title": "Kallax Insert with Door",
+          "total_discount": "0.00",
+          "total_discount_set": {
             "shop_money": {
-              "amount": "1.00",
+              "amount": "0.00",
               "currency_code": "ZAR"
             },
             "presentment_money": {
-              "amount": "1.00",
+              "amount": "0.00",
               "currency_code": "ZAR"
             }
-          }
-        }
-      ],
-      "duties": [],
-      "admin_graphql_api_id": "gid://shopify/LineItem/9228283150511",
-      "tax_lines": [
+          },
+          "variant_id": 1328558931986,
+          "variant_inventory_management": "shopify",
+          "variant_title": "white",
+          "vendor": "Ikea",
+          "tax_lines": [
+            {
+              "price": "176.87",
+              "price_set": {
+                "shop_money": {
+                  "amount": "176.87",
+                  "currency_code": "ZAR"
+                },
+                "presentment_money": {
+                  "amount": "176.87",
+                  "currency_code": "ZAR"
+                }
+              },
+              "rate": 0.15,
+              "title": "VAT"
+            }
+          ],
+          "duties": [],
+          "discount_allocations": []
+        },
         {
-          "title": "VAT",
-          "price": "0.00",
-          "rate": 0.15,
+          "id": 9706984636591,
+          "admin_graphql_api_id": "gid://shopify/LineItem/9706984636591",
+          "fulfillable_quantity": 0,
+          "fulfillment_service": "manual",
+          "fulfillment_status": "fulfilled",
+          "gift_card": false,
+          "grams": 14000,
+          "name": "Kallax Bookcase 42 x 147",
+          "origin_location": {
+            "id": 2030453063740,
+            "country_code": "ZA",
+            "province_code": "WC",
+            "name": "Kids Living",
+            "address1": "15 Hudson Street",
+            "address2": "Greenpoint",
+            "city": "Cape Town",
+            "zip": "8001"
+          },
+          "price": "1349.00",
           "price_set": {
             "shop_money": {
+              "amount": "1349.00",
+              "currency_code": "ZAR"
+            },
+            "presentment_money": {
+              "amount": "1349.00",
+              "currency_code": "ZAR"
+            }
+          },
+          "product_exists": true,
+          "product_id": 10091920146,
+          "properties": [],
+          "quantity": 2,
+          "requires_shipping": true,
+          "sku": "FKALLAX42X147",
+          "taxable": true,
+          "title": "Kallax Bookcase 42 x 147",
+          "total_discount": "0.00",
+          "total_discount_set": {
+            "shop_money": {
               "amount": "0.00",
               "currency_code": "ZAR"
             },
@@ -307,40 +398,148 @@ x-shopify-shop-domain: kids-living.myshopify.com
               "amount": "0.00",
               "currency_code": "ZAR"
             }
-          }
+          },
+          "variant_id": 39127647186,
+          "variant_inventory_management": "shopify",
+          "variant_title": "",
+          "vendor": "Ikea",
+          "tax_lines": [
+            {
+              "price": "351.91",
+              "price_set": {
+                "shop_money": {
+                  "amount": "351.91",
+                  "currency_code": "ZAR"
+                },
+                "presentment_money": {
+                  "amount": "351.91",
+                  "currency_code": "ZAR"
+                }
+              },
+              "rate": 0.15,
+              "title": "VAT"
+            }
+          ],
+          "duties": [],
+          "discount_allocations": []
+        },
+        {
+          "id": 9706984702127,
+          "admin_graphql_api_id": "gid://shopify/LineItem/9706984702127",
+          "fulfillable_quantity": 0,
+          "fulfillment_service": "manual",
+          "fulfillment_status": "fulfilled",
+          "gift_card": false,
+          "grams": 14000,
+          "name": "Kallax Bookcase 77 x 77",
+          "origin_location": {
+            "id": 2030453063740,
+            "country_code": "ZA",
+            "province_code": "WC",
+            "name": "Kids Living",
+            "address1": "15 Hudson Street",
+            "address2": "Greenpoint",
+            "city": "Cape Town",
+            "zip": "8001"
+          },
+          "price": "1099.00",
+          "price_set": {
+            "shop_money": {
+              "amount": "1099.00",
+              "currency_code": "ZAR"
+            },
+            "presentment_money": {
+              "amount": "1099.00",
+              "currency_code": "ZAR"
+            }
+          },
+          "product_exists": true,
+          "product_id": 10000114002,
+          "properties": [],
+          "quantity": 1,
+          "requires_shipping": true,
+          "sku": "FKALLAX77",
+          "taxable": true,
+          "title": "Kallax Bookcase 77 x 77",
+          "total_discount": "0.00",
+          "total_discount_set": {
+            "shop_money": {
+              "amount": "0.00",
+              "currency_code": "ZAR"
+            },
+            "presentment_money": {
+              "amount": "0.00",
+              "currency_code": "ZAR"
+            }
+          },
+          "variant_id": 38694480146,
+          "variant_inventory_management": "shopify",
+          "variant_title": "",
+          "vendor": "Ikea",
+          "tax_lines": [
+            {
+              "price": "143.35",
+              "price_set": {
+                "shop_money": {
+                  "amount": "143.35",
+                  "currency_code": "ZAR"
+                },
+                "presentment_money": {
+                  "amount": "143.35",
+                  "currency_code": "ZAR"
+                }
+              },
+              "rate": 0.15,
+              "title": "VAT"
+            }
+          ],
+          "duties": [],
+          "discount_allocations": []
         }
-      ],
-      "origin_location": {
-        "id": 2030453063740,
-        "country_code": "ZA",
-        "province_code": "WC",
-        "name": "Kids Living",
-        "address1": "15 Hudson Street",
-        "address2": "Greenpoint",
-        "city": "Cape Town",
-        "zip": "8001"
-      }
+      ]
     }
   ],
-  "fulfillments": [],
-  "refunds": [],
-  "total_tip_received": "0.0",
-  "original_total_duties_set": null,
-  "current_total_duties_set": null,
-  "admin_graphql_api_id": "gid://shopify/Order/3257938804911",
-  "shipping_lines": [
+  "line_items": [
     {
-      "id": 2688476676271,
-      "title": "Collect from Johannesburg - Sandton Store",
-      "price": "0.00",
-      "code": "Collect from Johannesburg - Sandton Store",
-      "source": "shopify",
-      "phone": null,
-      "requested_fulfillment_service_id": null,
-      "delivery_category": null,
-      "carrier_identifier": null,
-      "discounted_price": "0.00",
+      "id": 9706984603823,
+      "admin_graphql_api_id": "gid://shopify/LineItem/9706984603823",
+      "fulfillable_quantity": 0,
+      "fulfillment_service": "manual",
+      "fulfillment_status": "fulfilled",
+      "gift_card": false,
+      "grams": 2000,
+      "name": "Kallax Insert with Door - white",
+      "origin_location": {
+        "id": 2030453063740,
+        "country_code": "ZA",
+        "province_code": "WC",
+        "name": "Kids Living",
+        "address1": "15 Hudson Street",
+        "address2": "Greenpoint",
+        "city": "Cape Town",
+        "zip": "8001"
+      },
+      "price": "339.00",
       "price_set": {
+        "shop_money": {
+          "amount": "339.00",
+          "currency_code": "ZAR"
+        },
+        "presentment_money": {
+          "amount": "339.00",
+          "currency_code": "ZAR"
+        }
+      },
+      "product_exists": true,
+      "product_id": 136492384274,
+      "properties": [],
+      "quantity": 4,
+      "requires_shipping": true,
+      "sku": "11018",
+      "taxable": true,
+      "title": "Kallax Insert with Door",
+      "total_discount": "0.00",
+      "total_discount_set": {
         "shop_money": {
           "amount": "0.00",
           "currency_code": "ZAR"
@@ -350,6 +549,202 @@ x-shopify-shop-domain: kids-living.myshopify.com
           "currency_code": "ZAR"
         }
       },
+      "variant_id": 1328558931986,
+      "variant_inventory_management": "shopify",
+      "variant_title": "white",
+      "vendor": "Ikea",
+      "tax_lines": [
+        {
+          "price": "176.87",
+          "price_set": {
+            "shop_money": {
+              "amount": "176.87",
+              "currency_code": "ZAR"
+            },
+            "presentment_money": {
+              "amount": "176.87",
+              "currency_code": "ZAR"
+            }
+          },
+          "rate": 0.15,
+          "title": "VAT"
+        }
+      ],
+      "duties": [],
+      "discount_allocations": []
+    },
+    {
+      "id": 9706984636591,
+      "admin_graphql_api_id": "gid://shopify/LineItem/9706984636591",
+      "fulfillable_quantity": 0,
+      "fulfillment_service": "manual",
+      "fulfillment_status": "fulfilled",
+      "gift_card": false,
+      "grams": 14000,
+      "name": "Kallax Bookcase 42 x 147",
+      "origin_location": {
+        "id": 2030453063740,
+        "country_code": "ZA",
+        "province_code": "WC",
+        "name": "Kids Living",
+        "address1": "15 Hudson Street",
+        "address2": "Greenpoint",
+        "city": "Cape Town",
+        "zip": "8001"
+      },
+      "price": "1349.00",
+      "price_set": {
+        "shop_money": {
+          "amount": "1349.00",
+          "currency_code": "ZAR"
+        },
+        "presentment_money": {
+          "amount": "1349.00",
+          "currency_code": "ZAR"
+        }
+      },
+      "product_exists": true,
+      "product_id": 10091920146,
+      "properties": [],
+      "quantity": 2,
+      "requires_shipping": true,
+      "sku": "FKALLAX42X147",
+      "taxable": true,
+      "title": "Kallax Bookcase 42 x 147",
+      "total_discount": "0.00",
+      "total_discount_set": {
+        "shop_money": {
+          "amount": "0.00",
+          "currency_code": "ZAR"
+        },
+        "presentment_money": {
+          "amount": "0.00",
+          "currency_code": "ZAR"
+        }
+      },
+      "variant_id": 39127647186,
+      "variant_inventory_management": "shopify",
+      "variant_title": "",
+      "vendor": "Ikea",
+      "tax_lines": [
+        {
+          "price": "351.91",
+          "price_set": {
+            "shop_money": {
+              "amount": "351.91",
+              "currency_code": "ZAR"
+            },
+            "presentment_money": {
+              "amount": "351.91",
+              "currency_code": "ZAR"
+            }
+          },
+          "rate": 0.15,
+          "title": "VAT"
+        }
+      ],
+      "duties": [],
+      "discount_allocations": []
+    },
+    {
+      "id": 9706984702127,
+      "admin_graphql_api_id": "gid://shopify/LineItem/9706984702127",
+      "fulfillable_quantity": 0,
+      "fulfillment_service": "manual",
+      "fulfillment_status": "fulfilled",
+      "gift_card": false,
+      "grams": 14000,
+      "name": "Kallax Bookcase 77 x 77",
+      "origin_location": {
+        "id": 2030453063740,
+        "country_code": "ZA",
+        "province_code": "WC",
+        "name": "Kids Living",
+        "address1": "15 Hudson Street",
+        "address2": "Greenpoint",
+        "city": "Cape Town",
+        "zip": "8001"
+      },
+      "price": "1099.00",
+      "price_set": {
+        "shop_money": {
+          "amount": "1099.00",
+          "currency_code": "ZAR"
+        },
+        "presentment_money": {
+          "amount": "1099.00",
+          "currency_code": "ZAR"
+        }
+      },
+      "product_exists": true,
+      "product_id": 10000114002,
+      "properties": [],
+      "quantity": 1,
+      "requires_shipping": true,
+      "sku": "FKALLAX77",
+      "taxable": true,
+      "title": "Kallax Bookcase 77 x 77",
+      "total_discount": "0.00",
+      "total_discount_set": {
+        "shop_money": {
+          "amount": "0.00",
+          "currency_code": "ZAR"
+        },
+        "presentment_money": {
+          "amount": "0.00",
+          "currency_code": "ZAR"
+        }
+      },
+      "variant_id": 38694480146,
+      "variant_inventory_management": "shopify",
+      "variant_title": "",
+      "vendor": "Ikea",
+      "tax_lines": [
+        {
+          "price": "143.35",
+          "price_set": {
+            "shop_money": {
+              "amount": "143.35",
+              "currency_code": "ZAR"
+            },
+            "presentment_money": {
+              "amount": "143.35",
+              "currency_code": "ZAR"
+            }
+          },
+          "rate": 0.15,
+          "title": "VAT"
+        }
+      ],
+      "duties": [],
+      "discount_allocations": []
+    }
+  ],
+  "refunds": [],
+  "shipping_address": {
+    "first_name": "Melissa",
+    "address1": "52 Glen Grey Drive",
+    "phone": "072 326 3282",
+    "city": "Waterfall",
+    "zip": "3610",
+    "province": "KwaZulu-Natal",
+    "country": "South Africa",
+    "last_name": "Page",
+    "address2": "Unit 5 Waterford Country Estate",
+    "company": "Melissa Page",
+    "latitude": null,
+    "longitude": null,
+    "name": "Melissa Page",
+    "country_code": "ZA",
+    "province_code": "NL"
+  },
+  "shipping_lines": [
+    {
+      "id": 3148345671855,
+      "carrier_identifier": "414127336c64f5eed2fa6b34fbc5a7e3",
+      "code": "courier-door-to-door-delivery-economy",
+      "delivery_category": null,
+      "discounted_price": "0.00",
       "discounted_price_set": {
         "shop_money": {
           "amount": "0.00",
@@ -360,88 +755,25 @@ x-shopify-shop-domain: kids-living.myshopify.com
           "currency_code": "ZAR"
         }
       },
-      "discount_allocations": [],
-      "tax_lines": []
+      "phone": null,
+      "price": "0.00",
+      "price_set": {
+        "shop_money": {
+          "amount": "0.00",
+          "currency_code": "ZAR"
+        },
+        "presentment_money": {
+          "amount": "0.00",
+          "currency_code": "ZAR"
+        }
+      },
+      "requested_fulfillment_service_id": null,
+      "source": "uAfrica Shipping Zones",
+      "title": "Courier Door to Door Delivery - Economy",
+      "tax_lines": [],
+      "discount_allocations": []
     }
-  ],
-  "billing_address": {
-    "first_name": "Felix",
-    "address1": "Unit 3, Adelphi",
-    "phone": "076 031 3590",
-    "city": "Cape Town",
-    "zip": "8001",
-    "province": "Western Cape",
-    "country": "South Africa",
-    "last_name": "Tellmann",
-    "address2": "21 Bellair Road",
-    "company": "",
-    "latitude": -33.9211185,
-    "longitude": 18.4216702,
-    "name": "Felix Tellmann",
-    "country_code": "ZA",
-    "province_code": "WC"
-  },
-  "shipping_address": {
-    "first_name": "Felix",
-    "address1": "Unit 3, Adelphi",
-    "phone": "076 031 3590",
-    "city": "Cape Town",
-    "zip": "8001",
-    "province": "Western Cape",
-    "country": "South Africa",
-    "last_name": "Tellmann",
-    "address2": "21 Bellair Road",
-    "company": "",
-    "latitude": -33.9211185,
-    "longitude": 18.4216702,
-    "name": "Felix Tellmann",
-    "country_code": "ZA",
-    "province_code": "WC"
-  },
-  "customer": {
-    "id": 5435238354,
-    "email": "felix@tellmann.co.za",
-    "accepts_marketing": true,
-    "created_at": "2017-05-25T20:32:08+02:00",
-    "updated_at": "2021-02-22T11:53:57+02:00",
-    "first_name": "Felix",
-    "last_name": "Tellmann",
-    "orders_count": 59,
-    "state": "enabled",
-    "total_spent": "6.00",
-    "last_order_id": 3261141319855,
-    "note": null,
-    "verified_email": false,
-    "multipass_identifier": null,
-    "tax_exempt": false,
-    "phone": null,
-    "tags": "newsletter, subscribed",
-    "last_order_name": "#12481",
-    "currency": "ZAR",
-    "accepts_marketing_updated_at": "2018-12-29T22:19:46+02:00",
-    "marketing_opt_in_level": "single_opt_in",
-    "tax_exemptions": [],
-    "admin_graphql_api_id": "gid://shopify/Customer/5435238354",
-    "default_address": {
-      "id": 5656513708207,
-      "customer_id": 5435238354,
-      "first_name": "Felix",
-      "last_name": "Tellmann",
-      "company": "",
-      "address1": "Unit 3, Adelphi",
-      "address2": "21 Bellair Road",
-      "city": "Cape Town",
-      "province": "Western Cape",
-      "country": "South Africa",
-      "zip": "8001",
-      "phone": "0760313590",
-      "name": "Felix Tellmann",
-      "province_code": "WC",
-      "country_code": "ZA",
-      "country_name": "South Africa",
-      "default": true
-    }
-  }
+  ]
 }
 
 
