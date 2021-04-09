@@ -301,7 +301,6 @@ export const simplifyProducts = (products: any, source: "vend" | "shopify"): pro
     const v_single_product = products?.length === 1;
 
     return products.reduce((acc: productModel[], variant: productModel): productModel[] => {
-      console.log(variant);
       const {
         id,
         active,
@@ -357,6 +356,7 @@ export const simplifyProducts = (products: any, source: "vend" | "shopify"): pro
   }
 
   if (source === "shopify") {
+    console.log(products);
     const {
       id: s_gql_product_id,
       productType,
