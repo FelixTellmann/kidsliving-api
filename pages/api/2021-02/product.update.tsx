@@ -182,7 +182,8 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
           },
           null,
           2
-        )
+        ),
+        "development"
       );
     } // LOGGING
 
