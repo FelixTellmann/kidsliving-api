@@ -244,13 +244,16 @@ export const createGqlConnectInvLocationMutation = (
   return "";
 };
 
-export const createGqlDisconnectInvLocationMutation = (v_has_sell_jhb_tag?: boolean, inventory_JHB_level_id?: string): string => {
+export const createGqlDisconnectInvLocationMutation = (
+  v_has_sell_jhb_tag?: boolean,
+  inventory_JHB_level_id?: string
+): string => {
   if (!v_has_sell_jhb_tag && inventory_JHB_level_id) {
     return `inventoryDeactivate(inventoryLevelId: "${inventory_JHB_level_id}") {
     userErrors {
       field
       message
-    }
+    } 
   }`;
   }
   return "";
@@ -298,6 +301,7 @@ export const simplifyProducts = (products: any, source: "vend" | "shopify"): pro
     const v_single_product = products?.length === 1;
 
     return products.reduce((acc: productModel[], variant: productModel): productModel[] => {
+      console.log(variant);
       const {
         id,
         active,
