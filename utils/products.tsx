@@ -356,7 +356,7 @@ export const simplifyProducts = (products: any, source: "vend" | "shopify"): pro
   }
 
   if (source === "shopify") {
-    console.log(products);
+    if (!products || !products.id) return [];
     const {
       id: s_gql_product_id,
       productType,
@@ -504,7 +504,6 @@ export const getDifferences = (
   shopify_update = false,
   vend_udpate = !shopify_update
 ): finalReturn => {
-  console.log(vend);
   /* if there is an error with the product_id matching - return empty */
   if (!vend.every(({ product_id }) => shopify.every(s => s.product_id === product_id))) {
     return {
