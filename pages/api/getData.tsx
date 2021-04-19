@@ -24,7 +24,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
   }
 
   try {
-    const sales = await getData("getSales");
+    /*const sales = await getData("getSales");*/
     const products = await getData("getProducts");
     const consignment_products = await getData("getConsignments");
     const parent_id_used = [];
@@ -44,7 +44,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
       const oldTagArray = tags.split(",").map((itm: string) => itm.trim());
       let update = false;
 
-      let hasSales = false;
+      /*let hasSales = false;*/
       let incoming: boolean | number = false;
       let incomingId;
 
@@ -52,9 +52,9 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
         for (let i = 0; i < products.data.length; i++) {
           const { id: id2, variant_parent_id: variant_parent_id2 } = products.data[i];
           if (variant_parent_id === variant_parent_id2) {
-            if (id2 in sales.data) {
+            /*if (id2 in sales.data) {
               hasSales = id2;
-            }
+            }*/
             if (id2 in consignment_products.data) {
               if (incoming === false) {
                 incoming = +consignment_products.data[id2].count;
@@ -68,12 +68,13 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
         }
       }
 
-      if (id in sales.data || hasSales) {
-        if (!tagArray.includes("FX_recent_sale")) {
+      /*if (id in sales.data || hasSales) {
+        /!*if (!tagArray.includes("FX_recent_sale")) {
           tagArray.push("FX_recent_sale");
           update = true;
-        }
-      } else if (tagArray.includes("FX_recent_sale")) {
+        }*!/
+      } else */
+      if (tagArray.includes("FX_recent_sale")) {
         const index = tagArray.indexOf("FX_recent_sale");
         if (index > -1) {
           tagArray.splice(index, 1);
@@ -84,21 +85,21 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
       if (id in consignment_products.data || incomingId) {
         if (!tagArray.includes("FX_incoming_stock")) {
           tagArray.push("FX_incoming_stock");
-          tagArray.push(
+          /*tagArray.push(
             `FX_incoming_count__${incoming === 0 || incoming ? incoming : consignment_products.data[id]?.count}`
-          );
+          );*/
           consignment_products.data[incomingId || id]?.name.forEach(name => {
             tagArray.push(`FX_incoming_name__${name}`);
           });
           update = true;
         }
 
-        if (!tagArray.findIndex((itm: string) => itm.includes("FX_incoming_count__"))) {
+        /*if (!tagArray.findIndex((itm: string) => itm.includes("FX_incoming_count__"))) {
           tagArray.push(
             `FX_incoming_count__${incoming === 0 || incoming ? incoming : consignment_products.data[id]?.count}`
           );
           update = true;
-        }
+        }*/
 
         if (!tagArray.findIndex((itm: string) => itm.includes("FX_incoming_name__"))) {
           consignment_products.data[incomingId || id]?.name.forEach(name => {
@@ -170,10 +171,56 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
       await updateProducts(productsToUpdateArray[i][0], productsToUpdateArray[i][1]);
     } */
 
-    await Promise.all(productsToUpdateArray.map(([id, tags]) => updateProducts(id, tags)));
+    const promiseArray = [[]];
+    for (let i = 0; i < productsToUpdateArray.length; i += 50) {
+      promiseArray.push(productsToUpdateArray.slice(i, i + 50));
+      console.log(i, productsToUpdateArray.length);
+    }
+
+    /*= =============== Execute async Batches ================ */
+    let resultArray = [];
+    for (let i = 0; i < promiseArray.length; i++) {
+      /* Buffer by 20 seconds for every 80 products gone through */
+      resultArray = [
+        ...resultArray,
+        ...(await Promise.allSettled(promiseArray[i].map(([id, tags]) => updateProducts(id, tags)))),
+      ];
+      console.log(
+        resultArray.reduce(
+          (acc, val) => {
+            if (val.status === "fulfilled") {
+              acc.fulfilled += 1;
+            }
+            if (val.status === "rejected") {
+              acc.rejected += 1;
+            }
+
+            return acc;
+          },
+          { fulfilled: 0, rejected: 0 }
+        )
+      );
+    }
+
+    /*const results = await Promise.allSettled(productsToUpdateArray.map(([id, tags]) => updateProducts(id, tags)));*/
     /* const test = await Promise.all(productsToUpdateArray) */
     /* console.log(test.map(({data})=> data)) */
     console.log(productsToUpdateArray.length);
+    console.log(
+      resultArray.reduce(
+        (acc, val) => {
+          if (val.status === "fulfilled") {
+            acc.fulfilled += 1;
+          }
+          if (val.status === "rejected") {
+            acc.rejected += 1;
+          }
+
+          return acc;
+        },
+        { fulfilled: 0, rejected: 0 }
+      )
+    );
     res.status(200).json({ message: `success`, id_used: productsToUpdateArray.length });
   } catch (err) {
     console.log(err);

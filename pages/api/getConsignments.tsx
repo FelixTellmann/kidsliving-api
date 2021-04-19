@@ -20,7 +20,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
     return axios(`http://${req.headers.host}/api/getConsignmentProducts?id=${id}&name=${name}`);
   }
 
-  const getData = async (hasPageRequest: string | string[] = "1", hasSinceDate?): Promise<unknown[]> => {
+  const getData = async (hasPageRequest?, hasSinceDate?): Promise<unknown[]> => {
     try {
       const date = new Date();
       // const fiveMonthAgo = hasSinceDate || `${date.getFullYear()}-${date.getMonth() - 5}-${date.getDate()}`;
@@ -33,7 +33,9 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
 
       const response = await axios({
         method: "get",
-        url: `https://kidsliving.vendhq.com/api/consignment?since=${fiveMonthAgo}${page ? `&page=${page}` : ""}&page_size=200`,
+        url: `https://kidsliving.vendhq.com/api/consignment?since=${fiveMonthAgo}${
+          page ? `&page=${page}` : ""
+        }&page_size=200`,
         headers: {
           Accept: "application/json",
           Authorization: "Bearer 5OtjwgBqfHJZh1Ed36qBb_JUDDKnjwlAJ7l8fBmg",
@@ -71,10 +73,10 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
 
   if (!page) {
     consignments = consignments.filter(({ status }) => status === `OPEN`);
-    res.status(200).json(consignments);
-    return;
     const promises = consignments.map(({ id, name }) => getConsignmentProducts(id, name));
+
     consignment_products = await Promise.all(promises);
+
     consignment_products = consignment_products.reduce((acc: ConsignmentProductsData, value) => {
       value?.data?.forEach(({ id, count, name, consignment_id }) => {
         if (id in acc) {
