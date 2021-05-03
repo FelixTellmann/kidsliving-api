@@ -1,0 +1,10 @@
+{
+  "function": {
+    "reviewAllProducts": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda",
+      "dependsOn": []
+    }
+  }
+}

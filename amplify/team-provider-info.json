@@ -1,0 +1,23 @@
+{
+  "production": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-kidslivingapi-production-100051-authRole",
+      "UnauthRoleArn": "arn:aws:iam::395064999922:role/amplify-kidslivingapi-production-100051-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::395064999922:role/amplify-kidslivingapi-production-100051-authRole",
+      "Region": "us-east-2",
+      "DeploymentBucketName": "amplify-kidslivingapi-production-100051-deployment",
+      "UnauthRoleName": "amplify-kidslivingapi-production-100051-unauthRole",
+      "StackName": "amplify-kidslivingapi-production-100051",
+      "StackId": "arn:aws:cloudformation:us-east-2:395064999922:stack/amplify-kidslivingapi-production-100051/b2be0470-abe5-11eb-bdac-0a855f8e3818",
+      "AmplifyAppId": "d76b37vvpfgzg"
+    },
+    "categories": {
+      "function": {
+        "reviewAllProducts": {
+          "deploymentBucketName": "amplify-kidslivingapi-production-100051-deployment",
+          "s3Key": "amplify-builds/reviewAllProducts-46495037335a57776d59-build.zip"
+        }
+      }
+    }
+  }
+}
