@@ -1,5 +1,5 @@
 import { fetchVendCustomerByEmail } from "entities/customer/vendFetchCustomer";
-import { fetchVendAllProductsBySku, fetchVendProductByHandle } from "entities/product/vendFetchProducts";
+import { fetchVendAllProductsBySku, fetchVendProducts } from "entities/product/vendFetchProducts";
 import { loadFirebase } from "lib/db";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { postNewVendCustomer } from "entities/customer/vendPostCustomer";
@@ -42,7 +42,7 @@ export const ProductUpdateShopifyCounter = async (req: NextApiRequest, res: Next
     fetchShopifyFulfillmentOrdersById(body.id),
     fetchVendCustomerByEmail(body.email),
     fetchVendSaleByInvoiceId(body.order_number),
-    fetchVendProductByHandle(body.shipping_lines[0]?.code.replace(/\s/gi, "") || "courier-door-to-door-delivery-economy"),
+    fetchVendProducts(body.shipping_lines[0]?.code.replace(/\s/gi, "") || "courier-door-to-door-delivery-economy"),
     fetchVendAllProductsBySku(body),
   ]);
 

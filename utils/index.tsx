@@ -24,7 +24,9 @@ export const addTag = (string: string, tag: string): string =>
         .map(t => t.trim())
         .concat(tag)
     ),
-  ].join(",");
+  ]
+    .join(",")
+    .replace(/^,/, "");
 
 export const removeTag = (string: string, tag: string): string =>
   [
@@ -34,12 +36,15 @@ export const removeTag = (string: string, tag: string): string =>
         .map(t => t.trim())
         .filter(x => x !== tag)
     ),
-  ].join(",");
+  ]
+    .join(",")
+    .replace(/^,/, "");
 
 export const mergeTags = (tagList: string, tagListAddon: string): string =>
   [...new Set([...tagList.split(",").map((t: string) => t.trim()), ...tagListAddon.split(",").map((t: string) => t.trim())])]
     ?.filter(t => t !== "")
-    .join(",");
+    .join(",")
+    .replace(/^,/, "");
 
 export const mergeDescriptions = (description: string, descriptionAddon: string): string => {
   return description.length > descriptionAddon.length ? description : descriptionAddon;
@@ -47,6 +52,22 @@ export const mergeDescriptions = (description: string, descriptionAddon: string)
 
 export const isSameTags = (tagList: string, secondTagList: string): boolean => {
   return isSameArray(tagList.split(","), secondTagList.split(","));
+};
+
+export const includesTags = (mainTaglist: string, smallerTaglist: string): boolean => {
+  return smallerTaglist
+    .replace(/,\s*$/, "")
+    .toLowerCase()
+    .split(",")
+    .map(t => t.trim())
+    .every(tag =>
+      mainTaglist
+        .replace(/,\s*$/, "")
+        .toLowerCase()
+        .split(",")
+        .map(t => t.trim())
+        .includes(tag)
+    );
 };
 
 export const isSameDescription = (description: string, secondDescription: string): boolean => {
@@ -94,3 +115,7 @@ export const shopifyDateToVendDate = (date: string): string => {
   const dateArray = new Date(date).toISOString().split("T");
   return `${dateArray[0]} ${dateArray[1].split(".")[0]}`;
 };
+
+export function delay(time: number) {
+  return new Promise(resolve => setTimeout(resolve, time));
+}

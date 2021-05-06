@@ -1,7 +1,7 @@
 import axios from "axios";
 import { NextApiRequest, NextApiResponse } from "next";
 import { fetchShopifyProductByProductId } from "../../entities/product/shopifyFetchProducts";
-import { fetchVendProductByHandle } from "../../entities/product/vendFetchProducts";
+import { fetchVendProducts } from "../../entities/product/vendFetchProducts";
 import { loadFirebase } from "../../lib/db";
 import { fetchShopify, fetchShopifyGQL, fetchVend } from "../../utils/fetch";
 import { getDifferences, simplifyProducts } from "../../utils/products";

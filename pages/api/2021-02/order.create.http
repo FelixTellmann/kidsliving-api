@@ -907,7 +907,7 @@ X-Shopify-Access-Token: 7522f1ec2ce1989ac523647deae8d00b
 # TODO quantities will be known from webhook - make use of it
 
 mutation {
-  productVariantUpdate(input: {id: "gid://shopify/ProductVariant/38312911372463", metafields: [{ key: "active", valueType: STRING, value: "false", namespace: "vend"}]}) {
+  productVariantUpdate(input: {id: "gid://shopify/ProductVariant/31841950007356", metafields: [{ key: "active", valueType: JSON_STRING, value: "[{\"name\":\"End May container\",\"quantity\":\"24.00000\"}]", namespace: "preorders"}]}) {
     product {
       id
     }
