@@ -70,7 +70,8 @@ Content-Type: application/graphql
 X-Shopify-Access-Token: 7522f1ec2ce1989ac523647deae8d00b
 
 mutation {
-      inventoryActivate(
+
+              inventoryActivate(
       inventoryItemId: "gid://shopify/InventoryItem/41876171522223",
       locationId: "gid://shopify/Location/36654383164",
       available: 2) {
@@ -105,7 +106,7 @@ mutation {
       message
     }
   }
-}
+            }
 ###
 
 # SHOPIFY create
