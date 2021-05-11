@@ -157,6 +157,28 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
 
     if (to_process_count === 0) {
       console.log(`No Changes`);
+      await db
+        .collection("product.update")
+        .doc(product_id)
+        .set({
+          s_created_at: Date.now(),
+          v_created_at,
+          created_at_ISO: new Date(Date.now()).toISOString().split(".")[0].split("T").join(" ").replace(/-/gi, "/"),
+          vend,
+          shopify,
+          handle,
+          product_id,
+          source: vhook ? "vend" : "shopify",
+          processed: JSON.stringify(
+            {
+              /* vend_0: vend[0],
+            shopify_0: shopify[0], */
+              to_process,
+            },
+            null,
+            2
+          ),
+        });
       res.status(200).json("No Changes");
       return;
     }
