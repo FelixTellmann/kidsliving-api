@@ -123,7 +123,7 @@ export const postNewVendOrderReturnConfig: TPostNewVendOrder = (
     source: "SHOPIFY",
     source_id: `${shopifyOrderWebhook.id}`,
     register_id: VEND_REGISTER_CPT_TILL2_ID,
-    status: shopifyOrderWebhook.fulfillment_status === "fufilled" ? "DISPATCHED_CLOSED" : "AWAITING_DISPATCH",
+    status: shopifyOrderWebhook.fulfillment_status === "fulfilled" ? "DISPATCHED_CLOSED" : "AWAITING_DISPATCH",
     invoice_number: `${shopifyOrderWebhook.order_number}`,
     sale_date: shopifyDateToVendDate(shopifyOrderWebhook.created_at),
     note: shopifyOrderWebhook.note,
@@ -182,8 +182,7 @@ export const postNewVendOrderReturnConfig: TPostNewVendOrder = (
       shopifyOrderWebhook.financial_status === "paid"
         ? [
             {
-              retailer_payment_type_id:
-                shopifyOrderWebhook.gateway === "paygate" ? VEND_PAYMENT_CC_ID : VEND_PAYMENT_EFT_ID,
+              retailer_payment_type_id: shopifyOrderWebhook.gateway === "paygate" ? VEND_PAYMENT_CC_ID : VEND_PAYMENT_EFT_ID,
               amount: +shopifyOrderWebhook.total_price,
               register_id: VEND_REGISTER_CPT_TILL2_ID,
               payment_date: shopifyDateToVendDate(shopifyOrderWebhook.processed_at),
