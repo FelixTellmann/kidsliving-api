@@ -69,46 +69,43 @@ POST https://kids-living.myshopify.com/admin/api/2021-01/graphql.json
 Content-Type: application/graphql
 X-Shopify-Access-Token: 7522f1ec2ce1989ac523647deae8d00b
 
-{
-    product(id: "gid://shopify/Product/9822851538") {
-      title
-      description
-      tags
-      variants(first: 32) {
-        edges {
-          node {
-            id
-            image {
-              id
-            }
-            inventoryQuantity
-            price
-            sku
-            selectedOptions {
-
-
-                    value
-
-            }
-            inventoryItem {
-              id
-              inventoryLevels(first: 2) {
-                edges {
-                  node {
-                    id
-                    location {
-                      id
-                      name
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
+mutation {
+      inventoryActivate(
+      inventoryItemId: "gid://shopify/InventoryItem/41876171522223",
+      locationId: "gid://shopify/Location/36654383164",
+      available: 2) {
+      inventoryLevel {
+        id
+      }
+      userErrors {
+        field
+        message
       }
     }
+
+
+  inventoryAdjustQuantity(input: {inventoryLevelId:"gid://shopify/InventoryLevel/13411026?inventory_item_id=41876171522223",availableDelta:0}) {
+    inventoryLevel {
+      id
+    }
+    userErrors {
+      field
+      message
+    }
   }
+  productVariantUpdate(input: {id:"gid://shopify/ProductVariant/39781929255087",sku:"FBELLECOT",options:["","",""],price:"6899.00"}) {
+    product {
+      id
+    }
+    productVariant {
+      id
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+}
 ###
 
 # SHOPIFY create

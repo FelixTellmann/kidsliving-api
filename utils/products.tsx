@@ -177,7 +177,7 @@ export const createGqlUpdateVariantMutation = (
 
   const config = {
     id: `gid://shopify/ProductVariant/${variant_id}`,
-    sku,
+    sku: `${sku}`,
     options: [option1 || "", option2 || "", option3 || ""],
     price,
     inventoryPolicy,

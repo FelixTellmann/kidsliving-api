@@ -106,7 +106,7 @@ export const queryfy = (input: unknown): string | number => {
     .map(key => `${key}:${queryfy(obj[key])}`)
     .join(",");
 
-  return `{${props}}`.replace(/"([A-Z]+)"/g, "$1");
+  return `{${props}}`.replace(/"([A-Z]+)":/g, "$1:");
 };
 
 export const shopifyDateToVendDate = (date: string): string => {
