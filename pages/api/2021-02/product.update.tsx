@@ -3,7 +3,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { fetchShopify, fetchShopifyGQL, fetchVend } from "utils/fetch";
 import { getDifferences, simplifyProducts } from "utils/products";
 import { fetchShopifyProductByProductId } from "../../../entities/product/shopifyFetchProducts";
-import { fetchVendProducts } from "../../../entities/product/vendFetchProducts";
+import { fetchVendProductByHandle } from "../../../entities/product/vendFetchProducts";
 
 export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> => {
   /** STEP 1
@@ -108,7 +108,7 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
     /** STEP 2
      * Get data from Shopify & Vend for verification - exit if not found / error */
     const [v_req, s_gql_req] = await Promise.allSettled([
-      fetchVendProducts(handle),
+      fetchVendProductByHandle(handle),
       fetchShopifyProductByProductId(product_id),
     ]);
 
