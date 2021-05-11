@@ -98,7 +98,7 @@ export const fetchShopifyProductByProductId: IFetchShopifyProductByProductId = p
           }
           inventoryItem {
             id
-            inventoryLevels(first: 2) {
+            inventoryLevels(first: 3) {
               edges {
                 node {
                   id
