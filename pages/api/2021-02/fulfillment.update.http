@@ -5,45 +5,45 @@ Accept: application/json
 x-shopify-shop-domain: kids-living.myshopify.com
 
 {
-  "id": 3295601262767,
-  "order_id": 3732834844847,
+  "id": 3384476729519,
+  "order_id": 3832041865391,
   "status": "success",
-  "created_at": "2021-04-07T14:42:37+02:00",
+  "created_at": "2021-05-17T12:34:23+02:00",
   "service": "manual",
-  "updated_at": "2021-04-07T14:42:37+02:00",
-  "tracking_company": null,
+  "updated_at": "2021-05-17T12:34:23+02:00",
+  "tracking_company": "Other",
   "shipment_status": null,
   "location_id": 36654383164,
   "line_items": [
     {
-      "id": 9748637679791,
-      "variant_id": 38312872968367,
-      "title": "TESTING TESTING - DO NOT FULFILL",
+      "id": 9917214621871,
+      "variant_id": 31613396320316,
+      "title": "Maxi Cosi Iora Co-sleeper",
       "quantity": 1,
-      "sku": "TESTINGTESTINGDefaultTitle",
-      "variant_title": "cool",
-      "vendor": "Kids Living",
+      "sku": "18609",
+      "variant_title": "",
+      "vendor": "Maxi Cosi",
       "fulfillment_service": "manual",
-      "product_id": 4536570904636,
+      "product_id": 4423624163388,
       "requires_shipping": true,
-      "taxable": false,
+      "taxable": true,
       "gift_card": false,
-      "name": "TESTING TESTING - DO NOT FULFILL - cool",
+      "name": "Maxi Cosi Iora Co-sleeper",
       "variant_inventory_management": "shopify",
       "properties": [],
       "product_exists": true,
-      "fulfillable_quantity": 1,
-      "grams": 0,
-      "price": "1.00",
+      "fulfillable_quantity": 0,
+      "grams": 9000,
+      "price": "5099.00",
       "total_discount": "0.00",
-      "fulfillment_status": "partial",
+      "fulfillment_status": "fulfilled",
       "price_set": {
         "shop_money": {
-          "amount": "1.00",
+          "amount": "5099.00",
           "currency_code": "ZAR"
         },
         "presentment_money": {
-          "amount": "1.00",
+          "amount": "5099.00",
           "currency_code": "ZAR"
         }
       },
@@ -57,22 +57,7 @@ x-shopify-shop-domain: kids-living.myshopify.com
           "currency_code": "ZAR"
         }
       },
-      "discount_allocations": [
-        {
-          "amount": "2.00",
-          "discount_application_index": 0,
-          "amount_set": {
-            "shop_money": {
-              "amount": "2.00",
-              "currency_code": "ZAR"
-            },
-            "presentment_money": {
-              "amount": "2.00",
-              "currency_code": "ZAR"
-            }
-          }
-        }
-      ],
+      "discount_allocations": [],
       "origin_location": {
         "id": 2030453063740,
         "country_code": "ZA",
@@ -83,20 +68,20 @@ x-shopify-shop-domain: kids-living.myshopify.com
         "city": "Cape Town",
         "zip": "8001"
       },
-      "admin_graphql_api_id": "gid://shopify/LineItem/9748637679791",
+      "admin_graphql_api_id": "gid://shopify/LineItem/9917214621871",
       "duties": [],
       "tax_lines": [
         {
-          "price": "0.00",
+          "price": "665.09",
           "rate": 0.15,
           "title": "VAT",
           "price_set": {
             "shop_money": {
-              "amount": "0.00",
+              "amount": "665.09",
               "currency_code": "ZAR"
             },
             "presentment_money": {
-              "amount": "0.00",
+              "amount": "665.09",
               "currency_code": "ZAR"
             }
           }
@@ -104,13 +89,15 @@ x-shopify-shop-domain: kids-living.myshopify.com
       ]
     }
   ],
-  "tracking_number": null,
-  "tracking_numbers": [],
+  "tracking_number": "TCG29879052",
+  "tracking_numbers": [
+    "TCG29879052"
+  ],
   "tracking_url": null,
   "tracking_urls": [],
   "receipt": {},
-  "name": "#13065.2",
-  "admin_graphql_api_id": "gid://shopify/Fulfillment/3295601262767"
+  "name": "#13558.1",
+  "admin_graphql_api_id": "gid://shopify/Fulfillment/3384476729519"
 }
 
 
