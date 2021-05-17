@@ -18,7 +18,7 @@ export const createProductUpdates = (
     outlet: string;
     status: string;
   }[] = [
-    ...vendFulfillmentList.fulfillments.reduce((acc, fulfillment) => {
+    ...vendFulfillmentList?.fulfillments?.reduce((acc, fulfillment) => {
       return [
         ...acc,
         ...fulfillment?.lineItems?.map(lineItem => {
@@ -36,7 +36,7 @@ export const createProductUpdates = (
         }),
       ];
     }, []),
-    ...vendFulfillmentList.picklists.reduce((acc, picklist) => {
+    ...vendFulfillmentList?.picklists?.reduce((acc, picklist) => {
       return [
         ...acc,
         ...picklist?.lineItems?.map(lineItem => {
@@ -57,7 +57,8 @@ export const createProductUpdates = (
   ];
 
   const resultArray = [];
-
+  console.log(vend);
+  /* WTF IS GOING ON HERE??? */
   shopify.line_items.forEach(({ variant_id, quantity, sku }) => {
     let fulfillmentMatch = [vend.find(fulfillment => fulfillment.sku === sku && +fulfillment?.quantity === quantity)];
 
