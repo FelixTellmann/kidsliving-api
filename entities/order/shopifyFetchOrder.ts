@@ -183,6 +183,90 @@ export const fetchShopifyFulfillmentOrdersById: IFetchShopifyFulfillmentOrderByI
   return fetchShopify(`/orders/${order_id}/fulfillment_orders.json`);
 };
 
+export type shopifyFulfillment = {
+  id: number | null;
+  order_id: number | null;
+  status: string | null;
+  created_at: string | null;
+  service: string | null;
+  updated_at: string | null;
+  tracking_company: null;
+  shipment_status: null;
+  location_id: number | null;
+  line_items: {
+    id: number;
+    variant_id: number | null;
+    title: string | null;
+    quantity: number | null;
+    sku: string | null;
+    variant_title: string | null;
+    vendor: string | null;
+    fulfillment_service: string | null;
+    product_id: number | null;
+    requires_shipping: true;
+    taxable: false;
+    gift_card: false;
+    name: string | null;
+    variant_inventory_management: string | null;
+    properties: [];
+    product_exists: true;
+    fulfillable_quantity: number | null;
+    grams: number | null;
+    price: string | null;
+    total_discount: string | null;
+    fulfillment_status: string | null;
+    price_set: any;
+    total_discount_set: any;
+    discount_allocations: any[];
+    origin_location: {
+      id: number | null;
+      country_code: string | null;
+      province_code: string | null;
+      name: string | null;
+      address1: string | null;
+      address2: string | null;
+      city: string | null;
+      zip: string | null;
+    };
+    admin_graphql_api_id: string | null;
+    duties: [];
+    tax_lines: {
+      price: string | null;
+      rate: number | null;
+      title: string | null;
+      price_set: {
+        shop_money: {
+          amount: string | null;
+          currency_code: string | null;
+        };
+        presentment_money: {
+          amount: string | null;
+          currency_code: string | null;
+        };
+      };
+    }[];
+  }[];
+  tracking_number: string | null;
+  tracking_numbers: string[];
+  tracking_url: null;
+  tracking_urls: [];
+  receipt: {};
+  name: string | null;
+  admin_graphql_api_id: string | null;
+};
+
+export type shopifyFetchFulfillments = {
+  data: {
+    fulfillments: shopifyFulfillment[];
+  };
+};
+
+type IFetchShopifyFulfillmentsByOrderId = (order_id: string | number) => Promise<shopifyFetchFulfillments>;
+
+export const fetchShopifyFulfillmentsByOrderId: IFetchShopifyFulfillmentsByOrderId = order_id => {
+  return fetchShopify(`/orders/${order_id}/fulfillments.json`);
+};
+
 type shopifyFetchOrderNoDetail = {
   data: {
     data: {

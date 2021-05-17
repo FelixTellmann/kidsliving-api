@@ -192,6 +192,6 @@ export const postNewVendOrder: IPostNewVendOrder = (
   return fetchVend(`/register_sales`, "POST", orderConfig);
 };
 
-export const postUpdateVendOrder: IPostNewVendOrder = body => {
+export const postUpdateVendOrder = body => {
   return fetchVend(`/register_sales`, "POST", body);
 };

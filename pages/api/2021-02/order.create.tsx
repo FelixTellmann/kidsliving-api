@@ -1,14 +1,13 @@
 import { fetchVendCustomerByEmail } from "entities/customer/vendFetchCustomer";
-import { fetchVendAllProductsBySku, fetchVendProductByHandle, fetchVendProducts } from "entities/product/vendFetchProducts";
-import { loadFirebase } from "lib/db";
-import type { NextApiRequest, NextApiResponse } from "next";
 import { postNewVendCustomer } from "entities/customer/vendPostCustomer";
 import { fetchShopifyFulfillmentOrdersById } from "entities/order/shopifyFetchOrder";
 import { OrderWebhookRequestBody } from "entities/order/shopifyOrderCreateWebhook";
-import { fetchVendOrderById } from "entities/order/vendFetchOrder";
 import { postNewVendOrder } from "entities/order/vendPostOrder";
 import { postNewVendOrderReturnConfig } from "entities/order/vendPostOrderReturnConfig";
+import { fetchVendAllProductsBySku, fetchVendProductByHandle } from "entities/product/vendFetchProducts";
 import { fetchVendSaleByInvoiceId } from "entities/search/vendFetchSearchSale";
+import { loadFirebase } from "lib/db";
+import type { NextApiRequest, NextApiResponse } from "next";
 
 const { SHOPIFY_JHB_OUTLET_ID, SHOPIFY_DOMAIN } = process.env;
 
