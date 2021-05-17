@@ -4,10 +4,78 @@ import {
   fetchVendConsignmentProductsById,
   vendConsignmentProduct,
 } from "entities/consignmentProducts/vendFetchConsignmentProducts";
-import { fetchVendProducts, vendProduct, vendProductInput } from "entities/product/vendFetchProducts";
-import { isSameTags } from "utils";
+import { fetchVendProducts, postVendProduct, vendProduct, vendProductInput } from "entities/product/vendFetchProducts";
+import { addTag, delay, isSameTags, queryfy, removeTag } from "utils";
+import { fetchShopifyGQL } from "utils/fetch";
 
-async function getAllVendProducts() {
+type ShopifyVariantsWidthMetafields = {
+  id: string;
+  inventoryPolicy: "CONTINUE" | "DENY";
+  metafield: {
+    id: string;
+    value: string;
+  } | null;
+};
+
+type ShopifyVariantsWidthMetafieldsRequest = {
+  data?: {
+    productVariants: {
+      edges: {
+        cursor: string;
+        node: {
+          id: string;
+          inventoryPolicy: "CONTINUE" | "DENY";
+          metafield: {
+            id: string;
+            value: string;
+          };
+        };
+      }[];
+      pageInfo: {
+        hasNextPage: boolean;
+      };
+    };
+  };
+  extensions: {
+    cost: {
+      requestedQueryCost: number;
+      actualQueryCost: number;
+      throttleStatus: {
+        maximumAvailable: number;
+        currentlyAvailable: number;
+        restoreRate: number;
+      };
+    };
+  };
+};
+
+export const createGqlFetchVariantsWithMetafield = (
+  key: string,
+  namespace: string,
+  after?: string,
+  page_count = 100
+): string => {
+  return `query {
+    productVariants(first:${page_count}${after ? `,after:"${after}"` : ""}) {
+      edges { 
+        cursor
+        node {
+          id
+          inventoryPolicy
+          metafield(key: "${key}", namespace: "${namespace}") {
+            id
+            value
+          }
+        } 
+      }
+      pageInfo {
+        hasNextPage
+      }
+    }
+  }`;
+};
+
+async function getAllVendProducts(): Promise<vendProduct[]> {
   const [initialRequest] = await Promise.allSettled([fetchVendProducts()]);
 
   if (initialRequest.status !== "fulfilled") return [];
@@ -30,18 +98,20 @@ async function getAllVendProducts() {
   }, initialRequest.value.data.products);
 }
 
-async function getAllVendConsignments(monthsAgo = 5) {
+async function getAllVendConsignments(
+  monthsAgo = 5,
+  filterStatus = "OPEN",
+  filterType = "SUPPLIER"
+): Promise<[vendConsignment[], vendConsignmentProduct[]]> {
   const date = new Date();
   date.setMonth(date.getMonth() - monthsAgo);
   const fiveMonthAgo = date.toISOString().split("T")[0];
   const [initialRequest] = await Promise.allSettled([fetchVendConsignments(fiveMonthAgo)]);
 
-  if (initialRequest.status !== "fulfilled") return [];
+  if (initialRequest.status !== "fulfilled") return [[], []];
 
   console.log(initialRequest.value.data.pagination);
   const pages = initialRequest.value.data.pagination?.pages ?? 1;
-
-  if (pages === 1) return initialRequest.value.data.consignments ?? [];
 
   const pagesToFetch = [];
   for (let i = 2; i <= pages; i++) {
@@ -50,10 +120,27 @@ async function getAllVendConsignments(monthsAgo = 5) {
 
   const pageRequests = await Promise.allSettled(pagesToFetch);
 
-  return pageRequests.reduce((acc, pageRequest) => {
+  const vendConsignmentsRequest = pageRequests.reduce((acc, pageRequest) => {
     if (pageRequest.status !== "fulfilled") return acc;
     return [...acc, ...pageRequest.value.data.consignments];
   }, initialRequest.value.data.consignments);
+
+  const vendConsignments: vendConsignment[] = vendConsignmentsRequest.filter(
+    ({ status, type }) => status === filterStatus && type === filterType
+  );
+
+  console.log(vendConsignments[6]);
+  console.log(chalk.green(`5. Load all consignment Products`));
+  const consignmentProductsRequests = await Promise.allSettled(
+    vendConsignments.map(({ id }) => getAllVendConsignmentProducts(id))
+  );
+
+  const consignmentProducts: vendConsignmentProduct[] = consignmentProductsRequests.reduce((acc, consignmentProduct) => {
+    if (consignmentProduct.status === "rejected") return acc;
+    return [...acc, ...consignmentProduct.value];
+  }, []);
+
+  return [vendConsignments, consignmentProducts];
 }
 
 async function getAllVendConsignmentProducts(id: string): Promise<vendConsignmentProduct[]> {
@@ -78,44 +165,80 @@ async function getAllVendConsignmentProducts(id: string): Promise<vendConsignmen
   }, initialRequest.value.data.consignment_products);
 }
 
+async function getAllShopifyVariants(): Promise<ShopifyVariantsWidthMetafields[]> {
+  let completed = false;
+  let after = undefined;
+  let variants = [];
+  async function getData(after = undefined) {
+    try {
+      const result = await fetchShopifyGQL(createGqlFetchVariantsWithMetafield("preorders", "vend", after));
+      try {
+        if (!result.data.data.productVariants.edges) {
+          return [[], "", false];
+        }
+      } catch (err) {
+        console.log(err.message, "asd");
+        return [[], "", false];
+      }
+      const {
+        data: {
+          productVariants: {
+            edges: initialVariants,
+            pageInfo: { hasNextPage },
+          },
+        },
+        extensions,
+      } = result.data as ShopifyVariantsWidthMetafieldsRequest;
+      console.log(chalk.red(JSON.stringify(extensions)));
+      return [initialVariants.map(v => v.node), initialVariants[initialVariants.length - 1].cursor, hasNextPage];
+    } catch (err) {
+      console.log(err.message);
+      return [[], "", false];
+    }
+  }
+
+  while (!completed) {
+    const [newVariants, lastCursor, hasNextPage] = await getData(after);
+    await delay(3750);
+    if (!Array.isArray(newVariants)) return;
+    variants = [...variants, ...newVariants];
+    after = lastCursor;
+    completed = !hasNextPage;
+  }
+
+  return variants;
+}
+
 const handler = async _ => {
   const startTime = Date.now();
   console.log(Date.now() - startTime + "ms");
 
   console.log(chalk.green(`1. Setup Amplify auto create functions & include API keys for env variables - done`));
-
   console.log(chalk.green(`2. Load all Consignments  from Vend - Log Pagination:`));
   console.log(chalk.green(`3. Load all Products from Vend - Log Pagination:`));
-  const [vendConsignmentsRequest, vendProductsRequest] = await Promise.allSettled([
-    getAllVendConsignments(5),
+  console.log(chalk.green(`4. Load all Variants from Shopify - Log Pagination:`));
+
+  const [vendConsignmentsRequest, vendProductsRequest, shopifyMetafieldRequests] = await Promise.allSettled([
+    getAllVendConsignments(5, "OPEN", "SUPPLIER"),
     getAllVendProducts(),
+    getAllShopifyVariants(),
   ]);
 
-  if (vendConsignmentsRequest.status !== "fulfilled" || vendProductsRequest.status !== "fulfilled") {
+  if (
+    vendConsignmentsRequest.status !== "fulfilled" ||
+    vendProductsRequest.status !== "fulfilled" ||
+    shopifyMetafieldRequests.status !== "fulfilled"
+  ) {
     return {
       statusCode: 50,
       body: JSON.stringify("Server Error"),
     };
   }
+  const shopifyVariantsWithMetafield = shopifyMetafieldRequests.value;
 
-  const vendConsignments: vendConsignment[] = vendConsignmentsRequest.value.filter(
-    ({ status, type }) => status === "OPEN" && type === "SUPPLIER"
-  );
+  const vendProducts = vendProductsRequest.value as vendProduct[];
 
-  const vendProducts = vendProductsRequest.value;
-
-  console.log(vendConsignments[6]);
-  console.log(chalk.green(`4. Load all consignment Products`));
-  const consignmentProductsRequests = await Promise.allSettled(
-    vendConsignments.map(({ id }) => getAllVendConsignmentProducts(id))
-  );
-  const consignmentProducts: vendConsignmentProduct[] = consignmentProductsRequests.reduce((acc, consignmentProduct) => {
-    if (consignmentProduct.status === "rejected") return acc;
-    return [...acc, ...consignmentProduct.value];
-  }, []);
-
-  console.log(consignmentProducts[0], consignmentProducts.length);
-
+  const [vendConsignments, consignmentProducts] = vendConsignmentsRequest.value;
   console.log(chalk.gray(`4. Update Products based on Criteria - i.e. not on shopify - but is on Shopify - FX tags`));
 
   console.log(consignmentProducts[0]);
@@ -127,22 +250,26 @@ const handler = async _ => {
       if (!vendProduct) return acc;
       acc.counter++;
 
-      if (!vendProduct.source_id || !vendProduct.variant_source_id || vendProduct.source_id.includes("unpub")) return acc;
-      acc.onShopify++;
+      if ((vendProduct.source_id || vendProduct.variant_source_id) && !vendProduct.source_id.includes("unpub")) {
+        acc.onShopify++;
+      }
 
       const container = vendConsignment.name.toLowerCase().includes("container");
       const expectedDate = vendConsignment.name
         .toLowerCase()
         .replace(/(container|preorder)/gi, "")
         .trim();
+
       const preorder = vendConsignment.name.toLowerCase().includes("preorder");
       preorder && acc.preorder++;
 
       if (acc[consignmentProduct.product_id]) {
         acc[consignmentProduct.product_id].consignments.push({
           name: vendConsignment.name,
-          quantity: consignmentProduct.count,
+          quantity: +consignmentProduct.count,
           expectedDate,
+          preorder: vendConsignment.name.toLowerCase().includes("preorder"),
+          container: vendConsignment.name.toLowerCase().includes("container"),
         });
         acc[consignmentProduct.product_id].preorder = acc[consignmentProduct.product_id].preorder || preorder;
         acc[consignmentProduct.product_id].container = acc[consignmentProduct.product_id].container || container;
@@ -153,7 +280,15 @@ const handler = async _ => {
         product_id: vendProduct.source_id,
         variant_id: vendProduct.variant_source_id,
         tags: vendProduct.tags,
-        consignments: [{ name: vendConsignment.name, quantity: consignmentProduct.count, expectedDate }],
+        consignments: [
+          {
+            name: vendConsignment.name,
+            quantity: +consignmentProduct.count,
+            expectedDate,
+            preorder: vendConsignment.name.toLowerCase().includes("preorder"),
+            container: vendConsignment.name.toLowerCase().includes("container"),
+          },
+        ],
         preorder,
         container,
       };
@@ -162,6 +297,147 @@ const handler = async _ => {
     },
     { counter: 0, onShopify: 0, preorder: 0 }
   );
+
+  const vendEditTags_addToShopify = [];
+  const shopifyEditInventoryAndMetafield = [];
+
+  const { counter, onShopify, preorder, ...products } = data;
+  console.log(chalk.blueBright(JSON.stringify({ counter, onShopify, preorder })));
+
+  vendProducts.forEach(({ id, tags, source_id }) => {
+    const hasTag_needsPublishToShopify = tags.includes("FX_needs_publish_to_shopify");
+    const hasTag_needsVariantImage = tags.includes("FX_needs_variant_image");
+    const hasTag_autoPreorder = tags.includes("FX_auto_preorder");
+    const newTags = tags
+      .split(",")
+      .filter(t => !t.toLowerCase().includes(`fx_`))
+      .join(",");
+
+    if (!source_id && hasTag_needsPublishToShopify) {
+      addTag(newTags, "FX_needs_publish_to_shopify");
+    }
+    if (hasTag_needsVariantImage) {
+      addTag(newTags, "FX_needs_variant_image");
+    }
+    /*    if (hasTag_autoPreorder) {
+      addTag(newTags, "FX_auto_preorder");
+    }*/
+    if (!isSameTags(newTags, tags)) {
+      vendEditTags_addToShopify.push(postVendProduct({ id, tags: newTags }));
+    }
+  });
+
+  /*= =============== Process all the data as per business rules  ================ */
+  Object.entries(products).forEach(
+    ([vend_product_id, { preorder, container, product_id, tags, variant_id, consignments }]) => {
+      let newTags = tags;
+      const shopifyMetafields = shopifyVariantsWithMetafield.find(m => m.id.includes(variant_id));
+
+      if (!product_id && !tags.includes("FX_needs_publish_to_shopify" && container)) {
+        newTags = addTag(newTags, "FX_needs_publish_to_shopify");
+      }
+
+      if (shopifyMetafields?.metafield && (!preorder || !container)) {
+        newTags = removeTag(newTags, "FX_auto_preorder");
+        shopifyEditInventoryAndMetafield.push(
+          fetchShopifyGQL(`
+            mutation {
+              metafieldDelete(input: {id: "${shopifyMetafields.metafield.id}"}) {
+                deletedId
+                userErrors {
+                  field
+                  message
+                }
+              }            
+              productVariantUpdate(input: {id: "gid://shopify/ProductVariant/${variant_id}", inventoryPolicy: DENY }) {
+                product {
+                  id  
+                }
+                productVariant { 
+                  id
+                } 
+                userErrors {
+                  field
+                  message
+                }
+              }
+            }
+          `)
+        );
+      }
+
+      if (
+        product_id &&
+        variant_id &&
+        !product_id.includes("unpub") &&
+        container &&
+        preorder &&
+        shopifyMetafields &&
+        shopifyMetafields.inventoryPolicy !== "CONTINUE"
+      ) {
+        if (!newTags.includes("FX_auto_preorder")) {
+          newTags = addTag(newTags, "FX_auto_preorder");
+        }
+        const input = JSON.stringify(consignments).replace(/"/gi, `\\"`);
+        shopifyEditInventoryAndMetafield.push(
+          fetchShopifyGQL(`
+            mutation { 
+              productVariantUpdate(input: {id: "gid://shopify/ProductVariant/${variant_id}", inventoryPolicy: CONTINUE, metafields: [{ key: "preorders", valueType: JSON_STRING, value: "${input}", namespace: "vend" }] }) {
+                productVariant { 
+                  id
+                  inventoryPolicy
+                } 
+                userErrors {
+                  field
+                  message
+                }
+              }
+            }
+          `)
+        );
+        console.log(`
+            mutation { 
+              productVariantUpdate(input: {id: "gid://shopify/ProductVariant/${variant_id}", inventoryPolicy: CONTINUE, metafields: [{ key: "preorders", valueType: JSON_STRING, value: "${input}", namespace: "vend" }] }) {
+                productVariant {  
+                  id
+                  inventoryPolicy
+                } 
+                userErrors {
+                  field
+                  message
+                }
+              }
+            }
+          `);
+      }
+
+      if (!isSameTags(tags, newTags)) {
+        vendEditTags_addToShopify.push(postVendProduct({ id: vend_product_id, tags: newTags }));
+      }
+    }
+  );
+
+  try {
+    console.log(vendEditTags_addToShopify.length, "vendEditTags_addToShopify");
+    console.log(shopifyEditInventoryAndMetafield.length, "shopifyEditInventoryAndMetafield");
+    console.log(shopifyEditInventoryAndMetafield[0]);
+    const final = await Promise.allSettled([...vendEditTags_addToShopify, ...shopifyEditInventoryAndMetafield]);
+    console.log(Date.now() - startTime + "ms");
+
+    const result = final.reduce((acc, requests) => {
+      if (requests.status !== "fulfilled") return acc;
+      return [...acc, requests.value.data];
+    }, []);
+
+    console.log(JSON.stringify(result));
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify(result),
+    };
+  } catch (err) {
+    console.log(err.message);
+  }
 
   /* const promiseArray = [[]];
   for (let i = 0; i < updateRequests.length; i += 50) {

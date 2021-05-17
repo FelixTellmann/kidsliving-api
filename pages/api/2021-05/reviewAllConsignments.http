@@ -1,0 +1,117 @@
+POST http://localhost:3000/api/2021-05/reviewAllConsignments
+Content-Type: application/json
+Accept: application/json
+x-shopify-shop-domain: kids-living.myshopify.com
+
+###
+
+POST https://kids-living.myshopify.com/admin/api/2021-01/graphql.json
+Content-Type: application/graphql
+X-Shopify-Access-Token: 7522f1ec2ce1989ac523647deae8d00b
+
+# TODO quantities will be known from webhook - make use of it
+
+query {
+  products(first: 12) {
+    edges {
+      node {
+        id
+        variants(first: 32) {
+          edges {
+            node {
+              id
+              metafield(key: "active", namespace: "vend") {
+                id
+                key
+                value
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+###
+
+POST https://kids-living.myshopify.com/admin/api/2021-01/graphql.json
+Content-Type: application/graphql
+X-Shopify-Access-Token: 7522f1ec2ce1989ac523647deae8d00b
+
+# TODO quantities will be known from webhook - make use of it
+
+query {
+  productVariants(first:100, query:"id:37677126385839") {
+    edges {
+      cursor
+      node {
+        id
+        inventoryPolicy
+        metafield(key: "preorders", namespace: "vend") {
+          id
+          key
+          value
+        }
+      }
+    }
+    pageInfo {
+      hasNextPage
+    }
+  }
+}
+
+###
+
+POST https://kids-living.myshopify.com/admin/api/2021-01/graphql.json
+Content-Type: application/graphql
+X-Shopify-Access-Token: 7522f1ec2ce1989ac523647deae8d00b
+
+# TODO quantities will be known from webhook - make use of it
+
+mutation {
+  metafieldDelete(input: {id: "gid:\/\/shopify\/Metafield\/19368283504815"}) {
+    deletedId
+    userErrors {
+      field
+      message
+    }
+  }
+  productVariantUpdate(input: {id: "gid://shopify/ProductVariant/37677126385839", inventoryPolicy: DENY }) {
+    product {
+      id
+    }
+    productVariant {
+      id
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+}
+
+###
+
+POST https://kids-living.myshopify.com/admin/api/2021-01/graphql.json
+Content-Type: application/graphql
+X-Shopify-Access-Token: 7522f1ec2ce1989ac523647deae8d00b
+
+# TODO quantities will be known from webhook - make use of it
+
+mutation {
+  productVariantUpdate(input: {id: "gid://shopify/ProductVariant/38163922026671", inventoryPolicy: CONTINUE, metafields: [{ key: "preorders", valueType: JSON_STRING, value: "[{"name":"End May Container","quantity":4,"expectedDate":"end may","preorder":false,"container":true},{"name":"End May Container Preorder","quantity":4,"expectedDate":"end may","preorder":true,"container":true}]", namespace: "vend" }] }) {
+    product {
+      id
+    }
+    productVariant {
+      id
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+}
+
+
