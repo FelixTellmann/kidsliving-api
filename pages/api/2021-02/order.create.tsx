@@ -1,5 +1,5 @@
 import { fetchVendCustomerByEmail } from "entities/customer/vendFetchCustomer";
-import { fetchVendAllProductsBySku, fetchVendProducts } from "entities/product/vendFetchProducts";
+import { fetchVendAllProductsBySku, fetchVendProductByHandle, fetchVendProducts } from "entities/product/vendFetchProducts";
 import { loadFirebase } from "lib/db";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { postNewVendCustomer } from "entities/customer/vendPostCustomer";
@@ -42,7 +42,7 @@ export const ProductUpdateShopifyCounter = async (req: NextApiRequest, res: Next
     fetchShopifyFulfillmentOrdersById(body.id),
     fetchVendCustomerByEmail(body.email),
     fetchVendSaleByInvoiceId(body.order_number),
-    fetchVendProducts(body.shipping_lines[0]?.code.replace(/\s/gi, "") || "courier-door-to-door-delivery-economy"),
+    fetchVendProductByHandle(body.shipping_lines[0]?.code.replace(/\s/gi, "") || "courier-door-to-door-delivery-economy"),
     fetchVendAllProductsBySku(body),
   ]);
 
@@ -64,6 +64,13 @@ export const ProductUpdateShopifyCounter = async (req: NextApiRequest, res: Next
         created_at_ISO: new Date(Date.now()).toISOString().split(".")[0].split("T").join(" ").replace(/-/gi, "/"),
         body: JSON.stringify(body),
         isError: true,
+        errorType: JSON.stringify({
+          shopifyFulfillmentPromise: shopifyFulfillmentPromise.status,
+          customerPromise: customerPromise.status,
+          vendShippingItemPromise: vendShippingItemPromise.status,
+          lineItemPromise: lineItemPromise.status,
+          vendSalePromise: vendSalePromise.status,
+        }),
       });
 
     res.status(200).json({ name: "John Doe2" });
@@ -77,6 +84,14 @@ export const ProductUpdateShopifyCounter = async (req: NextApiRequest, res: Next
   if (vendOrder) {
     console.log("Order Already exists");
     // order = (await fetchVendOrderById(vendOrder.id))?.data?.register_sales[0];
+    await db
+      .collection("order.create")
+      .doc(`${body.order_number}`)
+      .set({
+        created_at_ISO: new Date(Date.now()).toISOString().split(".")[0].split("T").join(" ").replace(/-/gi, "/"),
+        body: JSON.stringify(body),
+        orderAlreadyExists: true,
+      });
     res.status(200).json("Order Already exists");
     return;
   }
@@ -86,6 +101,14 @@ export const ProductUpdateShopifyCounter = async (req: NextApiRequest, res: Next
   });
 
   if (!hasJHBLineItems && new Date(body.created_at).getTime() + 48 * 60 * 60 * 1000 > Date.now()) {
+    await db
+      .collection("order.create")
+      .doc(`${body.order_number}`)
+      .set({
+        created_at_ISO: new Date(Date.now()).toISOString().split(".")[0].split("T").join(" ").replace(/-/gi, "/"),
+        body: JSON.stringify(body),
+        allItemsCapeTown: true,
+      });
     res.status(200).json("All Line Items are CPT");
     return;
   }
@@ -97,6 +120,15 @@ export const ProductUpdateShopifyCounter = async (req: NextApiRequest, res: Next
   if (!oldCustomer) {
     const [newCustomerPromise] = await Promise.allSettled([postNewVendCustomer(body)]);
     if (newCustomerPromise.status !== "fulfilled") {
+      await db
+        .collection("order.create")
+        .doc(`${body.order_number}`)
+        .set({
+          created_at_ISO: new Date(Date.now()).toISOString().split(".")[0].split("T").join(" ").replace(/-/gi, "/"),
+          body: JSON.stringify(body),
+          isError: true,
+          errorType: JSON.stringify(newCustomerPromise.reason),
+        });
       res.status(200).json("Could not Create Customer - Error");
       return;
     }
