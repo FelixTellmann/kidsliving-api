@@ -5,37 +5,37 @@ Accept: application/json
 x-shopify-shop-domain: kids-living.myshopify.com
 
 {
-  "id": 3829589967023,
-  "admin_graphql_api_id": "gid://shopify/Order/3829589967023",
+  "id": 3719614431407,
+  "admin_graphql_api_id": "gid://shopify/Order/3719614431407",
   "app_id": 580111,
-  "browser_ip": "196.61.101.174",
+  "browser_ip": "196.22.241.133",
   "buyer_accepts_marketing": true,
   "cancel_reason": null,
   "cancelled_at": null,
-  "cart_token": "dbcd02106ed1aff6ca6abea6dba0a042",
-  "checkout_id": 20897556922543,
-  "checkout_token": "30b3ef65422b85cbdc5ffc80f22b8957",
+  "cart_token": null,
+  "checkout_id": 20247327277231,
+  "checkout_token": "7e8feb309c2c3865f5219821e069ba6b",
   "client_details": {
     "accept_language": "en-us",
-    "browser_height": 828,
-    "browser_ip": "196.61.101.174",
-    "browser_width": 414,
+    "browser_height": 1478,
+    "browser_ip": "196.22.241.133",
+    "browser_width": 2558,
     "session_hash": null,
-    "user_agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 14_4_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 187.0.0.32.120 (iPhone11,8; iOS 14_4_2; en_ZA; en-ZA; scale=2.00; 828x1792; 289678855)"
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.2 Safari/605.1.15"
   },
   "closed_at": null,
   "confirmed": true,
-  "contact_email": "esce.cohen@gmail.com",
-  "created_at": "2021-05-15T11:58:23+02:00",
+  "contact_email": "info@origininteriors.com",
+  "created_at": "2021-04-01T13:20:49+02:00",
   "currency": "ZAR",
-  "current_subtotal_price": "3449.00",
+  "current_subtotal_price": "4790.00",
   "current_subtotal_price_set": {
     "shop_money": {
-      "amount": "3449.00",
+      "amount": "4790.00",
       "currency_code": "ZAR"
     },
     "presentment_money": {
-      "amount": "3449.00",
+      "amount": "4790.00",
       "currency_code": "ZAR"
     }
   },
@@ -51,81 +51,81 @@ x-shopify-shop-domain: kids-living.myshopify.com
     }
   },
   "current_total_duties_set": null,
-  "current_total_price": "3534.00",
+  "current_total_price": "4790.00",
   "current_total_price_set": {
     "shop_money": {
-      "amount": "3534.00",
+      "amount": "4790.00",
       "currency_code": "ZAR"
     },
     "presentment_money": {
-      "amount": "3534.00",
+      "amount": "4790.00",
       "currency_code": "ZAR"
     }
   },
-  "current_total_tax": "449.87",
+  "current_total_tax": "624.78",
   "current_total_tax_set": {
     "shop_money": {
-      "amount": "449.87",
+      "amount": "624.78",
       "currency_code": "ZAR"
     },
     "presentment_money": {
-      "amount": "449.87",
+      "amount": "624.78",
       "currency_code": "ZAR"
     }
   },
   "customer_locale": "en",
   "device_id": null,
   "discount_codes": [],
-  "email": "esce.cohen@gmail.com",
+  "email": "info@origininteriors.com",
   "financial_status": "paid",
-  "fulfillment_status": null,
-  "gateway": "Electronic Transfer (EFT)",
+  "fulfillment_status": "fulfilled",
+  "gateway": "paygate",
   "landing_site": "/",
   "landing_site_ref": null,
   "location_id": null,
-  "name": "#13546",
-  "note": "",
+  "name": "#12998",
+  "note": "Please can we only received Delivery of the items on 4 May 2021\nThank you ",
   "note_attributes": [],
-  "number": 12546,
-  "order_number": 13546,
-  "order_status_url": "https://kidsliving.co.za/15673213/orders/b3ac200abe1d789e742a14256c18aac3/authenticate?key=b8d1bc3ff4219a77c0ad1a8c698bd927",
+  "number": 11998,
+  "order_number": 12998,
+  "order_status_url": "https://kidsliving.co.za/15673213/orders/3e9213c2f6250d90436a05dbd2f58bdd/authenticate?key=25c5a94c28bd6e072f26b8e404397f33",
   "original_total_duties_set": null,
   "payment_gateway_names": [
-    "Electronic Transfer (EFT)"
+    "paygate"
   ],
   "phone": null,
   "presentment_currency": "ZAR",
-  "processed_at": "2021-05-15T11:58:21+02:00",
-  "processing_method": "manual",
+  "processed_at": "2021-04-01T13:20:48+02:00",
+  "processing_method": "offsite",
   "reference": null,
   "referring_site": "",
   "source_identifier": null,
   "source_name": "web",
   "source_url": null,
-  "subtotal_price": "3449.00",
+  "subtotal_price": "4790.00",
   "subtotal_price_set": {
     "shop_money": {
-      "amount": "3449.00",
+      "amount": "4790.00",
       "currency_code": "ZAR"
     },
     "presentment_money": {
-      "amount": "3449.00",
+      "amount": "4790.00",
       "currency_code": "ZAR"
     }
   },
   "tags": "",
   "tax_lines": [
     {
-      "price": "449.87",
+      "price": "624.78",
       "rate": 0.15,
       "title": "VAT",
       "price_set": {
         "shop_money": {
-          "amount": "449.87",
+          "amount": "624.78",
           "currency_code": "ZAR"
         },
         "presentment_money": {
-          "amount": "449.87",
+          "amount": "624.78",
           "currency_code": "ZAR"
         }
       }
@@ -133,7 +133,7 @@ x-shopify-shop-domain: kids-living.myshopify.com
   ],
   "taxes_included": true,
   "test": false,
-  "token": "b3ac200abe1d789e742a14256c18aac3",
+  "token": "3e9213c2f6250d90436a05dbd2f58bdd",
   "total_discounts": "0.00",
   "total_discounts_set": {
     "shop_money": {
@@ -145,110 +145,110 @@ x-shopify-shop-domain: kids-living.myshopify.com
       "currency_code": "ZAR"
     }
   },
-  "total_line_items_price": "3449.00",
+  "total_line_items_price": "4790.00",
   "total_line_items_price_set": {
     "shop_money": {
-      "amount": "3449.00",
+      "amount": "4790.00",
       "currency_code": "ZAR"
     },
     "presentment_money": {
-      "amount": "3449.00",
+      "amount": "4790.00",
       "currency_code": "ZAR"
     }
   },
   "total_outstanding": "0.00",
-  "total_price": "3534.00",
+  "total_price": "4790.00",
   "total_price_set": {
     "shop_money": {
-      "amount": "3534.00",
+      "amount": "4790.00",
       "currency_code": "ZAR"
     },
     "presentment_money": {
-      "amount": "3534.00",
+      "amount": "4790.00",
       "currency_code": "ZAR"
     }
   },
-  "total_price_usd": "249.84",
+  "total_price_usd": "323.97",
   "total_shipping_price_set": {
     "shop_money": {
-      "amount": "85.00",
+      "amount": "0.00",
       "currency_code": "ZAR"
     },
     "presentment_money": {
-      "amount": "85.00",
+      "amount": "0.00",
       "currency_code": "ZAR"
     }
   },
-  "total_tax": "449.87",
+  "total_tax": "624.78",
   "total_tax_set": {
     "shop_money": {
-      "amount": "449.87",
+      "amount": "624.78",
       "currency_code": "ZAR"
     },
     "presentment_money": {
-      "amount": "449.87",
+      "amount": "624.78",
       "currency_code": "ZAR"
     }
   },
   "total_tip_received": "0.00",
-  "total_weight": 17000,
-  "updated_at": "2021-05-17T17:06:58+02:00",
+  "total_weight": 36000,
+  "updated_at": "2021-05-05T14:00:46+02:00",
   "user_id": null,
   "billing_address": {
-    "first_name": "Esce",
-    "address1": "7 Mulvihal Road, Rondebosch",
-    "phone": "072 601 3655",
-    "city": "Cape town ",
-    "zip": "7700",
+    "first_name": "Melissa",
+    "address1": "90 Klein Constantia Road, Klein Constantia Estate, Klein Constantia ",
+    "phone": "072 848 3635",
+    "city": "Cape Town ",
+    "zip": "7806",
     "province": "Western Cape",
     "country": "South Africa",
-    "last_name": "Cohen",
-    "address2": "Unit 3 ",
-    "company": "",
-    "latitude": -33.9655249,
-    "longitude": 18.489506,
-    "name": "Esce Cohen",
+    "last_name": "Beukman",
+    "address2": "",
+    "company": "Weluka",
+    "latitude": -34.0385508,
+    "longitude": 18.4133995,
+    "name": "Melissa Beukman",
     "country_code": "ZA",
     "province_code": "WC"
   },
   "customer": {
-    "id": 5194784899247,
-    "email": "esce.cohen@gmail.com",
+    "id": 5109128102063,
+    "email": "info@origininteriors.com",
     "accepts_marketing": true,
-    "created_at": "2021-05-08T15:30:05+02:00",
-    "updated_at": "2021-05-15T11:58:23+02:00",
-    "first_name": "Esce",
-    "last_name": "Cohen",
+    "created_at": "2021-04-01T13:10:59+02:00",
+    "updated_at": "2021-04-01T13:20:49+02:00",
+    "first_name": "Melissa",
+    "last_name": "Beukman",
     "orders_count": 1,
-    "state": "enabled",
-    "total_spent": "3534.00",
-    "last_order_id": 3829589967023,
+    "state": "disabled",
+    "total_spent": "4790.00",
+    "last_order_id": 3719614431407,
     "note": null,
-    "verified_email": false,
+    "verified_email": true,
     "multipass_identifier": null,
     "tax_exempt": false,
     "phone": null,
     "tags": "",
-    "last_order_name": "#13546",
+    "last_order_name": "#12998",
     "currency": "ZAR",
-    "accepts_marketing_updated_at": "2021-05-08T15:30:05+02:00",
+    "accepts_marketing_updated_at": "2021-04-01T13:10:59+02:00",
     "marketing_opt_in_level": "single_opt_in",
     "tax_exemptions": [],
-    "admin_graphql_api_id": "gid://shopify/Customer/5194784899247",
+    "admin_graphql_api_id": "gid://shopify/Customer/5109128102063",
     "default_address": {
-      "id": 6393081331887,
-      "customer_id": 5194784899247,
-      "first_name": "Esce",
-      "last_name": "Cohen",
-      "company": "",
-      "address1": "7 Mulvihal Road, Rondebosch",
-      "address2": "Unit 3 ",
-      "city": "Cape town",
+      "id": 6278177095855,
+      "customer_id": 5109128102063,
+      "first_name": "Melissa",
+      "last_name": "Beukman",
+      "company": "Weluka",
+      "address1": "90 Klein Constantia Road, Klein Constantia Estate, Klein Constantia ",
+      "address2": "",
+      "city": "Cape Town",
       "province": "Western Cape",
       "country": "South Africa",
-      "zip": "7700",
-      "phone": "072 601 3655",
-      "name": "Esce Cohen",
+      "zip": "7806",
+      "phone": "072 848 3635",
+      "name": "Melissa Beukman",
       "province_code": "WC",
       "country_code": "ZA",
       "country_name": "South Africa",
@@ -256,90 +256,135 @@ x-shopify-shop-domain: kids-living.myshopify.com
     }
   },
   "discount_applications": [],
-  "fulfillments": [],
-  "line_items": [
+  "fulfillments": [
     {
-      "id": 9913088901295,
-      "admin_graphql_api_id": "gid://shopify/LineItem/9913088901295",
-      "fulfillable_quantity": 1,
-      "fulfillment_service": "manual",
-      "fulfillment_status": null,
-      "gift_card": false,
-      "grams": 2000,
-      "name": "Mattress Bamboopaedic 120 cm x 60 cm",
-      "origin_location": {
-        "id": 2030453063740,
-        "country_code": "ZA",
-        "province_code": "WC",
-        "name": "Kids Living",
-        "address1": "15 Hudson Street",
-        "address2": "Greenpoint",
-        "city": "Cape Town",
-        "zip": "8001"
-      },
-      "price": "699.00",
-      "price_set": {
-        "shop_money": {
-          "amount": "699.00",
-          "currency_code": "ZAR"
-        },
-        "presentment_money": {
-          "amount": "699.00",
-          "currency_code": "ZAR"
-        }
-      },
-      "product_exists": true,
-      "product_id": 9969126994,
-      "properties": [],
-      "quantity": 1,
-      "requires_shipping": true,
-      "sku": "FMATTBAMB120X60",
-      "taxable": true,
-      "title": "Mattress Bamboopaedic 120 cm x 60 cm",
-      "total_discount": "0.00",
-      "total_discount_set": {
-        "shop_money": {
-          "amount": "0.00",
-          "currency_code": "ZAR"
-        },
-        "presentment_money": {
-          "amount": "0.00",
-          "currency_code": "ZAR"
-        }
-      },
-      "variant_id": 38492576338,
-      "variant_inventory_management": "shopify",
-      "variant_title": "",
-      "vendor": "Snuggletime",
-      "tax_lines": [
+      "id": 3352272142511,
+      "admin_graphql_api_id": "gid://shopify/Fulfillment/3352272142511",
+      "created_at": "2021-05-04T12:46:53+02:00",
+      "location_id": 22530642,
+      "name": "#12998.1",
+      "order_id": 3719614431407,
+      "receipt": {},
+      "service": "manual",
+      "shipment_status": "delivered",
+      "status": "success",
+      "tracking_company": "Courier IT",
+      "tracking_number": "UA664807500",
+      "tracking_numbers": [
+        "UA664807500"
+      ],
+      "tracking_url": "https://kidsliving.co.za/a/track/12998",
+      "tracking_urls": [
+        "https://kidsliving.co.za/a/track/12998"
+      ],
+      "updated_at": "2021-05-05T14:00:46+02:00",
+      "line_items": [
         {
-          "price": "91.17",
+          "id": 9726929338543,
+          "admin_graphql_api_id": "gid://shopify/LineItem/9726929338543",
+          "destination_location": {
+            "id": 2855330873519,
+            "country_code": "ZA",
+            "province_code": "WC",
+            "name": "Melissa Beukman",
+            "address1": "90 Klein Constantia Road, Klein Constantia Estate, Klein Constantia ",
+            "address2": "",
+            "city": "Cape Town ",
+            "zip": "7806"
+          },
+          "fulfillable_quantity": 0,
+          "fulfillment_service": "manual",
+          "fulfillment_status": "fulfilled",
+          "gift_card": false,
+          "grams": 18000,
+          "name": "Trofast Combination white 6 boxes",
+          "origin_location": {
+            "id": 2030453063740,
+            "country_code": "ZA",
+            "province_code": "WC",
+            "name": "Kids Living",
+            "address1": "15 Hudson Street",
+            "address2": "Greenpoint",
+            "city": "Cape Town",
+            "zip": "8001"
+          },
+          "price": "2395.00",
           "price_set": {
             "shop_money": {
-              "amount": "91.17",
+              "amount": "2395.00",
               "currency_code": "ZAR"
             },
             "presentment_money": {
-              "amount": "91.17",
+              "amount": "2395.00",
               "currency_code": "ZAR"
             }
           },
-          "rate": 0.15,
-          "title": "VAT"
+          "product_exists": true,
+          "product_id": 4445382311996,
+          "properties": [],
+          "quantity": 2,
+          "requires_shipping": true,
+          "sku": "16842",
+          "taxable": true,
+          "title": "Trofast Combination white 6 boxes",
+          "total_discount": "0.00",
+          "total_discount_set": {
+            "shop_money": {
+              "amount": "0.00",
+              "currency_code": "ZAR"
+            },
+            "presentment_money": {
+              "amount": "0.00",
+              "currency_code": "ZAR"
+            }
+          },
+          "variant_id": 31729974280252,
+          "variant_inventory_management": "shopify",
+          "variant_title": "",
+          "vendor": "Ikea",
+          "tax_lines": [
+            {
+              "price": "624.78",
+              "price_set": {
+                "shop_money": {
+                  "amount": "624.78",
+                  "currency_code": "ZAR"
+                },
+                "presentment_money": {
+                  "amount": "624.78",
+                  "currency_code": "ZAR"
+                }
+              },
+              "rate": 0.15,
+              "title": "VAT"
+            }
+          ],
+          "duties": [],
+          "discount_allocations": []
         }
-      ],
-      "duties": [],
-      "discount_allocations": []
-    },
+      ]
+    }
+  ],
+  "line_items": [
     {
-      "id": 9913088934063,
-      "admin_graphql_api_id": "gid://shopify/LineItem/9913088934063",
-      "fulfillable_quantity": 1,
+      "id": 9726929338543,
+      "admin_graphql_api_id": "gid://shopify/LineItem/9726929338543",
+      "destination_location": {
+        "id": 2855330873519,
+        "country_code": "ZA",
+        "province_code": "WC",
+        "name": "Melissa Beukman",
+        "address1": "90 Klein Constantia Road, Klein Constantia Estate, Klein Constantia ",
+        "address2": "",
+        "city": "Cape Town ",
+        "zip": "7806"
+      },
+      "fulfillable_quantity": 0,
       "fulfillment_service": "manual",
-      "fulfillment_status": null,
+      "fulfillment_status": "fulfilled",
       "gift_card": false,
-      "grams": 15000,
-      "name": "Kids River Cot Felix - Natural",
+      "grams": 18000,
+      "name": "Trofast Combination white 6 boxes",
       "origin_location": {
         "id": 2030453063740,
         "country_code": "ZA",
@@ -350,30 +395,25 @@ x-shopify-shop-domain: kids-living.myshopify.com
         "city": "Cape Town",
         "zip": "8001"
       },
-      "price": "2750.00",
+      "price": "2395.00",
       "price_set": {
         "shop_money": {
-          "amount": "2750.00",
+          "amount": "2395.00",
           "currency_code": "ZAR"
         },
         "presentment_money": {
-          "amount": "2750.00",
+          "amount": "2395.00",
           "currency_code": "ZAR"
         }
       },
       "product_exists": true,
-      "product_id": 10459748498,
-      "properties": [
-        {
-          "name": "Pre-Order",
-          "value": "Estimated Dispatch in  may container"
-        }
-      ],
-      "quantity": 1,
+      "product_id": 4445382311996,
+      "properties": [],
+      "quantity": 2,
       "requires_shipping": true,
-      "sku": "KRCOTFELIXNATUR",
+      "sku": "16842",
       "taxable": true,
-      "title": "Kids River Cot Felix",
+      "title": "Trofast Combination white 6 boxes",
       "total_discount": "0.00",
       "total_discount_set": {
         "shop_money": {
@@ -385,20 +425,20 @@ x-shopify-shop-domain: kids-living.myshopify.com
           "currency_code": "ZAR"
         }
       },
-      "variant_id": 42248252114,
+      "variant_id": 31729974280252,
       "variant_inventory_management": "shopify",
-      "variant_title": "Natural",
-      "vendor": "Kids River",
+      "variant_title": "",
+      "vendor": "Ikea",
       "tax_lines": [
         {
-          "price": "358.70",
+          "price": "624.78",
           "price_set": {
             "shop_money": {
-              "amount": "358.70",
+              "amount": "624.78",
               "currency_code": "ZAR"
             },
             "presentment_money": {
-              "amount": "358.70",
+              "amount": "624.78",
               "currency_code": "ZAR"
             }
           },
@@ -412,53 +452,53 @@ x-shopify-shop-domain: kids-living.myshopify.com
   ],
   "refunds": [],
   "shipping_address": {
-    "first_name": "Esce",
-    "address1": "7 Mulvihal Road, Rondebosch",
-    "phone": "072 601 3655",
-    "city": "Cape town ",
-    "zip": "7700",
+    "first_name": "Melissa",
+    "address1": "90 Klein Constantia Road, Klein Constantia Estate, Klein Constantia ",
+    "phone": "072 848 3635",
+    "city": "Cape Town ",
+    "zip": "7806",
     "province": "Western Cape",
     "country": "South Africa",
-    "last_name": "Cohen",
-    "address2": "Unit 3 ",
-    "company": "",
-    "latitude": -33.9655249,
-    "longitude": 18.489506,
-    "name": "Esce Cohen",
+    "last_name": "Beukman",
+    "address2": "",
+    "company": "Weluka",
+    "latitude": -34.0385508,
+    "longitude": 18.4133995,
+    "name": "Melissa Beukman",
     "country_code": "ZA",
     "province_code": "WC"
   },
   "shipping_lines": [
     {
-      "id": 3223261806767,
+      "id": 3155923435695,
       "carrier_identifier": "414127336c64f5eed2fa6b34fbc5a7e3",
       "code": "courier-door-to-door-delivery-economy",
       "delivery_category": null,
-      "discounted_price": "85.00",
+      "discounted_price": "0.00",
       "discounted_price_set": {
         "shop_money": {
-          "amount": "85.00",
+          "amount": "0.00",
           "currency_code": "ZAR"
         },
         "presentment_money": {
-          "amount": "85.00",
+          "amount": "0.00",
           "currency_code": "ZAR"
         }
       },
       "phone": null,
-      "price": "85.00",
+      "price": "0.00",
       "price_set": {
         "shop_money": {
-          "amount": "85.00",
+          "amount": "0.00",
           "currency_code": "ZAR"
         },
         "presentment_money": {
-          "amount": "85.00",
+          "amount": "0.00",
           "currency_code": "ZAR"
         }
       },
       "requested_fulfillment_service_id": null,
-      "source": "uAfrica Shipping Rates",
+      "source": "uAfrica Shipping Zones",
       "title": "Courier Door to Door Delivery - Economy",
       "tax_lines": [],
       "discount_allocations": []

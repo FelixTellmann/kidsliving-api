@@ -131,14 +131,24 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
       ),
     ];
 
+    let alsoFulfilled = 0;
     shopifyAllFulfillments.forEach(fulfillment => {
       fulfillment?.line_items?.forEach(product => {
         const editIndex = checkProducts.findIndex(t => t.quantity >= product.quantity && t.sku === product.sku);
-        checkProducts[editIndex].quantity = checkProducts[editIndex].quantity - product.quantity;
+        if (checkProducts[editIndex]) {
+          checkProducts[editIndex].quantity = checkProducts[editIndex].quantity - product.quantity;
+        } else {
+          alsoFulfilled = alsoFulfilled + product.quantity;
+        }
       });
     });
 
-    const usedAllProducts = checkProducts.every(t => t.quantity === 0);
+    const usedAllProducts =
+      checkProducts.reduce((acc, t) => {
+        return acc + t.quantity;
+      }, 0) -
+        alsoFulfilled ===
+      0;
 
     if (!usedAllProducts) {
       console.log("awaiting outstanding fulfillments");
