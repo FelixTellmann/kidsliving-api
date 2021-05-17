@@ -26,7 +26,7 @@ export const createProductUpdates = (
             id: fulfillment.id,
             product_id: lineItem.product.id,
             sku: lineItem.product.sku,
-            quantity: lineItem.quantity,
+            quantity: lineItem?.quantity,
             source_id: lineItem.product.sourceID,
             source_variant_id: lineItem.product.sourceVariantID,
             outlet: fulfillment.outlet.name,
@@ -59,7 +59,7 @@ export const createProductUpdates = (
   const resultArray = [];
 
   shopify.line_items.forEach(({ variant_id, quantity, sku }) => {
-    let fulfillmentMatch = [vend.find(fulfillment => fulfillment.sku === sku && +fulfillment.quantity === quantity)];
+    let fulfillmentMatch = [vend.find(fulfillment => fulfillment.sku === sku && +fulfillment?.quantity === quantity)];
 
     if (fulfillmentMatch[0] === undefined) {
       fulfillmentMatch = findFulfillment(sku, quantity, vend);
@@ -103,7 +103,7 @@ function findFulfillment(sku, quantity, vend, returnArray = []) {
     const index = vend.findIndex(fulfillment => fulfillment.sku === sku);
     console.log(index);
     const [found] = vend.splice(index, 1);
-    quantity = quantity - +found.quantity;
+    quantity = quantity - +found?.quantity;
     returnArray.push(found);
     if (quantity > 0 && vend.findIndex(fulfillment => fulfillment.sku === sku)) {
       return findFulfillment(sku, quantity, vend, returnArray);

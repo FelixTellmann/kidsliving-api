@@ -1,12 +1,12 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { createProductUpdates } from "../../../entities/fulfillment/createProductUpdates";
-import { FulfillmentWebhookRequestBody } from "../../../entities/fulfillment/shopifyFulfillmentCreateWebhook";
-import { fetchVendGqlSaleById } from "../../../entities/fulfillment/vendFetchPickListBySaleId";
+import { createProductUpdates } from "entities/fulfillment/createProductUpdates";
+import { FulfillmentWebhookRequestBody } from "entities/fulfillment/shopifyFulfillmentCreateWebhook";
+import { fetchVendGqlSaleById } from "entities/fulfillment/vendFetchPickListBySaleId";
 import { fetchShopifyGqlOrderById, fetchShopifyGqlOrderByIdNoDetail } from "../../../entities/order/shopifyFetchOrder";
-import { fetchVendProductById, vendProduct } from "../../../entities/product/vendFetchProducts";
-import { fetchVendSaleByInvoiceId } from "../../../entities/search/vendFetchSearchSale";
-import { loadFirebase } from "../../../lib/db";
-import { fetchVend } from "../../../utils/fetch";
+import { fetchVendProductById, vendProduct } from "entities/product/vendFetchProducts";
+import { fetchVendSaleByInvoiceId } from "entities/search/vendFetchSearchSale";
+import { loadFirebase } from "lib/db";
+import { fetchVend } from "utils/fetch";
 
 const {
   SHOPIFY_DOMAIN,
