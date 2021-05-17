@@ -307,20 +307,21 @@ const handler = async _ => {
   vendProducts.forEach(({ id, tags, source_id }) => {
     const hasTag_needsPublishToShopify = tags.includes("FX_needs_publish_to_shopify");
     const hasTag_needsVariantImage = tags.includes("FX_needs_variant_image");
-    const hasTag_autoPreorder = tags.includes("FX_auto_preorder");
+    const hasTag_autoPreorder = tags.includes("FX2_auto_preorder");
     const newTags = tags
       .split(",")
       .filter(t => !t.toLowerCase().includes(`fx_`))
       .join(",");
 
     if (!source_id && hasTag_needsPublishToShopify) {
-      addTag(newTags, "FX_needs_publish_to_shopify");
+      addTag(newTags, "FX2_needs_publish_to_shopify");
     }
+
     if (hasTag_needsVariantImage) {
-      addTag(newTags, "FX_needs_variant_image");
+      addTag(newTags, "FX2_needs_variant_image");
     }
     /*    if (hasTag_autoPreorder) {
-      addTag(newTags, "FX_auto_preorder");
+      addTag(newTags, "FX2_auto_preorder");
     }*/
     if (!isSameTags(newTags, tags)) {
       vendEditTags_addToShopify.push(postVendProduct({ id, tags: newTags }));
@@ -333,12 +334,12 @@ const handler = async _ => {
       let newTags = tags;
       const shopifyMetafields = shopifyVariantsWithMetafield.find(m => m.id.includes(variant_id));
 
-      if (!product_id && !tags.includes("FX_needs_publish_to_shopify" && container)) {
-        newTags = addTag(newTags, "FX_needs_publish_to_shopify");
+      if (!product_id && !tags.includes("FX2_needs_publish_to_shopify" && container)) {
+        newTags = addTag(newTags, "FX2_needs_publish_to_shopify");
       }
 
       if (shopifyMetafields?.metafield && (!preorder || !container)) {
-        newTags = removeTag(newTags, "FX_auto_preorder");
+        newTags = removeTag(newTags, "FX2_auto_preorder");
         shopifyEditInventoryAndMetafield.push(
           fetchShopifyGQL(`
             mutation {
@@ -375,8 +376,8 @@ const handler = async _ => {
         shopifyMetafields &&
         shopifyMetafields.inventoryPolicy !== "CONTINUE"
       ) {
-        if (!newTags.includes("FX_auto_preorder")) {
-          newTags = addTag(newTags, "FX_auto_preorder");
+        if (!newTags.includes("FX2_auto_preorder")) {
+          newTags = addTag(newTags, "FX2_auto_preorder");
         }
         const input = JSON.stringify(consignments).replace(/"/gi, `\\"`);
         shopifyEditInventoryAndMetafield.push(

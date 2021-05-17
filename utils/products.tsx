@@ -39,6 +39,7 @@ export type productModel = {
   v_inconsistent_description?: boolean;
   v_tags?: string;
   v_inconsistent_tags?: boolean;
+  v_has_old_fx_tags?: boolean;
   v_has_sell_jhb_tag?: boolean;
   v_has_needs_variant_image_tag?: boolean;
   v_single_product?: boolean;
@@ -297,7 +298,8 @@ export const simplifyProducts = (products: any, source: "vend" | "shopify"): pro
     }, "");
     const v_inconsistent_tags = !products.every(({ tags }) => isSameTags(tags, v_tags));
     const v_has_sell_jhb_tag = v_tags.toLowerCase().includes("sell jhb");
-    const v_has_needs_variant_image_tag = v_tags.toLowerCase().includes("fx_needs_variant_image");
+    const v_has_needs_variant_image_tag = v_tags.toLowerCase().includes("fx2_needs_variant_image");
+    const v_has_old_fx_tags = v_tags.toLowerCase().includes("fx_");
     const v_single_product = products?.length === 1;
 
     return products.reduce((acc: productModel[], variant: productModel): productModel[] => {
@@ -349,6 +351,7 @@ export const simplifyProducts = (products: any, source: "vend" | "shopify"): pro
         v_has_sell_jhb_tag,
         v_has_needs_variant_image_tag,
         v_single_product,
+        v_has_old_fx_tags,
       });
 
       return acc;
@@ -544,6 +547,15 @@ export const getDifferences = (
           reason.push("inconsistent tags on Vend");
         }
 
+        if (vend_variant.v_has_old_fx_tags) {
+          vend_variant.tags = vend_variant.tags
+            .split(",")
+            .filter(t => !t.toLowerCase().includes(`fx_`))
+            .join(",");
+          vendProductUpdate = true;
+          reason.push("Old fx tags on Vend");
+        }
+
         if (vend_variant.v_incorrectly_unpublished) {
           vendProductUpdate = true;
           reason.push("inconsistent unpublished on Vend");
@@ -591,17 +603,17 @@ export const getDifferences = (
           }
 
           if (override.v_has_needs_variant_image_tag && !override.s_needs_variant_image && !needs_new_variant_image) {
-            override.tags = removeTag(override.tags, "FX_needs_variant_image");
+            override.tags = removeTag(override.tags, "FX2_needs_variant_image");
             vendProductUpdate = true;
             shopifyProductUpdate = true;
-            reason.push("remove FX_needs_variant_image");
+            reason.push("remove FX2_needs_variant_image");
           }
 
           if (!override.v_has_needs_variant_image_tag && (override.s_needs_variant_image || needs_new_variant_image)) {
-            override.tags = addTag(override.tags, "FX_needs_variant_image");
+            override.tags = addTag(override.tags, "FX2_needs_variant_image");
             vendProductUpdate = true;
             shopifyProductUpdate = true;
-            reason.push("add FX_needs_variant_image");
+            reason.push("add FX2_needs_variant_image");
           }
 
           if (override.s_has_jhb_inventory && !override.v_has_sell_jhb_tag) {
@@ -791,9 +803,11 @@ export const getDifferences = (
               });
             }
           }
-        } else {
-          /** OPTION 2
-           * NO Variant found */
+        }
+
+        /** OPTION 2
+         * NO Variant found */
+        if (!shopify.some(({ variant_id, sku }) => variant_id === vend_variant.variant_id || sku === vend_variant.sku)) {
           acc.vendProducts.push({
             api: `/products`,
             method: `POST`,
@@ -804,7 +818,7 @@ export const getDifferences = (
               description: vend_variant.description,
               tags: vend_variant.v_has_needs_variant_image_tag
                 ? vend_variant.tags
-                : addTag(vend_variant.tags, "FX_needs_variant_image"),
+                : addTag(vend_variant.tags, "FX2_needs_variant_image"),
               source: "SHOPIFY",
             },
           });
