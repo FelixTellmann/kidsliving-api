@@ -56,6 +56,16 @@ export const ProductUpdateShopifyCounter = async (req: NextApiRequest, res: Next
     console.log(shopifyFulfillmentPromise.status, "shopifyOrderDetails.status");
     console.log(customerPromise.status, "customer.status");
     console.log(lineItemPromise.status, "sales.status");
+
+    await db
+      .collection("order.create")
+      .doc(`${body.order_number}`)
+      .set({
+        created_at_ISO: new Date(Date.now()).toISOString().split(".")[0].split("T").join(" ").replace(/-/gi, "/"),
+        body: JSON.stringify(body),
+        isError: true,
+      });
+
     res.status(200).json({ name: "John Doe2" });
     return;
   }

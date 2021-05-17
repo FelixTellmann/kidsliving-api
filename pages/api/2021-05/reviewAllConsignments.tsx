@@ -238,11 +238,10 @@ const handler = async _ => {
 
   const vendProducts = vendProductsRequest.value as vendProduct[];
 
-  const [vendConsignments, consignmentProducts] = vendConsignmentsRequest.value;
+  const [vendConsignments, unorderedConsignmentProducts] = vendConsignmentsRequest.value;
   console.log(chalk.gray(`4. Update Products based on Criteria - i.e. not on shopify - but is on Shopify - FX tags`));
 
-  console.log(consignmentProducts[0]);
-  const data = consignmentProducts.reduce(
+  const { counter, onShopify, preorder, ...consignmentProductsObject } = unorderedConsignmentProducts.reduce(
     (acc, consignmentProduct) => {
       const vendProduct = vendProducts.find(({ id }) => id === consignmentProduct.product_id);
       const vendConsignment = vendConsignments.find(({ id }) => id === consignmentProduct.consignment_id);
@@ -301,13 +300,12 @@ const handler = async _ => {
   const vendEditTags_addToShopify = [];
   const shopifyEditInventoryAndMetafield = [];
 
-  const { counter, onShopify, preorder, ...products } = data;
   console.log(chalk.blueBright(JSON.stringify({ counter, onShopify, preorder })));
 
+  /*= =============== For All Vend Products - Check Tags (can be removed in future as its only to clean up old tags) ================ */
   vendProducts.forEach(({ id, tags, source_id }) => {
     const hasTag_needsPublishToShopify = tags.includes("FX_needs_publish_to_shopify");
     const hasTag_needsVariantImage = tags.includes("FX_needs_variant_image");
-    const hasTag_autoPreorder = tags.includes("FX2_auto_preorder");
     const newTags = tags
       .split(",")
       .filter(t => !t.toLowerCase().includes(`fx_`))
@@ -320,51 +318,26 @@ const handler = async _ => {
     if (hasTag_needsVariantImage) {
       addTag(newTags, "FX2_needs_variant_image");
     }
-    /*    if (hasTag_autoPreorder) {
-      addTag(newTags, "FX2_auto_preorder");
-    }*/
     if (!isSameTags(newTags, tags)) {
       vendEditTags_addToShopify.push(postVendProduct({ id, tags: newTags }));
     }
   });
 
-  /*= =============== Process all the data as per business rules  ================ */
-  Object.entries(products).forEach(
-    ([vend_product_id, { preorder, container, product_id, tags, variant_id, consignments }]) => {
+  /*= =============== For all consignment products that container preorder or container
+   *  - Add Tag on Vend
+   * -  add to Shopify metafields  ================ */
+  const consignmentProductsArray = Object.entries(consignmentProductsObject).reduce((acc, [vend_product_id, cP]) => {
+    acc.push({ vend_product_id, ...cP });
+    return acc;
+  }, []);
+
+  consignmentProductsArray.forEach(
+    ({ vend_product_id, preorder, container, product_id, tags, variant_id, consignments }) => {
       let newTags = tags;
       const shopifyMetafields = shopifyVariantsWithMetafield.find(m => m.id.includes(variant_id));
 
       if (!product_id && !tags.includes("FX2_needs_publish_to_shopify" && container)) {
         newTags = addTag(newTags, "FX2_needs_publish_to_shopify");
-      }
-
-      if (shopifyMetafields?.metafield && (!preorder || !container)) {
-        newTags = removeTag(newTags, "FX2_auto_preorder");
-        shopifyEditInventoryAndMetafield.push(
-          fetchShopifyGQL(`
-            mutation {
-              metafieldDelete(input: {id: "${shopifyMetafields.metafield.id}"}) {
-                deletedId
-                userErrors {
-                  field
-                  message
-                }
-              }            
-              productVariantUpdate(input: {id: "gid://shopify/ProductVariant/${variant_id}", inventoryPolicy: DENY }) {
-                product {
-                  id  
-                }
-                productVariant { 
-                  id
-                } 
-                userErrors {
-                  field
-                  message
-                }
-              }
-            }
-          `)
-        );
       }
 
       if (
@@ -374,15 +347,18 @@ const handler = async _ => {
         container &&
         preorder &&
         shopifyMetafields &&
-        shopifyMetafields.inventoryPolicy !== "CONTINUE"
+        (shopifyMetafields.inventoryPolicy === "DENY" || shopifyMetafields.metafield)
       ) {
         if (!newTags.includes("FX2_auto_preorder")) {
           newTags = addTag(newTags, "FX2_auto_preorder");
         }
         const input = JSON.stringify(consignments).replace(/"/gi, `\\"`);
-        shopifyEditInventoryAndMetafield.push(
-          fetchShopifyGQL(`
-            mutation { 
+        console.log(shopifyMetafields.metafield.value !== input, "metafield !== input");
+        console.log(shopifyMetafields.metafield.value, input);
+        if (shopifyMetafields.metafield.value !== input) {
+          shopifyEditInventoryAndMetafield.push(
+            fetchShopifyGQL(`
+            mutation {
               productVariantUpdate(input: {id: "gid://shopify/ProductVariant/${variant_id}", inventoryPolicy: CONTINUE, metafields: [{ key: "preorders", valueType: JSON_STRING, value: "${input}", namespace: "vend" }] }) {
                 productVariant { 
                   id
@@ -395,21 +371,8 @@ const handler = async _ => {
               }
             }
           `)
-        );
-        console.log(`
-            mutation { 
-              productVariantUpdate(input: {id: "gid://shopify/ProductVariant/${variant_id}", inventoryPolicy: CONTINUE, metafields: [{ key: "preorders", valueType: JSON_STRING, value: "${input}", namespace: "vend" }] }) {
-                productVariant {  
-                  id
-                  inventoryPolicy
-                } 
-                userErrors {
-                  field
-                  message
-                }
-              }
-            }
-          `);
+          );
+        }
       }
 
       if (!isSameTags(tags, newTags)) {
@@ -417,6 +380,37 @@ const handler = async _ => {
       }
     }
   );
+
+  /*= =============== All Metafields - Remove Products not found in consignment products with preorder / container  ================ */
+  shopifyVariantsWithMetafield.forEach(({ id: variant_id, metafield, inventoryPolicy }) => {});
+  /*if (shopifyMetafields?.metafield && (!preorder || !container)) {
+    newTags = removeTag(newTags, "FX2_auto_preorder");
+    shopifyEditInventoryAndMetafield.push(
+      fetchShopifyGQL(`
+            mutation {
+              metafieldDelete(input: {id: "${shopifyMetafields.metafield.id}"}) {
+                deletedId
+                userErrors {
+                  field
+                  message
+                }
+              }
+              productVariantUpdate(input: {id: "gid://shopify/ProductVariant/${variant_id}", inventoryPolicy: DENY }) {
+                product {
+                  id
+                }
+                productVariant {
+                  id
+                }
+                userErrors {
+                  field
+                  message
+                }
+              }
+            }
+          `)
+    );
+  }*/
 
   try {
     console.log(vendEditTags_addToShopify.length, "vendEditTags_addToShopify");
@@ -456,7 +450,7 @@ const handler = async _ => {
   console.log(Date.now() - startTime + "ms");
   return {
     statusCode: 200,
-    body: JSON.stringify(data),
+    body: JSON.stringify({ counter, onShopify, preorder, ...consignmentProductsObject }),
   };
 };
 
