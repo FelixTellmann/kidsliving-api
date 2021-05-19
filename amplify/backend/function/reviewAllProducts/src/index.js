@@ -200,7 +200,7 @@ module.exports = (() => {
             const props = Object.keys(obj)
                 .map(key => `${key}:${exports.queryfy(obj[key])}`)
                 .join(",");
-            return `{${props}}`.replace(/"([A-Z]+)"/g, "$1");
+            return `{${props}}`.replace(/"([A-Z]+)":/g, "$1:");
         };
         exports.queryfy = queryfy;
         const shopifyDateToVendDate = (date) => {
@@ -239,8 +239,8 @@ module.exports = (() => {
         }
         function filterFXTags(tags) {
             let tagArray = tags.split(",").map(t => t.trim());
-            if (tagArray.some(t => (t.includes("FX_") || t.includes("Fx_")) && !t.includes("FX_needs_variant_image"))) {
-                tagArray = tagArray.filter(t => (!t.includes("FX_") && !t.includes("Fx_")) || t.includes("FX_needs_variant_image"));
+            if (tagArray.some(t => (t.includes("FX_") || t.includes("Fx_")) && !t.includes("FX2_needs_variant_image"))) {
+                tagArray = tagArray.filter(t => (!t.includes("FX_") && !t.includes("Fx_")) || t.includes("FX2_needs_variant_image"));
             }
             return tagArray.join(",");
         }

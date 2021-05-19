@@ -11,7 +11,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "build:amplify": "yarn build:functions && amplify push -y",
-    "build:functions": "yarn build:reviewAllProducts",
+    "build:functions": "yarn build:reviewAllProducts && yarn build:reviewAllConsignments",
     "build:reviewAllProducts": "tsc-bundle.cmd ./reviewAllProducts.tsconfig.json --exportAs commonjs",
     "build:reviewAllConsignments": "tsc-bundle.cmd ./reviewAllConsignments.tsconfig.json --exportAs commonjs"
   },

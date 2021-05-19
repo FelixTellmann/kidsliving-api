@@ -15,11 +15,11 @@
       "function": {
         "reviewAllProducts": {
           "deploymentBucketName": "amplify-kidslivingapi-production-100051-deployment",
-          "s3Key": "amplify-builds/reviewAllProducts-63314d724d594f696c50-build.zip"
+          "s3Key": "amplify-builds/reviewAllProducts-4d6e5767435462466469-build.zip"
         },
         "reviewAllConsignments": {
           "deploymentBucketName": "amplify-kidslivingapi-production-100051-deployment",
-          "s3Key": "amplify-builds/reviewAllConsignments-4b4737794c4341615649-build.zip"
+          "s3Key": "amplify-builds/reviewAllConsignments-7342424e55426c564d34-build.zip"
         }
       }
     }

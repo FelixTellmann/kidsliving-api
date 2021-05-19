@@ -34,8 +34,8 @@ async function getAllVendProducts() {
 
 function filterFXTags(tags) {
   let tagArray = tags.split(",").map(t => t.trim());
-  if (tagArray.some(t => (t.includes("FX_") || t.includes("Fx_")) && !t.includes("FX_needs_variant_image"))) {
-    tagArray = tagArray.filter(t => (!t.includes("FX_") && !t.includes("Fx_")) || t.includes("FX_needs_variant_image"));
+  if (tagArray.some(t => (t.includes("FX_") || t.includes("Fx_")) && !t.includes("FX2_needs_variant_image"))) {
+    tagArray = tagArray.filter(t => (!t.includes("FX_") && !t.includes("Fx_")) || t.includes("FX2_needs_variant_image"));
   }
   return tagArray.join(",");
 }
