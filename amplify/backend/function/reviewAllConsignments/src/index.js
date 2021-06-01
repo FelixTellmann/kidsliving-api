@@ -340,7 +340,7 @@ module.exports = (() => {
           }
           pageInfo {
             hasNextPage
-          }
+          } 
         }
       }`;
         };
@@ -529,7 +529,7 @@ module.exports = (() => {
                     .split(",")
                     .filter(t => !t.toLowerCase().includes(`fx_`))
                     .join(",");
-                if (!source_id && hasTag_needsPublishToShopify) {
+                if (!source_id && !source_id?.includes("_unpub") && hasTag_needsPublishToShopify) {
                     utils_1.addTag(newTags, "FX2_needs_publish_to_shopify");
                 }
                 if (hasTag_needsVariantImage) {
@@ -586,15 +586,16 @@ module.exports = (() => {
             });
             /*= =============== All Metafields - Remove Products not found in consignment products with preorder / container  ================ */
             shopifyVariantsWithMetafield.forEach(({ id: variant_id, metafield }) => {
-                console.log(metafield);
-                if (metafield) {
-                    const vendProductIndex = vendProductsWithUpdatedTags.findIndex(vp => vp.variant_source_id.includes(`${variant_id}`));
-                    const v_Product = vendProductsWithUpdatedTags[vendProductIndex];
-                    if (v_Product) {
-                        const consignmentProduct = consignmentProductsArray.find(vcp => vcp.vend_product_id === v_Product.id);
-                        const newTags = v_Product.newTags;
-                        if (!consignmentProduct) {
-                            vendProductsWithUpdatedTags[vendProductIndex].newTags = utils_1.removeTag(newTags, "FX2_auto_preorder");
+                const clean_variant_id = variant_id.replace("gid://shopify/ProductVariant/", "");
+                const vendProductIndex = vendProductsWithUpdatedTags.findIndex(vp => vp.variant_source_id.includes(`${clean_variant_id}`));
+                const v_Product = vendProductsWithUpdatedTags[vendProductIndex];
+                if (v_Product) {
+                    console.log(metafield);
+                    const consignmentProduct = consignmentProductsArray.find(vcp => vcp.vend_product_id === v_Product.id);
+                    const newTags = v_Product.newTags;
+                    if (!consignmentProduct || !consignmentProduct?.preorder) {
+                        vendProductsWithUpdatedTags[vendProductIndex].newTags = utils_1.removeTag(newTags, "FX2_auto_preorder");
+                        if (metafield) {
                             shopifyEditInventoryAndMetafield.push(fetch_4.fetchShopifyGQL(` 
                 mutation { 
                   metafieldDelete(input: {id: "${metafield.id}"}) {
@@ -603,8 +604,8 @@ module.exports = (() => {
                       field
                       message
                     }
-                  }
-                  productVariantUpdate(input: {id: "gid://shopify/ProductVariant/${variant_id}", inventoryPolicy: DENY }) {
+                  } 
+                  productVariantUpdate(input: {id: "gid://shopify/ProductVariant/${clean_variant_id}", inventoryPolicy: DENY }) {
                     product {
                       id
                     }
@@ -624,13 +625,14 @@ module.exports = (() => {
             });
             vendProductsWithUpdatedTags.forEach(({ id, tags, newTags, variant_source_id, source_id }) => {
                 if (source_id && variant_source_id) {
-                    if (newTags.split(",").filter(t => !/^fx2?_.*/gi.test(t)).length === 0) {
+                    if (newTags.split(",").filter(t => !/^fx2?_.*/gi.test(t)).length === 0 && !source_id?.includes("_unpub")) {
                         newTags = utils_1.addTag(newTags, "FX2_needs_category_tags");
                     }
-                    if (tags === "" && !newTags.includes("FX2_needs_category_tags")) {
+                    if (tags === "" && !newTags.includes("FX2_needs_category_tags") && !source_id?.includes("_unpub")) {
                         newTags = utils_1.addTag(newTags, "FX2_needs_category_tags");
                     }
-                    if (newTags.includes("FX2_needs_category_tags") && newTags.split(",").filter(t => !/^fx2?_.*/gi.test(t)).length > 0) {
+                    if ((newTags.includes("FX2_needs_category_tags") && newTags.split(",").filter(t => !/^fx2?_.*/gi.test(t)).length > 0) ||
+                        source_id?.includes("_unpub")) {
                         newTags = utils_1.removeTag(newTags, "FX2_needs_category_tags");
                     }
                 }
@@ -649,7 +651,7 @@ module.exports = (() => {
                         return acc;
                     return [...acc, requests.value.data];
                 }, []);
-                console.log(JSON.stringify(result));
+                /*console.log(JSON.stringify(result));*/
                 return {
                     statusCode: 200,
                     body: JSON.stringify(result),

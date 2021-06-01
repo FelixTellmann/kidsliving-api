@@ -70,7 +70,7 @@ export const createGqlFetchVariantsWithMetafield = (
       }
       pageInfo {
         hasNextPage
-      }
+      } 
     }
   }`;
 };
@@ -311,7 +311,7 @@ const handler = async _ => {
       .filter(t => !t.toLowerCase().includes(`fx_`))
       .join(",");
 
-    if (!source_id && hasTag_needsPublishToShopify) {
+    if (!source_id && !source_id?.includes("_unpub") && hasTag_needsPublishToShopify) {
       addTag(newTags, "FX2_needs_publish_to_shopify");
     }
 
@@ -378,17 +378,20 @@ const handler = async _ => {
 
   /*= =============== All Metafields - Remove Products not found in consignment products with preorder / container  ================ */
   shopifyVariantsWithMetafield.forEach(({ id: variant_id, metafield }) => {
-    console.log(metafield);
+    const clean_variant_id = variant_id.replace("gid://shopify/ProductVariant/", "");
+    const vendProductIndex = vendProductsWithUpdatedTags.findIndex(vp =>
+      vp.variant_source_id.includes(`${clean_variant_id}`)
+    );
+    const v_Product = vendProductsWithUpdatedTags[vendProductIndex];
+    if (v_Product) {
+      console.log(metafield);
 
-    if (metafield) {
-      const vendProductIndex = vendProductsWithUpdatedTags.findIndex(vp => vp.variant_source_id.includes(`${variant_id}`));
-      const v_Product = vendProductsWithUpdatedTags[vendProductIndex];
-      if (v_Product) {
-        const consignmentProduct = consignmentProductsArray.find(vcp => vcp.vend_product_id === v_Product.id);
-        const newTags = v_Product.newTags;
+      const consignmentProduct = consignmentProductsArray.find(vcp => vcp.vend_product_id === v_Product.id);
+      const newTags = v_Product.newTags;
 
-        if (!consignmentProduct) {
-          vendProductsWithUpdatedTags[vendProductIndex].newTags = removeTag(newTags, "FX2_auto_preorder");
+      if (!consignmentProduct || !consignmentProduct?.preorder) {
+        vendProductsWithUpdatedTags[vendProductIndex].newTags = removeTag(newTags, "FX2_auto_preorder");
+        if (metafield) {
           shopifyEditInventoryAndMetafield.push(
             fetchShopifyGQL(` 
             mutation { 
@@ -398,8 +401,8 @@ const handler = async _ => {
                   field
                   message
                 }
-              }
-              productVariantUpdate(input: {id: "gid://shopify/ProductVariant/${variant_id}", inventoryPolicy: DENY }) {
+              } 
+              productVariantUpdate(input: {id: "gid://shopify/ProductVariant/${clean_variant_id}", inventoryPolicy: DENY }) {
                 product {
                   id
                 }
@@ -421,13 +424,16 @@ const handler = async _ => {
 
   vendProductsWithUpdatedTags.forEach(({ id, tags, newTags, variant_source_id, source_id }) => {
     if (source_id && variant_source_id) {
-      if (newTags.split(",").filter(t => !/^fx2?_.*/gi.test(t)).length === 0) {
+      if (newTags.split(",").filter(t => !/^fx2?_.*/gi.test(t)).length === 0 && !source_id?.includes("_unpub")) {
         newTags = addTag(newTags, "FX2_needs_category_tags");
       }
-      if (tags === "" && !newTags.includes("FX2_needs_category_tags")) {
+      if (tags === "" && !newTags.includes("FX2_needs_category_tags") && !source_id?.includes("_unpub")) {
         newTags = addTag(newTags, "FX2_needs_category_tags");
       }
-      if (newTags.includes("FX2_needs_category_tags") && newTags.split(",").filter(t => !/^fx2?_.*/gi.test(t)).length > 0) {
+      if (
+        (newTags.includes("FX2_needs_category_tags") && newTags.split(",").filter(t => !/^fx2?_.*/gi.test(t)).length > 0) ||
+        source_id?.includes("_unpub")
+      ) {
         newTags = removeTag(newTags, "FX2_needs_category_tags");
       }
     }
@@ -449,7 +455,7 @@ const handler = async _ => {
       return [...acc, requests.value.data];
     }, []);
 
-    console.log(JSON.stringify(result));
+    /*console.log(JSON.stringify(result));*/
 
     return {
       statusCode: 200,
