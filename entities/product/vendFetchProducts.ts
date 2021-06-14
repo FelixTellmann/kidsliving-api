@@ -118,7 +118,7 @@ export const fetchVendAllProductsBySku: IFetchVendAllProductsBySku = ({ line_ite
 type IFetchVendProducts = (page?: number | string, page_size?: number | string) => Promise<vendFetchProducts>;
 
 export const fetchVendProducts: IFetchVendProducts = (page = 1, page_size = 200) => {
-  return fetchVend(`products?since=2018-04-01&page=${page}&page_size=${page_size}`);
+  return fetchVend(`products?since=2020-09-01&page=${page}&page_size=${page_size}`);
 };
 
 export type postVendProductReturn = {

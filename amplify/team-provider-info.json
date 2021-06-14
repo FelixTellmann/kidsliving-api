@@ -19,7 +19,7 @@
         },
         "reviewAllConsignments": {
           "deploymentBucketName": "amplify-kidslivingapi-production-100051-deployment",
-          "s3Key": "amplify-builds/reviewAllConsignments-48782b4159316b6c6c50-build.zip"
+          "s3Key": "amplify-builds/reviewAllConsignments-4b446f3932593269626c-build.zip"
         }
       }
     }

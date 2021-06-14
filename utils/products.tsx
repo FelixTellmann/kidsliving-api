@@ -293,9 +293,13 @@ export const simplifyProducts = (products: any, source: "vend" | "shopify"): pro
     const v_description = products.reduce((acc, { description: d }) => {
       return mergeDescriptions(acc, d);
     }, "");
-    const v_tags = products.reduce((acc, { tags }) => {
-      return mergeTags(acc, tags);
-    }, "");
+
+    let v_tags = products.find(variant => variant.variant_parent_id === "")?.tags || "";
+    if (v_tags === "") {
+      v_tags = products.reduce((acc, { tags }) => {
+        return mergeTags(acc, tags);
+      }, "");
+    }
     const v_inconsistent_tags = !products.every(({ tags }) => isSameTags(tags, v_tags));
     const v_has_sell_jhb_tag = v_tags.toLowerCase().includes("sell jhb");
     const v_has_needs_variant_image_tag = v_tags.toLowerCase().includes("fx2_needs_variant_image");

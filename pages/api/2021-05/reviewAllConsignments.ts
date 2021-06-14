@@ -306,17 +306,29 @@ const handler = async _ => {
   const vendProductsWithUpdatedTags = vendProducts.map(({ id, tags, source_id, ...rest }) => {
     const hasTag_needsPublishToShopify = tags.includes("FX_needs_publish_to_shopify");
     const hasTag_needsVariantImage = tags.includes("FX_needs_variant_image");
-    const newTags = tags
+    const hasTag_vendBrandTag = tags.includes(rest.brand_name);
+
+    console.log(tags.includes(rest.brand_name), rest.brand_name);
+
+    let newTags = tags
       .split(",")
       .filter(t => !t.toLowerCase().includes(`fx_`))
       .join(",");
 
     if (!source_id && !source_id?.includes("_unpub") && hasTag_needsPublishToShopify) {
-      addTag(newTags, "FX2_needs_publish_to_shopify");
+      newTags = addTag(newTags, "FX2_needs_publish_to_shopify");
     }
 
     if (hasTag_needsVariantImage) {
-      addTag(newTags, "FX2_needs_variant_image");
+      newTags = addTag(newTags, "FX2_needs_variant_image");
+    }
+
+    if (!hasTag_vendBrandTag) {
+      newTags = newTags
+        .split(",")
+        .filter(t => !t.toLowerCase().includes(rest.brand_name.toLowerCase()))
+        .join(",");
+      newTags = addTag(newTags, rest.brand_name);
     }
 
     return { ...rest, id, source_id, tags, newTags };
@@ -422,9 +434,17 @@ const handler = async _ => {
     }
   });
 
-  vendProductsWithUpdatedTags.forEach(({ id, tags, newTags, variant_source_id, source_id }) => {
+  vendProductsWithUpdatedTags.forEach(({ id, tags, newTags, variant_source_id, source_id, brand_name }) => {
+    const needsCategoryTags =
+      newTags.split(",").filter(t => {
+        if (/^fx2?_.*/gi.test(t)) {
+          return false;
+        }
+        return !t.includes(brand_name);
+      }).length === 0;
+
     if (source_id && variant_source_id) {
-      if (newTags.split(",").filter(t => !/^fx2?_.*/gi.test(t)).length === 0 && !source_id?.includes("_unpub")) {
+      if (needsCategoryTags && !source_id?.includes("_unpub")) {
         newTags = addTag(newTags, "FX2_needs_category_tags");
       }
       if (tags === "" && !newTags.includes("FX2_needs_category_tags") && !source_id?.includes("_unpub")) {
