@@ -205,7 +205,7 @@ module.exports = (() => {
         };
         exports.fetchVendAllProductsBySku = fetchVendAllProductsBySku;
         const fetchVendProducts = (page = 1, page_size = 200) => {
-            return fetch_3.fetchVend(`products?since=2018-04-01&page=${page}&page_size=${page_size}`);
+            return fetch_3.fetchVend(`products?since=2020-09-01&page=${page}&page_size=${page_size}`);
         };
         exports.fetchVendProducts = fetchVendProducts;
         const postVendProduct = product => {
@@ -525,7 +525,12 @@ module.exports = (() => {
             const vendProductsWithUpdatedTags = vendProducts.map(({ id, tags, source_id, ...rest }) => {
                 const hasTag_needsPublishToShopify = tags.includes("FX_needs_publish_to_shopify");
                 const hasTag_needsVariantImage = tags.includes("FX_needs_variant_image");
-                const hasTag_vendBrandTag = tags.includes(rest.brand_name);
+                const brand_name = rest.brand_name
+                    .normalize("NFD")
+                    .replace(/[\u0300-\u036f]/g, "")
+                    .toLowerCase();
+                const hasTag_vendBrandTag = tags.toLowerCase().includes(brand_name);
+                console.log(tags.toLowerCase().includes(brand_name), brand_name);
                 let newTags = tags
                     .split(",")
                     .filter(t => !t.toLowerCase().includes(`fx_`))
@@ -539,9 +544,9 @@ module.exports = (() => {
                 if (!hasTag_vendBrandTag) {
                     newTags = newTags
                         .split(",")
-                        .filter(t => !t.toLowerCase().includes(rest.brand_name.toLowerCase()))
+                        .filter(t => !t.toLowerCase().includes(brand_name.toLowerCase()))
                         .join(",");
-                    newTags = utils_1.addTag(newTags, rest.brand_name);
+                    newTags = utils_1.addTag(newTags, brand_name);
                 }
                 return { ...rest, id, source_id, tags, newTags };
             });
@@ -636,10 +641,7 @@ module.exports = (() => {
                     if (/^fx2?_.*/gi.test(t)) {
                         return false;
                     }
-                    if (t.includes(brand_name)) {
-                        return false;
-                    }
-                    return true;
+                    return !t.includes(brand_name);
                 }).length === 0;
                 if (source_id && variant_source_id) {
                     if (needsCategoryTags && !source_id?.includes("_unpub")) {

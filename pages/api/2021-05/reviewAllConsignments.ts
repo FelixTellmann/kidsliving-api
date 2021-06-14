@@ -306,9 +306,13 @@ const handler = async _ => {
   const vendProductsWithUpdatedTags = vendProducts.map(({ id, tags, source_id, ...rest }) => {
     const hasTag_needsPublishToShopify = tags.includes("FX_needs_publish_to_shopify");
     const hasTag_needsVariantImage = tags.includes("FX_needs_variant_image");
-    const hasTag_vendBrandTag = tags.includes(rest.brand_name);
+    const brand_name = rest.brand_name
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase();
+    const hasTag_vendBrandTag = tags.toLowerCase().includes(brand_name);
 
-    console.log(tags.includes(rest.brand_name), rest.brand_name);
+    console.log(tags.toLowerCase().includes(brand_name), brand_name);
 
     let newTags = tags
       .split(",")
@@ -326,9 +330,9 @@ const handler = async _ => {
     if (!hasTag_vendBrandTag) {
       newTags = newTags
         .split(",")
-        .filter(t => !t.toLowerCase().includes(rest.brand_name.toLowerCase()))
+        .filter(t => !t.toLowerCase().includes(brand_name.toLowerCase()))
         .join(",");
-      newTags = addTag(newTags, rest.brand_name);
+      newTags = addTag(newTags, brand_name);
     }
 
     return { ...rest, id, source_id, tags, newTags };

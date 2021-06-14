@@ -100,7 +100,7 @@ module.exports = (() => {
         };
         exports.fetchVendAllProductsBySku = fetchVendAllProductsBySku;
         const fetchVendProducts = (page = 1, page_size = 200) => {
-            return fetch_1.fetchVend(`products?since=2018-04-01&page=${page}&page_size=${page_size}`);
+            return fetch_1.fetchVend(`products?since=2020-09-01&page=${page}&page_size=${page_size}`);
         };
         exports.fetchVendProducts = fetchVendProducts;
         const postVendProduct = product => {
